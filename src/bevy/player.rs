@@ -46,10 +46,10 @@ fn handle_player_movement(
 		translation -= Vec3::Z;
 	}
 	if keyboard_input.pressed(KeyCode::A) {
-		translation -= Vec3::X;
+		translation += Vec3::X;
 	}
 	if keyboard_input.pressed(KeyCode::D) {
-		translation += Vec3::X;
+		translation -= Vec3::X;
 	}
 	if keyboard_input.pressed(KeyCode::Space) {
 		translation += Vec3::Y;
