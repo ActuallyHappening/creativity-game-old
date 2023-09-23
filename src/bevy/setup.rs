@@ -4,8 +4,8 @@ use bevy_mod_picking::{
 	PickableBundle, DefaultPickingPlugins,
 };
 
-const CAMERA_HEIGHT: f32 = 100.;
-const LIGHT_HEIGHT: f32 = 100.;
+const CAMERA_HEIGHT: f32 = 400.;
+const LIGHT_HEIGHT: f32 = CAMERA_HEIGHT * 100.;
 
 pub struct SetupPlugin;
 impl Plugin for SetupPlugin {
@@ -41,7 +41,7 @@ pub fn setup(
 	// light
 	commands.spawn(PointLightBundle {
 		point_light: PointLight {
-			intensity: 50000.0,
+			intensity: 5000000.0,
 			range: 250.,
 			shadows_enabled: true,
 			..default()
@@ -53,7 +53,7 @@ pub fn setup(
 	// ground plane
 	commands.spawn((
 		PbrBundle {
-			mesh: meshes.add(shape::Plane::from_size(500.0).into()),
+			mesh: meshes.add(shape::Plane::from_size(50000.0).into()),
 			material: materials.add(Color::SILVER.into()),
 			// transform to be behind, xy plane
 			transform: Transform::from_xyz(0., 0., 0.),

@@ -6,7 +6,7 @@ mod player;
 mod setup;
 pub use setup::MainCamera;
 mod utils;
-use utils::*;
+mod world;
 
 pub struct MainPlugin;
 impl Plugin for MainPlugin {
