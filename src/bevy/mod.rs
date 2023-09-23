@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use self::{setup::SetupPlugin, player::PlayerPlugin};
+use self::{setup::SetupPlugin, player::PlayerPlugin, world::WorldPlugin};
 
 mod player;
 mod setup;
@@ -11,6 +11,6 @@ mod world;
 pub struct MainPlugin;
 impl Plugin for MainPlugin {
 	fn build(&self, app: &mut App) {
-		app.add_plugins((SetupPlugin, PlayerPlugin));
+		app.add_plugins((SetupPlugin, PlayerPlugin, WorldPlugin));
 	}
 }
