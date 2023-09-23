@@ -20,7 +20,7 @@ impl Plugin for SetupPlugin {
 }
 
 #[derive(Component)]
-struct MainCamera;
+pub struct MainCamera;
 
 pub fn setup(
 	mut commands: Commands,
@@ -50,16 +50,16 @@ pub fn setup(
 		..default()
 	});
 
-	// ground plane
-	commands.spawn((
-		PbrBundle {
-			mesh: meshes.add(shape::Plane::from_size(500.0).into()),
-			material: materials.add(Color::GREEN.into()),
-			// transform to be behind, xy plane
-			transform: Transform::from_xyz(0., 0., 0.),
-			..default()
-		},
-		PickableBundle::default(),    // Makes the entity pickable
-		RaycastPickTarget::default(), // Marker for the `bevy_picking_raycast` backend
-	));
+	// // ground plane
+	// commands.spawn((
+	// 	PbrBundle {
+	// 		mesh: meshes.add(shape::Plane::from_size(500.0).into()),
+	// 		material: materials.add(Color::SILVER.into()),
+	// 		// transform to be behind, xy plane
+	// 		transform: Transform::from_xyz(0., 0., 0.),
+	// 		..default()
+	// 	},
+	// 	PickableBundle::default(),    // Makes the entity pickable
+	// 	RaycastPickTarget::default(), // Marker for the `bevy_picking_raycast` backend
+	// ));
 }
