@@ -1,9 +1,7 @@
 use bevy::prelude::*;
 use bevy_mod_picking::{
-	prelude::{
-		Click, RaycastPickCamera, RaycastPickTarget,
-	},
-	PickableBundle,
+	prelude::{RaycastPickCamera, RaycastPickTarget, DefaultHighlightingPlugin, DebugPickingPlugin},
+	PickableBundle, DefaultPickingPlugins,
 };
 
 const CAMERA_HEIGHT: f32 = 100.;
@@ -12,7 +10,12 @@ const LIGHT_HEIGHT: f32 = 100.;
 pub struct SetupPlugin;
 impl Plugin for SetupPlugin {
 	fn build(&self, app: &mut App) {
-		app.add_systems(Startup, setup);
+		app.add_systems(Startup, setup).add_plugins(
+			DefaultPickingPlugins
+				.build()
+				.disable::<DefaultHighlightingPlugin>()
+				.disable::<DebugPickingPlugin>(),
+		);
 	}
 }
 
@@ -40,7 +43,7 @@ pub fn setup(
 		point_light: PointLight {
 			intensity: 50000.0,
 			range: 250.,
-			// shadows_enabled: true,
+			shadows_enabled: true,
 			..default()
 		},
 		transform: Transform::from_xyz(0., LIGHT_HEIGHT, 0.),
@@ -51,7 +54,7 @@ pub fn setup(
 	commands.spawn((
 		PbrBundle {
 			mesh: meshes.add(shape::Plane::from_size(500.0).into()),
-			material: materials.add(Color::SILVER.into()),
+			material: materials.add(Color::GREEN.into()),
 			// transform to be behind, xy plane
 			transform: Transform::from_xyz(0., 0., 0.),
 			..default()
