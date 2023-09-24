@@ -19,7 +19,7 @@ fn initial_spawn_player(mut commands: Commands, (mut meshs, mut mats, _): MMA) {
 	info!("Spawning player");
 	commands.spawn((
 		PbrBundle {
-			material: mats.add(Color::GREEN.into()),
+			material: mats.add(Color::SILVER.into()),
 			transform: Transform::from_xyz(0., PLAYER_HEIGHT, 0.),
 			mesh: meshs.add(shape::Box::new(2. * PIXEL_SIZE, 2. * PIXEL_SIZE, 2. * PIXEL_SIZE).into()),
 			..default()

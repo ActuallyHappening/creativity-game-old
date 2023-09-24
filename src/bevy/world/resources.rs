@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::bevy::utils::MMA;
+use crate::bevy::utils::*;
 use rand::Rng;
 use static_assertions::*;
 
@@ -13,8 +13,10 @@ impl Plugin for WorldResourcesPlugin {
 
 fn initialize_world(mut commands: Commands, mut mma: MMA) {
 	info!("Initializing world");
-	for _ in 0..100 {
-		commands.spawn(generate_random_resource(&mut mma));
+	for x in -100..100 {
+		for y in -100..100 {
+			commands.spawn(generate_natural_pixel((x, y), &mut mma));
+		}
 	}
 }
 
@@ -29,15 +31,13 @@ fn get_random_natural_pixel() -> Box<dyn IsPixel> {
 	}
 }
 
-fn generate_random_resource((meshs, mats, _): &mut MMA) -> PbrBundle {
-	let mut rng = rand::thread_rng();
-
-	// let colour = Color::rgb(rng.gen(), rng.gen(), rng.gen());
+fn generate_natural_pixel((x, y): (i8, i8), (meshs, mats, _): &mut MMA) -> PbrBundle {
 	let colour = get_random_natural_pixel().get_primary_colour();
 
-	let size = rng.gen_range(1. ..10.);
-	let x = rng.gen_range(-100. ..100.);
-	let z = rng.gen_range(-100. ..100.);
+	let size = PIXEL_SIZE;
+	let x = x as f32 * PIXEL_SIZE;
+	let z = y as f32 * PIXEL_SIZE;
+
 	PbrBundle {
 		material: mats.add(colour.into()),
 		mesh: meshs.add(Mesh::from(shape::Cube { size })),
@@ -79,7 +79,7 @@ macro_rules! impl_pixel_type {
 
 pub struct RCopper;
 impl_pixel_type!(
-	RCopper { col = Color::GREEN, res = {},
+	RCopper { col = Color::BROWN, res = {},
 	// nat = { freq = 0.3 }
 	}
 );
