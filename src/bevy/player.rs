@@ -50,9 +50,11 @@ fn handle_player_movement(
 	if keyboard_input.pressed(KeyCode::D) {
 		translation += Vec3::X;
 	}
+	#[cfg(feature = "dev")]
 	if keyboard_input.pressed(KeyCode::Space) {
 		translation += Vec3::Y;
 	}
+	#[cfg(feature = "dev")]
 	if keyboard_input.pressed(KeyCode::ShiftLeft) {
 		translation -= Vec3::Y;
 	}
