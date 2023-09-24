@@ -1,16 +1,22 @@
 use bevy::prelude::*;
 use bevy_dolly::prelude::*;
+use bevy_mod_picking::prelude::RaycastPickCamera;
 
 use super::{player::MainPlayer, utils::CAMERA_HEIGHT};
 
 pub struct CameraPlugin;
+impl Plugin for CameraPlugin {
+	fn build(&self, app: &mut App) {
+			app.add_systems(Update, Dolly::<MainCamera>::update_active);
+	}
+}
 
 #[derive(Component)]
 pub struct MainCamera;
 
 impl CameraPlugin {
 	/// Returns the default camera
-	pub fn default() -> (Camera3dBundle, Rig) {
+	pub fn default() -> (Camera3dBundle, Rig, RaycastPickCamera, MainCamera) {
 		let initial_pos = Vec3::new(0., CAMERA_HEIGHT, 0.);
 		let initial_rot = Quat::from_rotation_x(-90_f32.to_radians());
 		(
@@ -23,10 +29,13 @@ impl CameraPlugin {
 			// 	.build(),
 			Rig::builder()
 				.with(Position::new(Vec3::ZERO))
-				.with(Rotation::new(initial_rot))
-				.with(Smooth::new_position(1.25).predictive(true))
-				.with(Arm::new(Vec3::new(0., CAMERA_HEIGHT, 5.)))
+				// .with(Rotation::new(initial_rot))
+				// .with(Smooth::new_position(1.25).predictive(true))
+				// .with(Arm::new(Vec3::new(0., CAMERA_HEIGHT, 5.)))
+				// .with(LookAt::new(Vec3::ZERO).tracking_predictive(true).tracking_smoothness(1.25))
 				.build(),
+			RaycastPickCamera::default(),
+			MainCamera,
 		)
 	}
 }
@@ -36,13 +45,15 @@ pub fn handle_camera_movement(
 	player: Query<&Transform, (With<MainPlayer>, Without<MainCamera>)>,
 	mut camera: Query<&mut Rig, (With<MainCamera>, Without<MainPlayer>)>,
 ) {
-	info!("Update camera system running");
 	let player = player.single();
 	let mut rig = camera.single_mut();
 
-	info!("Updating camera");
+	info!("Updating Player: {:?}", player);
 
-	rig
-		.driver_mut::<MovableLookAt>()
-		.set_position_target(player.translation, player.rotation);
+	// rig
+	// 	.driver_mut::<MovableLookAt>()
+	// 	.set_position_target(player.translation, player.rotation);
+
+	rig.driver_mut::<Position>().position = player.translation;
+	// rig.driver_mut::<LookAt>().target = player.translation;
 }

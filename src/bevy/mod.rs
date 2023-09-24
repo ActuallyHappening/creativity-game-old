@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use self::{setup::SetupPlugin, player::PlayerPlugin, world::WorldPlugin};
+use self::{setup::SetupPlugin, player::PlayerPlugin, world::WorldPlugin, camera::CameraPlugin};
 
 mod player;
 mod setup;
@@ -11,6 +11,6 @@ mod camera;
 pub struct MainPlugin;
 impl Plugin for MainPlugin {
 	fn build(&self, app: &mut App) {
-		app.add_plugins((SetupPlugin, PlayerPlugin, WorldPlugin));
+		app.add_plugins((SetupPlugin, PlayerPlugin, WorldPlugin, CameraPlugin));
 	}
 }

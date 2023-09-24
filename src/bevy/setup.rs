@@ -24,11 +24,9 @@ pub fn setup(
 	mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
 	// cam
-	commands.spawn((
+	commands.spawn(
 		CameraPlugin::default(),
-		RaycastPickCamera::default(),
-		MainCamera,
-	));
+	);
 
 	// light
 	commands.spawn(PointLightBundle {
