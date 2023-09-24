@@ -1,7 +1,7 @@
 use std::ops::RangeInclusive;
 
-use bevy::prelude::Color;
-use static_assertions::assert_obj_safe;
+use bevy::prelude::{Color, StandardMaterial};
+use static_assertions::{assert_obj_safe, assert_impl_all};
 
 /// Macro for implementing `IsResource` for a type
 macro_rules! impl_pixel_type {
@@ -13,8 +13,10 @@ macro_rules! impl_pixel_type {
 		$($tail:tt)*
 	}) => {
 		impl $crate::bevy::world::resources::traits::IsPixel for $type {
-			fn get_primary_colour(&self) -> bevy::prelude::Color {
-				$col
+			fn get_pixel(&self) -> $crate::bevy::world::resources::traits::APixel {
+				$crate::bevy::world::resources::traits::APixel {
+					material: $col.into(),
+				}
 			}
 		}
 
@@ -59,9 +61,13 @@ macro_rules! impl_pixel_type {
 pub(crate) use impl_pixel_type;
 
 pub trait IsPixel {
-	fn get_primary_colour(&self) -> Color;
+	fn get_pixel(&self) -> APixel;
 }
 assert_obj_safe!(IsPixel);
+pub struct APixel {
+	pub material: StandardMaterial,
+}
+assert_impl_all!(APixel: Send, Sync);
 
 /// Whether the pixel can be collected and / or used to build things
 pub trait IsResource: IsPixel {

@@ -1,11 +1,9 @@
 use bevy::prelude::*;
 
-use self::traits::{IsPixel, NaturallyOccurring};
+use self::traits::{IsPixel, NaturallyOccurring, APixel};
 use crate::bevy::{utils::*, world::resources::world_gen::WorldGen};
 
-use rand::Rng;
-
-mod traits;
+ mod traits;
 
 mod copper;
 pub use copper::RCopper;
@@ -64,16 +62,25 @@ fn pick_random_natural_pixel() -> Box<dyn IsPixel> {
 			return pixel;
 		}
 	}
-	panic!("Failed to pick random natural pixel");
+	unreachable!("Failed to pick random natural pixel");
 }
 
-fn generate_natural_pixel(point: WorldPoint, (meshs, mats, _): &mut MMA) -> PbrBundle {
-	let colour = pick_random_natural_pixel().get_primary_colour();
+fn generate_natural_pixel(point: WorldPoint, (meshs, mats, _): &mut MMA) -> impl Bundle {
+	let material = pick_random_natural_pixel().get_pixel().material;
 
-	PbrBundle {
-		material: mats.add(colour.into()),
+	(PbrBundle {
+		material: mats.add(material),
 		mesh: meshs.add(Mesh::from(shape::Cube { size: PIXEL_SIZE })),
 		transform: Transform::from_translation(point.into_bevy_vector()),
 		..Default::default()
-	}
+	}, PixelComponent {
+		point,
+		// pixel: material,
+	})
+}
+
+#[derive(Component)]
+pub struct PixelComponent {
+	pub point: WorldPoint,
+	// pub pixel: APixel,
 }

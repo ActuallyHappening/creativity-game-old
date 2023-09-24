@@ -1,5 +1,3 @@
-use std::f32::consts::TAU;
-
 use bevy::prelude::*;
 use bevy_dolly::prelude::*;
 use bevy_mod_picking::prelude::RaycastPickCamera;
