@@ -2,6 +2,8 @@ use bevy::prelude::*;
 
 use self::traits::{IsPixel, NaturallyOccurring};
 use crate::bevy::utils::*;
+use noise::{NoiseFn, Perlin, Seedable};
+use rand::Rng;
 
 mod traits;
 
@@ -9,6 +11,7 @@ mod copper;
 pub use copper::RCopper;
 mod dirt;
 pub use dirt::RDirt;
+
 
 pub struct WorldResourcesPlugin;
 impl Plugin for WorldResourcesPlugin {
@@ -19,18 +22,35 @@ impl Plugin for WorldResourcesPlugin {
 
 fn initialize_world(mut commands: Commands, mut mma: MMA) {
 	info!("Initializing world");
-	for x in -100..100 {
-		for y in -100..100 {
-			commands.spawn(generate_natural_pixel((x, y), &mut mma));
+	let mut rng = rand::thread_rng();
+	
+	let r = rng.gen();
+	let perlin_noise = Perlin::new(r);
+
+	for x in -(WORLD_WIDTH as i32)..WORLD_WIDTH as i32 {
+		for z in -(WORLD_WIDTH as i32)..WORLD_WIDTH as i32 {
+			let y = perlin_noise.get([x as f64, z as f64]) as i32;
+			let point = WorldPoint { x, y, z };
+			commands.spawn(generate_natural_pixel(point, &mut mma));
 		}
 	}
+	
 }
 
-fn all_natural_pixels_randomized() -> [(Box<dyn IsPixel>, u8); 2] {
-	[
-		(Box::new(RCopper::new_random()), RCopper::FREQUENCY),
-		(Box::new(RDirt::new_random()), RDirt::FREQUENCY),
-	]
+fn all_natural_pixels_randomized() -> Vec<(Box<dyn IsPixel>, u8)> {
+	/// macro to return a tuple of a pixel and its frequency
+	macro_rules! natural_pixels {
+		($($type:ty),*) => {
+			vec![$(
+				(Box::new(<$type>::new_random()), <$type>::FREQUENCY),
+			)*]
+		};
+	}
+	// [
+	// 	(Box::new(RCopper::new_random()), RCopper::FREQUENCY),
+	// 	(Box::new(RDirt::new_random()), RDirt::FREQUENCY),
+	// ]
+	natural_pixels!(RCopper, RDirt)
 }
 fn pick_random_natural_pixel() -> Box<dyn IsPixel> {
 	let pixels = all_natural_pixels_randomized();
@@ -48,17 +68,13 @@ fn pick_random_natural_pixel() -> Box<dyn IsPixel> {
 	panic!("Failed to pick random natural pixel");
 }
 
-fn generate_natural_pixel((x, y): (i8, i8), (meshs, mats, _): &mut MMA) -> PbrBundle {
+fn generate_natural_pixel(point: WorldPoint, (meshs, mats, _): &mut MMA) -> PbrBundle {
 	let colour = pick_random_natural_pixel().get_primary_colour();
-
-	let size = PIXEL_SIZE;
-	let x = x as f32 * PIXEL_SIZE;
-	let z = y as f32 * PIXEL_SIZE;
 
 	PbrBundle {
 		material: mats.add(colour.into()),
-		mesh: meshs.add(Mesh::from(shape::Cube { size })),
-		transform: Transform::from_xyz(x, 0., z),
+		mesh: meshs.add(Mesh::from(shape::Cube { size: PIXEL_SIZE })),
+		transform: Transform::from_translation(point.into_bevy_vector()),
 		..Default::default()
 	}
 }
