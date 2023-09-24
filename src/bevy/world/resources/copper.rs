@@ -13,6 +13,6 @@ impl_pixel_type!(
 	RCopper {
 		col = Color::BROWN,
 		res = { cap = { range = 0..=100  }},
-		natural = { freq = 30, random = rand::thread_rng().gen()},
+		natural = { freq = 5, random = rand::thread_rng().gen()},
 	}
 );
