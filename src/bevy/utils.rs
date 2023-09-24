@@ -1,6 +1,5 @@
 //! Various constants and utility types
 
-
 use bevy::prelude::*;
 
 #[allow(clippy::upper_case_acronyms)]
@@ -11,7 +10,11 @@ pub type MMA<'a> = (
 );
 
 pub const PIXEL_SIZE: f32 = 5.;
-pub const WORLD_WIDTH: u32 = 100;
+pub const WORLD_WIDTH: usize = 200;
+#[test]
+fn world_width_is_even() {
+	assert_eq!(WORLD_WIDTH % 2, 0);
+}
 
 pub const CAMERA_HEIGHT: f32 = 200.;
 pub const LIGHT_HEIGHT: f32 = CAMERA_HEIGHT * 1.5;
@@ -22,7 +25,7 @@ impl Color {
 }
 
 #[derive(derive_more::Constructor)]
-pub struct WorldPoint{
+pub struct WorldPoint {
 	/// player left-right
 	pub x: i32,
 	/// player up-down
@@ -33,6 +36,10 @@ pub struct WorldPoint{
 
 impl WorldPoint {
 	pub fn into_bevy_vector(self) -> Vec3 {
-		Vec3::new(self.x as f32 * PIXEL_SIZE, self.y as f32 * PIXEL_SIZE, self.z as f32 * PIXEL_SIZE)
+		Vec3::new(
+			self.x as f32 * PIXEL_SIZE,
+			self.y as f32 * PIXEL_SIZE,
+			self.z as f32 * PIXEL_SIZE,
+		)
 	}
 }

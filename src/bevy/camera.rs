@@ -38,7 +38,11 @@ impl CameraPlugin {
 				.with(Rotation::new(*INITIAL_ROT))
 				.with(Smooth::new_position(1.25).predictive(true))
 				.with(Arm::new(Vec3::new(0., CAMERA_HEIGHT, 5.)))
-				.with(LookAt::new(Vec3::ZERO).tracking_predictive(true).tracking_smoothness(1.25))
+				.with(
+					LookAt::new(Vec3::ZERO)
+						.tracking_predictive(true)
+						.tracking_smoothness(1.25),
+				)
 				.build(),
 			RaycastPickCamera::default(),
 			MainCamera,

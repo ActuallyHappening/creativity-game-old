@@ -1,12 +1,12 @@
 use bevy::prelude::*;
 
-use self::{setup::SetupPlugin, player::PlayerPlugin, world::WorldPlugin, camera::CameraPlugin};
+use self::{camera::CameraPlugin, player::PlayerPlugin, setup::SetupPlugin, world::WorldPlugin};
 
+mod camera;
 mod player;
 mod setup;
 mod utils;
 mod world;
-mod camera;
 
 pub struct MainPlugin;
 impl Plugin for MainPlugin {

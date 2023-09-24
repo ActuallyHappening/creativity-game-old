@@ -1,4 +1,7 @@
-use super::{utils::*, camera::{MainCamera, handle_camera_movement}};
+use super::{
+	camera::{handle_camera_movement, MainCamera},
+	utils::*,
+};
 use bevy::prelude::*;
 
 pub struct PlayerPlugin;
@@ -6,7 +9,8 @@ impl Plugin for PlayerPlugin {
 	fn build(&self, app: &mut App) {
 		app
 			.add_systems(Startup, initial_spawn_player)
-			.add_systems(Update, handle_player_movement).add_systems(Update, handle_camera_movement);
+			.add_systems(Update, handle_player_movement)
+			.add_systems(Update, handle_camera_movement);
 	}
 }
 

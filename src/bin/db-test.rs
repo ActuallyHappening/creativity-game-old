@@ -12,9 +12,9 @@ use surrealdb::Surreal;
 
 #[derive(Debug, Serialize)]
 struct Person<'a> {
-    title: &'a str,
-    // name: Name<'a>,
-    // marketing: bool,
+	title: &'a str,
+	// name: Name<'a>,
+	// marketing: bool,
 }
 
 // #[derive(Debug, Serialize)]
@@ -24,28 +24,27 @@ struct Person<'a> {
 
 #[derive(Debug, Deserialize)]
 struct Record {
-    #[allow(dead_code)]
-    id: Thing,
+	#[allow(dead_code)]
+	id: Thing,
 }
 
 #[tokio::main]
 async fn main() -> surrealdb::Result<()> {
-		println!("Db test");
-		let db = Surreal::new::<Ws>("localhost:8000").await?;
-		db.signin(Root {
-			username: "root",
-			password: "root",
-		}).await?;
-		db.use_ns("test").use_db("test").await?;
+	println!("Db test");
+	let db = Surreal::new::<Ws>("localhost:8000").await?;
+	db.signin(Root {
+		username: "root",
+		password: "root",
+	})
+	.await?;
+	db.use_ns("test").use_db("test").await?;
 
-		let person = Person {
-			title: "Mr",
-		};
+	let person = Person { title: "Mr" };
 
-		let created: Vec<Record> = db.create("person").content(&person).await?;
-		println!("Created: {:?}", created);
+	let created: Vec<Record> = db.create("person").content(&person).await?;
+	println!("Created: {:?}", created);
 
-		let values = db.live("people").await?;
+	let values = db.live("people").await?;
 
-		Ok(())
+	Ok(())
 }

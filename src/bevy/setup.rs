@@ -23,8 +23,11 @@ impl Plugin for SetupPlugin {
 					.disable::<DefaultHighlightingPlugin>()
 					.disable::<DebugPickingPlugin>(),
 			);
-			#[cfg(feature = "dev")]
-			app.add_plugins((ScreenFrameDiagnosticsPlugin, ScreenDiagnosticsPlugin::default()));
+		#[cfg(feature = "dev")]
+		app.add_plugins((
+			ScreenFrameDiagnosticsPlugin,
+			ScreenDiagnosticsPlugin::default(),
+		));
 	}
 }
 
