@@ -2085,6 +2085,7 @@ dependencies = [
  "bevy_screen_diagnostics",
  "console_error_panic_hook",
  "getrandom",
+ "inventory",
  "lazy_static",
  "rand",
  "serde",
@@ -3344,6 +3345,12 @@ dependencies = [
  "wasm-bindgen",
  "web-sys",
 ]
+
+[[package]]
+name = "inventory"
+version = "0.3.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e1be380c410bf0595e94992a648ea89db4dd3f3354ba54af206fd2a68cf5ac8e"
 
 [[package]]
 name = "io-kit-sys"

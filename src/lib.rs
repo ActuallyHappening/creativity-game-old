@@ -1,3 +1,4 @@
+#![feature(const_trait_impl)]
 
 mod tools;
 pub use tools::init_debug_tools;
