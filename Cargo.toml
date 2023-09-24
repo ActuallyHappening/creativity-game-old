@@ -7,7 +7,7 @@ publish = false
 
 [workspace]
 members = ["xtask"]
-exclude = ["surrealdb", "noise-rs"]
+exclude = ["surrealdb", "noise-rs", "bevy_editor_pls"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

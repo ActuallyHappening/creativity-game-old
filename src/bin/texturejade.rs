@@ -2,8 +2,6 @@ extern crate noise;
 
 use noise::{utils::*, *};
 
-mod utils;
-
 fn main() {
     // Primary jade texture. The ridges from the ridged-multifractal function
     // produces the veins.
@@ -48,11 +46,11 @@ fn main() {
         .set_power(1.0 / 16.0)
         .set_roughness(2);
 
-    let planar_texture = PlaneMapBuilder::new(&final_jade)
+    let planar_texture = PlaneMapBuilder::<_, 2>::new(&final_jade)
         .set_size(1024, 1024)
         .build();
 
-    let seamless_texture = PlaneMapBuilder::new(final_jade)
+    let seamless_texture = PlaneMapBuilder::<_, 2>::new(final_jade)
         .set_size(1024, 1024)
         .set_is_seamless(true)
         .build();
@@ -68,10 +66,11 @@ fn main() {
 
     let mut renderer = ImageRenderer::new().set_gradient(jade_gradient);
 
-    utils::write_image_to_file(&renderer.render(&planar_texture), "texture_jade_planar.png");
+    renderer
+        .render(&planar_texture)
+        .write_to_file("texture_jade_planar.png");
 
-    utils::write_image_to_file(
-        &renderer.render(&seamless_texture),
-        "texture_jade_seamless.png",
-    );
+    renderer
+        .render(&seamless_texture)
+        .write_to_file("texture_jade_seamless.png");
 }
