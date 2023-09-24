@@ -2089,6 +2089,7 @@ dependencies = [
  "lazy_static",
  "rand",
  "serde",
+ "static_assertions",
  "surrealdb",
  "tokio",
  "tracing",
