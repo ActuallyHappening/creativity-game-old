@@ -4,9 +4,9 @@ use self::{setup::SetupPlugin, player::PlayerPlugin, world::WorldPlugin};
 
 mod player;
 mod setup;
-pub use setup::MainCamera;
 mod utils;
 mod world;
+mod camera;
 
 pub struct MainPlugin;
 impl Plugin for MainPlugin {

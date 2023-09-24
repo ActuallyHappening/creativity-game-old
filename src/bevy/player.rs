@@ -1,5 +1,4 @@
-use super::utils::*;
-use super::MainCamera;
+use super::{utils::*, camera::{MainCamera, handle_camera_movement}};
 use bevy::prelude::*;
 
 pub struct PlayerPlugin;
@@ -7,14 +6,14 @@ impl Plugin for PlayerPlugin {
 	fn build(&self, app: &mut App) {
 		app
 			.add_systems(Startup, initial_spawn_player)
-			.add_systems(Update, handle_player_movement);
+			.add_systems(Update, handle_player_movement.before(handle_camera_movement));
 	}
 }
 
 const PLAYER_HEIGHT: f32 = 25.;
 
 #[derive(Component)]
-struct MainPlayer;
+pub struct MainPlayer;
 
 fn initial_spawn_player(mut commands: Commands, (mut meshs, mut mats, _): MMA) {
 	info!("Spawning player");
@@ -32,11 +31,11 @@ fn initial_spawn_player(mut commands: Commands, (mut meshs, mut mats, _): MMA) {
 
 fn handle_player_movement(
 	mut player: Query<&mut Transform, (With<MainPlayer>, Without<MainCamera>)>,
-	mut camera: Query<&mut Transform, (With<MainCamera>, Without<MainPlayer>)>,
+	// mut camera: Query<&mut Transform, (With<MainCamera>, Without<MainPlayer>)>,
 	keyboard_input: Res<Input<KeyCode>>,
 ) {
 	let mut player = player.single_mut();
-	let mut camera = camera.single_mut();
+	// let mut camera = camera.single_mut();
 
 	let mut translation = Vec3::ZERO;
 	if keyboard_input.pressed(KeyCode::W) {
@@ -61,6 +60,6 @@ fn handle_player_movement(
 	if translation != Vec3::ZERO {
 		let translation = translation.normalize() * 2.;
 		player.translation += translation;
-		camera.translation += translation;
+		// camera.translation += translation;
 	}
 }

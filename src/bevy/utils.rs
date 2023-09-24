@@ -1,3 +1,6 @@
+//! Various constants and utility types
+
+
 use bevy::prelude::*;
 
 pub type MMA<'a> = (
@@ -7,3 +10,6 @@ pub type MMA<'a> = (
 );
 
 pub const PIXEL_SIZE: f32 = 5.;
+
+pub const CAMERA_HEIGHT: f32 = 400.;
+pub const LIGHT_HEIGHT: f32 = CAMERA_HEIGHT * 2.;

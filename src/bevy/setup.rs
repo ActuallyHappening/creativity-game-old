@@ -4,13 +4,12 @@ use bevy_mod_picking::{
 	PickableBundle, DefaultPickingPlugins,
 };
 
-const CAMERA_HEIGHT: f32 = 400.;
-const LIGHT_HEIGHT: f32 = CAMERA_HEIGHT * 100.;
+use super::{camera::{CameraPlugin, MainCamera}, utils::LIGHT_HEIGHT};
 
 pub struct SetupPlugin;
 impl Plugin for SetupPlugin {
 	fn build(&self, app: &mut App) {
-		app.add_systems(Startup, setup).add_plugins(
+		app.insert_resource(Msaa::default()).add_systems(Startup, setup).add_plugins(
 			DefaultPickingPlugins
 				.build()
 				.disable::<DefaultHighlightingPlugin>()
@@ -19,9 +18,6 @@ impl Plugin for SetupPlugin {
 	}
 }
 
-#[derive(Component)]
-pub struct MainCamera;
-
 pub fn setup(
 	mut commands: Commands,
 	mut meshes: ResMut<Assets<Mesh>>,
@@ -29,11 +25,7 @@ pub fn setup(
 ) {
 	// cam
 	commands.spawn((
-		Camera3dBundle {
-			transform: Transform::from_xyz(0., CAMERA_HEIGHT, 0.)
-				.with_rotation(Quat::from_rotation_x(-90_f32.to_radians())),
-			..default()
-		},
+		CameraPlugin::default(),
 		RaycastPickCamera::default(),
 		MainCamera,
 	));
@@ -41,9 +33,9 @@ pub fn setup(
 	// light
 	commands.spawn(PointLightBundle {
 		point_light: PointLight {
-			intensity: 5000000.0,
-			range: 250.,
-			shadows_enabled: true,
+			intensity: 500000.0,
+			range: 25000.,
+			// shadows_enabled: true,
 			..default()
 		},
 		transform: Transform::from_xyz(0., LIGHT_HEIGHT, 0.),
