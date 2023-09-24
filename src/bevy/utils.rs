@@ -11,5 +11,5 @@ pub type MMA<'a> = (
 
 pub const PIXEL_SIZE: f32 = 5.;
 
-pub const CAMERA_HEIGHT: f32 = 400.;
-pub const LIGHT_HEIGHT: f32 = CAMERA_HEIGHT * 2.;
+pub const CAMERA_HEIGHT: f32 = 200.;
+pub const LIGHT_HEIGHT: f32 = CAMERA_HEIGHT * 1.5;

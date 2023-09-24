@@ -27,6 +27,8 @@ dev = ["bevy/dynamic_linking", "dep:bevy_editor_pls"]
 bevy = "0.11.2"
 bevy_dolly = "0.0.1"
 bevy_mod_picking = "0.15.0"
+bevy_screen_diagnostics = "0.3.0"
+lazy_static = "1.4.0"
 rand = "0.8.5"
 # bevy_editor_pls = "0.4.0"
 serde = { version = "1.0.188", features = ["derive"] }

@@ -1,20 +1,30 @@
 use bevy::prelude::*;
 use bevy_mod_picking::{
-	prelude::{RaycastPickCamera, RaycastPickTarget, DefaultHighlightingPlugin, DebugPickingPlugin},
-	PickableBundle, DefaultPickingPlugins,
+	prelude::{DebugPickingPlugin, DefaultHighlightingPlugin, RaycastPickCamera, RaycastPickTarget},
+	DefaultPickingPlugins, PickableBundle,
 };
+#[cfg(feature = "dev")]
+use bevy_screen_diagnostics::{ScreenDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin};
 
-use super::{camera::{CameraPlugin, MainCamera}, utils::LIGHT_HEIGHT};
+use super::{
+	camera::{CameraPlugin, MainCamera},
+	utils::LIGHT_HEIGHT,
+};
 
 pub struct SetupPlugin;
 impl Plugin for SetupPlugin {
 	fn build(&self, app: &mut App) {
-		app.insert_resource(Msaa::default()).add_systems(Startup, setup).add_plugins(
-			DefaultPickingPlugins
-				.build()
-				.disable::<DefaultHighlightingPlugin>()
-				.disable::<DebugPickingPlugin>(),
-		);
+		app
+			.insert_resource(Msaa::default())
+			.add_systems(Startup, setup)
+			.add_plugins(
+				DefaultPickingPlugins
+					.build()
+					.disable::<DefaultHighlightingPlugin>()
+					.disable::<DebugPickingPlugin>(),
+			);
+			#[cfg(feature = "dev")]
+			app.add_plugins((ScreenFrameDiagnosticsPlugin, ScreenDiagnosticsPlugin::default()));
 	}
 }
 
@@ -24,9 +34,7 @@ pub fn setup(
 	mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
 	// cam
-	commands.spawn(
-		CameraPlugin::default(),
-	);
+	commands.spawn(CameraPlugin::default());
 
 	// light
 	commands.spawn(PointLightBundle {
