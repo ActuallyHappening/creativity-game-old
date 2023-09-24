@@ -22,11 +22,13 @@ impl Plugin for WorldResourcesPlugin {
 fn initialize_world(mut commands: Commands, mut mma: MMA) {
 	info!("Initializing world");
 
-	let world = WorldGen::<WORLD_WIDTH>::new(7);
-	for (x, y, z) in world {
-		let point = WorldPoint { x, y, z };
-		let bundle = generate_natural_pixel(point, &mut mma);
-		commands.spawn(bundle);
+	let world = WorldGen::<WORLD_WIDTH>::new(4);
+	for (x, height, z) in world {
+		for y in 0..height {
+			let point = WorldPoint { x, y, z };
+			let bundle = generate_natural_pixel(point, &mut mma);
+			commands.spawn(bundle);
+		}
 	}
 }
 
