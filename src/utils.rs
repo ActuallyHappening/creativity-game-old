@@ -42,6 +42,10 @@ impl<T> T {
 	fn not_pickable(self) -> (Pickable, Self) {
 		(Pickable::IGNORE, self)
 	}
+
+	fn named(self, name: impl Into<std::borrow::Cow<'static, str>>) -> (Name, Self) {
+		(Name::new(name), self)
+	}
 }
 
 #[derive(derive_more::Constructor, Debug, Clone, Copy, PartialEq, Eq, Hash)]

@@ -4,6 +4,7 @@ use crate::utils::*;
 
 mod macros;
 use macros::*;
+mod item_preview;
 
 pub struct UiPlugin;
 impl Plugin for UiPlugin {
@@ -17,44 +18,62 @@ impl Plugin for UiPlugin {
 fn ui(mut commands: Commands, mut mma: MMA) {
 	commands
 		.spawn(
-			(
-				NodeBundle {
-					// style: Style {
-					// 	width: Val::Percent(100.0),
-					// 	height: Val::Percent(100.0),
-					// 	justify_content: JustifyContent::FlexEnd,
-					// 	align_items: AlignItems::Center,
-					// 	..default()
-					// },
-					style: style! { Style
-						width: 100%,
-						height: 100%,
-						justify_content: center,
-						align_items: end,
-						margin: 10 px,
-						flex_direction: column,
-					},
-					..default()
+			NodeBundle {
+				// style: Style {
+				// 	width: Val::Percent(100.0),
+				// 	height: Val::Percent(100.0),
+				// 	justify_content: JustifyContent::FlexEnd,
+				// 	align_items: AlignItems::Center,
+				// 	..default()
+				// },
+				style: style! { Style
+					width: 100%,
+					height: 100%,
+					justify_content: center,
+					align_items: end,
+					margin: 10 px,
+					flex_direction: column,
+					flex_grow: 1,
 				},
-				Name::from("Inventory UI"),
-			)
-				.not_pickable(),
+				..default()
+			}
+			.named("Inventory UI")
+			.not_pickable(),
 		)
 		.with_children(|parent| {
-			PlayerInventory::ui(parent, &mut mma);
+			parent
+				.spawn(NodeBundle {
+					style: style! {Style
+						flex_grow: 1,
+					},
+					..default()
+				})
+				.with_children(|parent| {
+
+				});
+
+			parent
+				.spawn(NodeBundle {
+					style: style! {Style
+						flex_grow: 5,
+					},
+					..default()
+				})
+				.with_children(|parent| {
+					PlayerInventory::ui(parent, &mut mma);
+				});
 		});
 }
 
 #[derive(Component, Constructor)]
 struct PlayerInventoryText {
-	variant: PixelVariant
+	variant: PixelVariant,
 }
 
-fn update_inventory_ui(mut invent_texts: Query<(&mut Text, &PlayerInventoryText)>, inventory: Res<PlayerInventory>) {
-	// let copper_count = inventory[PixelVariant::Copper];
-
-	// copper.single_mut().sections[1].value = format!("{copper_count}")
-
+fn update_inventory_ui(
+	mut invent_texts: Query<(&mut Text, &PlayerInventoryText)>,
+	inventory: Res<PlayerInventory>,
+) {
 	for (mut text, PlayerInventoryText { variant }) in invent_texts.iter_mut() {
 		if variant.default().collectable.is_some() {
 			text.sections[1].value = format!("{}", inventory[*variant]);
@@ -81,9 +100,9 @@ impl PlayerInventory {
 						margin: 5 px,
 						// max_width: 100 px,
 					}),
-					Name::from(format!("{} count", pixel.name)),
 					PlayerInventoryText::new(pixel.variant),
 				)
+					.named(format!("{} count", pixel.name))
 					.not_pickable(),
 			);
 		}

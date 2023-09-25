@@ -83,6 +83,16 @@ macro_rules! style {
 				} ;next; $($rest)*
 			}
 		};
+		// generic f32 literals
+		(prev $prev:expr ;next; $prop:ident: $val:literal, $($rest:tt)*) => {
+			style!{
+				prev {
+					let mut prev = $prev;
+					prev.$prop = to_literal_f32!($val);
+					prev
+				} ;next; $($rest)*
+			}
+		};
 
 		// justify content
 		(prev $prev:expr ;next; justify_content: center, $($rest:tt)*) => {
