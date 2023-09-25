@@ -1,4 +1,7 @@
 use bevy::prelude::*;
+use bevy_mod_picking::prelude::{On, Pointer};
+use bevy_mod_picking::events::Click;
+use tracing::info;
 
 use self::traits::{IsPixel, NaturallyOccurring, APixel};
 use crate::bevy::{utils::*, world::resources::world_gen::WorldGen};
@@ -76,7 +79,11 @@ fn generate_natural_pixel(point: WorldPoint, (meshs, mats, _): &mut MMA) -> impl
 	}, PixelComponent {
 		point,
 		// pixel: material,
+	},
+	On::<Pointer<Click>>::run(|| {
+		info!("Clicked!");
 	})
+)
 }
 
 #[derive(Component)]

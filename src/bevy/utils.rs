@@ -24,7 +24,7 @@ impl Color {
 	const BROWN: Color = Color::rgb(0.5, 0.25, 0.0);
 }
 
-#[derive(derive_more::Constructor)]
+#[derive(derive_more::Constructor, Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct WorldPoint {
 	/// player left-right
 	pub x: i32,

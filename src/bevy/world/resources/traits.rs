@@ -76,6 +76,11 @@ pub trait IsResource: IsPixel {
 }
 // assert_obj_safe!(IsResource);
 
+pub trait IsPlayerMinable: IsResource {
+	/// How much of this resource is collected per hit
+	const COLLECT_AMOUNT: u32;
+}
+
 pub trait NaturallyOccurring: IsPixel {
 	/// Weighting used to calculate the frequency of this pixel spawning naturally
 	const FREQUENCY: u8;

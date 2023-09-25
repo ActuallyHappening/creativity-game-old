@@ -69,3 +69,8 @@ fn handle_player_movement(
 		// camera.translation += translation;
 	}
 }
+
+#[derive(Resource, Debug)]
+pub struct PlayerInventory {
+	copper: u32,
+}
