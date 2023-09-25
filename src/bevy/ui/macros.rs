@@ -32,12 +32,33 @@ macro_rules! style {
 			}
 		};
 
+		// aspect_ratio
+		(prev $prev:expr ;next; aspect_ratio: $val:literal, $($rest:tt)*) => {
+			style!{
+				prev {
+					let mut prev = $prev;
+					prev.aspect_ratio = Some($crate::bevy::ui::macros::to_literal_f32!($val));
+					prev
+				} ;next; $($rest)*
+			}
+		};
+
 		// margin
 		(prev $prev:expr ;next; margin: $val:literal px, $($rest:tt)*) => {
 			style!{
 				prev {
 					let mut prev = $prev;
 					prev.margin = UiRect::all(Val::Px($crate::bevy::ui::macros::to_literal_f32!($val)));
+					prev
+				} ;next; $($rest)*
+			}
+		};
+		// border
+		(prev $prev:expr ;next; border: $val:literal px, $($rest:tt)*) => {
+			style!{
+				prev {
+					let mut prev = $prev;
+					prev.border = UiRect::all(Val::Px($crate::bevy::ui::macros::to_literal_f32!($val)));
 					prev
 				} ;next; $($rest)*
 			}
@@ -198,9 +219,10 @@ fn test_style_macro() {
 	);
 
 	assert_eq!(
-		style! {Style margin: 69 px,},
+		style! {Style margin: 69 px, border: 420 px, },
 		Style {
 			margin: UiRect::all(Val::Px(69.)),
+			border: UiRect::all(Val::Px(420.)),
 			..default()
 		}
 	);

@@ -47,7 +47,11 @@ fn ui(mut commands: Commands, mut mma: MMA) {
 				.spawn(NodeBundle {
 					style: style! {Style
 						flex_grow: 1,
+						aspect_ratio: 1,
+						border: 5 px,
 					},
+					background_color: Color::YELLOW.into(),
+					border_color: Color::BLACK.into(),
 					..default()
 				})
 				.with_children(|parent| {
