@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 
-use crate::core::*;
-use crate::utils::BundleExt;
+use crate::utils::*;
 
 mod macros;
 use macros::*;
@@ -15,7 +14,7 @@ impl Plugin for UiPlugin {
 	}
 }
 
-fn ui(mut commands: Commands, ass: Res<AssetServer>) {
+fn ui(mut commands: Commands, mut mma: MMA) {
 	commands
 		.spawn(
 			(
@@ -41,28 +40,7 @@ fn ui(mut commands: Commands, ass: Res<AssetServer>) {
 				.not_pickable(),
 		)
 		.with_children(|parent| {
-			let text_style = TextStyle {
-				font: ass.load("fonts/FiraMono-Medium.ttf"),
-				font_size: 30.,
-				color: Color::PURPLE,
-			};
-
-			parent.spawn(
-				(
-					TextBundle::from_sections([
-						TextSection::new("Copper: ", text_style.clone()),
-						TextSection::new("0", text_style),
-					])
-					.with_style(style!{Style 
-						margin: 5 px,
-						// max_width: 100 px,
-					}),
-					Name::from("Copper count"),
-				)
-					.not_pickable(),
-			);
-
-
+			PlayerInventory::ui(parent, &mut mma);
 		});
 }
 
@@ -70,4 +48,29 @@ fn update_inventory_ui(mut copper: Query<&mut Text, With<Name>>, inventory: Res<
 	let copper_count = inventory[PixelVariant::Copper];
 
 	copper.single_mut().sections[1].value = format!("{copper_count}")
+}
+
+impl PlayerInventory {
+	fn ui(parent: &mut ChildBuilder, (_, _, ass): &mut MMA) {
+		let text_style = TextStyle {
+			font: ass.load("fonts/FiraMono-Medium.ttf"),
+			font_size: 30.,
+			color: Color::PURPLE,
+		};
+
+		parent.spawn(
+			(
+				TextBundle::from_sections([
+					TextSection::new("Copper: ", text_style.clone()),
+					TextSection::new("0", text_style),
+				])
+				.with_style(style! {Style
+					margin: 5 px,
+					// max_width: 100 px,
+				}),
+				Name::from("Copper count"),
+			)
+				.not_pickable(),
+		);
+	}
 }
