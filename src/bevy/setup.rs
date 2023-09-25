@@ -1,14 +1,12 @@
 use bevy::prelude::*;
 use bevy_mod_picking::{
-	prelude::{DebugPickingPlugin, DefaultHighlightingPlugin, RaycastPickCamera, RaycastPickTarget},
-	DefaultPickingPlugins, PickableBundle,
+	prelude::{DebugPickingPlugin, DefaultHighlightingPlugin},
+	DefaultPickingPlugins,
 };
 #[cfg(feature = "dev")]
 use bevy_screen_diagnostics::{ScreenDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin};
 
-use super::{
-	camera::{CameraPlugin, MainCamera},
-};
+use super::camera::CameraPlugin;
 use crate::utils::*;
 
 pub struct SetupPlugin;

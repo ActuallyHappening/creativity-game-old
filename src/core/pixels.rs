@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use strum::EnumIter;
-use crate::utils::*;
+
 
 /// Data about a class of pixels
 #[derive(Debug)]
