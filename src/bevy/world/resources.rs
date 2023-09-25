@@ -1,12 +1,14 @@
+use crate::bevy::player::PlayerInventory;
+use crate::bevy::utils::*;
 use bevy::prelude::*;
-use bevy_mod_picking::prelude::{On, Pointer};
 use bevy_mod_picking::events::Click;
+use bevy_mod_picking::prelude::{On, Pointer, Down};
 use tracing::info;
 
-use self::traits::{IsPixel, NaturallyOccurring, APixel};
+use self::traits::{APixel, IsPixel, NaturallyOccurring};
 use crate::bevy::{utils::*, world::resources::world_gen::WorldGen};
 
- mod traits;
+mod traits;
 
 mod copper;
 pub use copper::RCopper;
@@ -71,19 +73,22 @@ fn pick_random_natural_pixel() -> Box<dyn IsPixel> {
 fn generate_natural_pixel(point: WorldPoint, (meshs, mats, _): &mut MMA) -> impl Bundle {
 	let material = pick_random_natural_pixel().get_pixel().material;
 
-	(PbrBundle {
-		material: mats.add(material),
-		mesh: meshs.add(Mesh::from(shape::Cube { size: PIXEL_SIZE })),
-		transform: Transform::from_translation(point.into_bevy_vector()),
-		..Default::default()
-	}, PixelComponent {
-		point,
-		// pixel: material,
-	},
-	On::<Pointer<Click>>::run(|| {
-		info!("Clicked!");
-	})
-)
+	(
+		PbrBundle {
+			material: mats.add(material),
+			mesh: meshs.add(Mesh::from(shape::Cube { size: PIXEL_SIZE })),
+			transform: Transform::from_translation(point.into_bevy_vector()),
+			..Default::default()
+		},
+		PixelComponent {
+			point,
+			// pixel: material,
+		},
+		On::<Pointer<Down>>::run(|mut invent: ResMut<PlayerInventory>| {
+			invent.copper += 1;
+		}),
+	)
+		.pickable()
 }
 
 #[derive(Component)]

@@ -1,6 +1,8 @@
 //! Various constants and utility types
 
 use bevy::prelude::*;
+use bevy_mod_picking::{PickableBundle, prelude::{RaycastPickTarget, Pickable}};
+use extension_traits::extension;
 
 #[allow(clippy::upper_case_acronyms)]
 pub type MMA<'a> = (
@@ -19,9 +21,20 @@ fn world_width_is_even() {
 pub const CAMERA_HEIGHT: f32 = 200.;
 pub const LIGHT_HEIGHT: f32 = CAMERA_HEIGHT * 1.5;
 
-#[extension_traits::extension(pub trait ColoursExt)]
+#[extension(pub trait ColoursExt)]
 impl Color {
 	const BROWN: Color = Color::rgb(0.5, 0.25, 0.0);
+}
+
+#[extension(pub trait BundleExt)]
+impl<T> T {
+	fn pickable(self) -> (PickableBundle, RaycastPickTarget, Self) {
+		(PickableBundle::default(), RaycastPickTarget::default(), self)
+	}
+
+	fn not_pickable(self) -> (Pickable, Self) {
+		(Pickable::IGNORE, self)
+	}
 }
 
 #[derive(derive_more::Constructor, Debug, Clone, Copy, PartialEq, Eq, Hash)]

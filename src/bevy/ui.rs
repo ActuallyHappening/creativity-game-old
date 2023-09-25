@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use super::player::PlayerInventory;
+use super::{player::PlayerInventory, utils::BundleExt};
 
 pub struct UiPlugin;
 impl Plugin for UiPlugin {
@@ -22,7 +22,7 @@ fn ui(mut commands: Commands, ass: Res<AssetServer>) {
 				..default()
 			},
 			Name::from("Inventory UI"),
-		))
+		).not_pickable())
 		.with_children(|parent| {
 			parent.spawn((
 				TextBundle::from_section(
@@ -38,7 +38,7 @@ fn ui(mut commands: Commands, ass: Res<AssetServer>) {
 					..default()
 				}),
 				Name::from("Copper count"),
-			));
+			).not_pickable());
 		});
 }
 

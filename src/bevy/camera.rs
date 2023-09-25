@@ -20,7 +20,7 @@ lazy_static::lazy_static! {
 
 impl CameraPlugin {
 	/// Returns the default camera
-	pub fn default() -> (Camera3dBundle, Rig, RaycastPickCamera, MainCamera) {
+	pub fn default() -> impl Bundle  {
 		let initial_pos = Vec3::new(0., CAMERA_HEIGHT, 0.);
 		(
 			Camera3dBundle {

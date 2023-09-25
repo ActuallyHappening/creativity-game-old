@@ -5,6 +5,7 @@ use bevy_mod_picking::{
 };
 #[cfg(feature = "dev")]
 use bevy_screen_diagnostics::{ScreenDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin};
+use crate::bevy::utils::*;
 
 use super::{
 	camera::{CameraPlugin, MainCamera},
@@ -60,7 +61,5 @@ pub fn setup(
 			transform: Transform::from_xyz(0., 0., 0.),
 			..default()
 		},
-		PickableBundle::default(),    // Makes the entity pickable
-		RaycastPickTarget::default(), // Marker for the `bevy_picking_raycast` backend
-	));
+	).pickable());
 }
