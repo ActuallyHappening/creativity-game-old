@@ -1,11 +1,9 @@
-use std::collections::HashMap;
 use bevy::prelude::*;
-
+use std::collections::HashMap;
 
 use super::pixels::PixelVariant;
 
-
-#[derive(Resource, Debug)]
+#[derive(Resource, Debug, DerefMut, Deref)]
 pub struct PlayerInventory(HashMap<PixelVariant, u32>);
 
 impl Default for PlayerInventory {
@@ -18,10 +16,20 @@ impl Default for PlayerInventory {
 	}
 }
 
-impl std::ops::Deref for PlayerInventory {
-	type Target = HashMap<PixelVariant, u32>;
+impl std::ops::Index<PixelVariant> for PlayerInventory {
+	type Output = u32;
 
-	fn deref(&self) -> &Self::Target {
-		&self.0
+	fn index(&self, index: PixelVariant) -> &Self::Output {
+		&self.0[&index]
+	}
+}
+
+impl std::ops::IndexMut<PixelVariant> for PlayerInventory {
+	fn index_mut(&mut self, index: PixelVariant) -> &mut Self::Output {
+		if !self.0.contains_key(&index) {
+			error!("PlayerInventory does not contain key {:?}", index);
+			self.0.insert(index, 0);
+		}
+		self.0.get_mut(&index).unwrap()
 	}
 }

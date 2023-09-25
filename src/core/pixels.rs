@@ -3,23 +3,24 @@ use strum::EnumIter;
 
 
 /// Data about a class of pixels
-#[derive(Debug)]
+#[derive(Component, Debug, Clone,)]
 pub struct Pixel {
 	pub name: &'static str,
 	pub description: &'static str,
 	pub colour: Color,
+	pub variant: PixelVariant,
 
 	pub player_mineable: Option<PlayerMineable>,
 	pub naturally_spawning: Option<Natural>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Natural {
 	/// Higher the number, greater chance of spawning
 	pub frequency: u8,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PlayerMineable {
 	amount_multiplier: u8,
 }
@@ -31,7 +32,7 @@ pub enum PixelVariant {
 }
 
 impl PixelVariant {
-	fn default(self) -> Pixel {
+	pub fn default(self) -> Pixel {
 		type PV = PixelVariant;
 		match self {
 			PV::Dirt => Pixel {
@@ -40,6 +41,7 @@ impl PixelVariant {
 				colour: Color::rgb(0.5, 0.25, 0.0),
 				player_mineable: None,
 				naturally_spawning: Some(Natural { frequency: 100 }),
+				variant: self,
 			},
 			PV::Copper => Pixel {
 				name: "Copper",
@@ -47,6 +49,7 @@ impl PixelVariant {
 				colour: Color::rgb(0.5, 0.25, 0.0),
 				player_mineable: Some(PlayerMineable { amount_multiplier: 2 }),
 				naturally_spawning: Some(Natural { frequency: 10 }),
+				variant: self,
 			},
 		}
 	}

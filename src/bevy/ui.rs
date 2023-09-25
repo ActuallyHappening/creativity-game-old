@@ -44,7 +44,7 @@ fn ui(mut commands: Commands, ass: Res<AssetServer>) {
 }
 
 fn update_inventory_ui(mut copper: Query<&mut Text, With<Name>>, inventory: Res<PlayerInventory>) {
-	let copper_count = inventory[&PixelVariant::Copper];
+	let copper_count = inventory[PixelVariant::Copper];
 
 	copper.single_mut().sections[0].value = format!("Copper count: {copper_count}")
 }

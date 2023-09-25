@@ -4,6 +4,10 @@ use bevy::prelude::*;
 use bevy_mod_picking::{PickableBundle, prelude::{RaycastPickTarget, Pickable}};
 use extension_traits::extension;
 
+pub use bevy::prelude::*;
+pub use bevy_mod_picking::prelude::*;
+pub use crate::core::*;
+
 #[allow(clippy::upper_case_acronyms)]
 pub type MMA<'a> = (
 	ResMut<'a, Assets<Mesh>>,
