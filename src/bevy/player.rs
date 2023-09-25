@@ -75,6 +75,6 @@ fn handle_player_movement(
 fn handle_player_mined_px(mut e: EventReader<PlayerMinedPixel>, mut inventory: ResMut<PlayerInventory>) {
 	for px in e.iter().map(|p| p.deref()) {
 		info!("Player mined pixel: {:?}", px);
-		inventory[px.variant] += px.player_mineable.as_ref().unwrap().amount_multiplier as u32;
+		inventory[px.variant] += px.collectable.as_ref().unwrap().amount_multiplier as u32;
 	}
 }

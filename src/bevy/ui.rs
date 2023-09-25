@@ -44,10 +44,21 @@ fn ui(mut commands: Commands, mut mma: MMA) {
 		});
 }
 
-fn update_inventory_ui(mut copper: Query<&mut Text, With<Name>>, inventory: Res<PlayerInventory>) {
-	let copper_count = inventory[PixelVariant::Copper];
+#[derive(Component, Constructor)]
+struct PlayerInventoryText {
+	variant: PixelVariant
+}
 
-	copper.single_mut().sections[1].value = format!("{copper_count}")
+fn update_inventory_ui(mut invent_texts: Query<(&mut Text, &PlayerInventoryText)>, inventory: Res<PlayerInventory>) {
+	// let copper_count = inventory[PixelVariant::Copper];
+
+	// copper.single_mut().sections[1].value = format!("{copper_count}")
+
+	for (mut text, PlayerInventoryText { variant }) in invent_texts.iter_mut() {
+		if variant.default().collectable.is_some() {
+			text.sections[1].value = format!("{}", inventory[*variant]);
+		}
+	}
 }
 
 impl PlayerInventory {
@@ -58,19 +69,22 @@ impl PlayerInventory {
 			color: Color::PURPLE,
 		};
 
-		parent.spawn(
-			(
-				TextBundle::from_sections([
-					TextSection::new("Copper: ", text_style.clone()),
-					TextSection::new("0", text_style),
-				])
-				.with_style(style! {Style
-					margin: 5 px,
-					// max_width: 100 px,
-				}),
-				Name::from("Copper count"),
-			)
-				.not_pickable(),
-		);
+		for pixel in Pixel::iter_mineable() {
+			parent.spawn(
+				(
+					TextBundle::from_sections([
+						TextSection::new(format!("{}: ", pixel.name), text_style.clone()),
+						TextSection::new("0", text_style.clone()),
+					])
+					.with_style(style! {Style
+						margin: 5 px,
+						// max_width: 100 px,
+					}),
+					Name::from(format!("{} count", pixel.name)),
+					PlayerInventoryText::new(pixel.variant),
+				)
+					.not_pickable(),
+			);
+		}
 	}
 }
