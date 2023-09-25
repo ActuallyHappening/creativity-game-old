@@ -6,6 +6,7 @@ mod camera;
 mod player;
 mod setup;
 mod ui;
+mod world_gen;
 
 pub struct MainPlugin;
 impl Plugin for MainPlugin {

@@ -2,16 +2,16 @@ use std::collections::HashMap;
 use bevy::prelude::*;
 use crate::utils::*;
 
-use super::pixels::PixelVariants;
+use super::pixels::PixelVariant;
 
 
 #[derive(Resource, Debug)]
-pub struct PlayerInventory(HashMap<PixelVariants, u32>);
+pub struct PlayerInventory(HashMap<PixelVariant, u32>);
 
 impl Default for PlayerInventory {
 	fn default() -> Self {
 		let mut invent = HashMap::new();
-		for variant in PixelVariants::iter() {
+		for variant in PixelVariant::iter() {
 			invent.insert(variant, 0);
 		}
 		PlayerInventory(invent)
@@ -19,7 +19,7 @@ impl Default for PlayerInventory {
 }
 
 impl std::ops::Deref for PlayerInventory {
-	type Target = HashMap<PixelVariants, u32>;
+	type Target = HashMap<PixelVariant, u32>;
 
 	fn deref(&self) -> &Self::Target {
 		&self.0

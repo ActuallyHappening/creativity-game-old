@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use strum::EnumIter;
+use crate::utils::*;
 
 /// Data about a class of pixels
 #[derive(Debug)]
@@ -24,14 +25,14 @@ pub struct PlayerMineable {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumIter)]
-pub enum PixelVariants {
+pub enum PixelVariant {
 	Dirt,
 	Copper,
 }
 
-impl PixelVariants {
+impl PixelVariant {
 	fn default(self) -> Pixel {
-		type PV = PixelVariants;
+		type PV = PixelVariant;
 		match self {
 			PV::Dirt => Pixel {
 				name: "Dirt",
@@ -48,5 +49,19 @@ impl PixelVariants {
 				naturally_spawning: Some(Natural { frequency: 10 }),
 			},
 		}
+	}
+
+	pub fn natural_pool() -> Vec<(PixelVariant, Natural)> {
+		let mut pool = Vec::new();
+		for variant in Self::iter() {
+			if let Some(natural) = variant.default().naturally_spawning {
+				pool.push((variant, natural));
+			}
+		}
+		pool
+	}
+
+	pub fn iter() -> impl Iterator<Item = PixelVariant> {
+		<PixelVariant as strum::IntoEnumIterator>::iter()
 	}
 }

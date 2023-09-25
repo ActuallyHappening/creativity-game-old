@@ -4,8 +4,6 @@ use bevy::prelude::*;
 use bevy_mod_picking::{PickableBundle, prelude::{RaycastPickTarget, Pickable}};
 use extension_traits::extension;
 
-pub use strum::IntoEnumIterator;
-
 #[allow(clippy::upper_case_acronyms)]
 pub type MMA<'a> = (
 	ResMut<'a, Assets<Mesh>>,
