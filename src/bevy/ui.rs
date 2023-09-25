@@ -29,9 +29,10 @@ fn ui(mut commands: Commands, mut mma: MMA) {
 					style: style! { Style
 						width: 100%,
 						height: 100%,
-						justify_content: end,
-						align_items: center,
+						justify_content: center,
+						align_items: end,
 						margin: 10 px,
+						flex_direction: column,
 					},
 					..default()
 				},

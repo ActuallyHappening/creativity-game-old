@@ -43,6 +43,26 @@ macro_rules! style {
 			}
 		};
 
+		// flex direction
+		(prev $prev:expr ;next; flex_direction: row, $($rest:tt)*) => {
+			style!{
+				prev {
+					let mut prev = $prev;
+					prev.flex_direction = FlexDirection::Row;
+					prev
+				} ;next; $($rest)*
+			}
+		};
+		(prev $prev:expr ;next; flex_direction: column, $($rest:tt)*) => {
+			style!{
+				prev {
+					let mut prev = $prev;
+					prev.flex_direction = FlexDirection::Column;
+					prev
+				} ;next; $($rest)*
+			}
+		};
+
 		// generic % percentages
 		(prev $prev:expr ;next; $prop:ident: $val:literal %, $($rest:tt)*) => {
 			style!{
@@ -179,6 +199,17 @@ fn test_style_macro() {
 		style! {Style max_width: 69 px,},
 		Style {
 			max_width: Val::Px(69.),
+			..default()
+		}
+	);
+
+	assert_eq!(
+		style! {Style
+			flex_direction: row,
+			flex_direction: column,
+		},
+		Style {
+			flex_direction: FlexDirection::Column,
 			..default()
 		}
 	);
