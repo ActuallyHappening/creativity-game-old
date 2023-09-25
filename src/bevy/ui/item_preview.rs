@@ -5,7 +5,7 @@ use crate::utils::*;
 pub struct ItemPreview;
 
 impl ItemPreview {
-	fn ui(parent: ChildBuilder, (meshs, mats, ass): &mut MMA) {
-		
+	pub fn ui(parent: &mut ChildBuilder, (meshs, mats, ass): &mut MMA) {
+
 	}
 }

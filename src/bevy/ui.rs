@@ -8,6 +8,8 @@ mod item_preview;
 mod inventory;
 use inventory::*;
 
+use self::item_preview::ItemPreview;
+
 pub struct UiPlugin;
 impl Plugin for UiPlugin {
 	fn build(&self, app: &mut App) {
@@ -58,7 +60,7 @@ fn ui(mut commands: Commands, mut mma: MMA) {
 					..default()
 				})
 				.with_children(|parent| {
-
+					ItemPreview::ui(parent, &mut mma);
 				});
 
 			parent
