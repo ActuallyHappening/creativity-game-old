@@ -8,7 +8,9 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
 	fn build(&self, app: &mut App) {
 		app
-			.add_systems(Startup, initial_spawn_player)
+			.add_systems(Startup, (initial_spawn_player, |mut commands: Commands| {
+				commands.insert_resource(PlayerInventory::default());
+			}))
 			.add_systems(Update, handle_player_movement)
 			.add_systems(Update, handle_camera_movement);
 	}
@@ -70,7 +72,7 @@ fn handle_player_movement(
 	}
 }
 
-#[derive(Resource, Debug)]
+#[derive(Resource, Debug, Default)]
 pub struct PlayerInventory {
 	pub copper: u32,
 }
