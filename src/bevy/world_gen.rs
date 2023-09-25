@@ -29,13 +29,17 @@ impl Pixel {
 	}
 }
 
-fn handle_callback(event: Listener<Pointer<Down>>, query: Query<&Pixel>, mut send_e: EventWriter<PlayerMinedPixel>) {
+fn handle_callback(
+	event: Listener<Pointer<Down>>,
+	query: Query<&Pixel>,
+	mut send_e: EventWriter<PlayerMinedPixel>,
+) {
 	if let Ok(component) = query.get(event.target()) {
-		send_e.send(PlayerMinedPixel(component.clone()));
+		if let Some(e) = PlayerMinedPixel::new(component.clone()) {
+			send_e.send(e);
+		}
 	} else {
-		error!(
-			"No entity found??"
-		);
+		error!("No entity found??");
 	}
 }
 

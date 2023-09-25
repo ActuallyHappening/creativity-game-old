@@ -22,7 +22,7 @@ pub struct Natural {
 
 #[derive(Debug, Clone)]
 pub struct PlayerMineable {
-	amount_multiplier: u8,
+	pub amount_multiplier: u8,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumIter)]
