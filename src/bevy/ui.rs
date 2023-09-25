@@ -1,10 +1,12 @@
 use bevy::prelude::*;
 
-use crate::utils::*;
+use crate::utils::{*, Font};
 
 mod macros;
 use macros::*;
 mod item_preview;
+mod inventory;
+use inventory::*;
 
 pub struct UiPlugin;
 impl Plugin for UiPlugin {
@@ -63,48 +65,4 @@ fn ui(mut commands: Commands, mut mma: MMA) {
 					PlayerInventory::ui(parent, &mut mma);
 				});
 		});
-}
-
-#[derive(Component, Constructor)]
-struct PlayerInventoryText {
-	variant: PixelVariant,
-}
-
-fn update_inventory_ui(
-	mut invent_texts: Query<(&mut Text, &PlayerInventoryText)>,
-	inventory: Res<PlayerInventory>,
-) {
-	for (mut text, PlayerInventoryText { variant }) in invent_texts.iter_mut() {
-		if variant.default().collectable.is_some() {
-			text.sections[1].value = format!("{}", inventory[*variant]);
-		}
-	}
-}
-
-impl PlayerInventory {
-	fn ui(parent: &mut ChildBuilder, (_, _, ass): &mut MMA) {
-		let text_style = TextStyle {
-			font: ass.load("fonts/FiraMono-Medium.ttf"),
-			font_size: 30.,
-			color: Color::PURPLE,
-		};
-
-		for pixel in Pixel::iter_mineable() {
-			parent.spawn(
-				(
-					TextBundle::from_sections([
-						TextSection::new(format!("{}: ", pixel.name), text_style.clone()),
-						TextSection::new("0", text_style.clone()),
-					])
-					.with_style(style! {Style
-						margin: 5 px,
-						// max_width: 100 px,
-					}),
-					PlayerInventoryText::new(pixel.variant),
-				)
-					.named(format!("{} count", pixel.name))
-					.not_pickable(),
-			);
-		}
-	}
 }

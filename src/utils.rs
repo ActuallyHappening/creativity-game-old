@@ -68,6 +68,17 @@ impl WorldPoint {
 	}
 }
 
+pub enum Font {
+	Medium,
+}
+
+impl Font {
+	pub const fn into_path(self) -> &'static str {
+		match self {
+			Self::Medium => "fonts/FiraMono-Medium.ttf",
+		}
+	}
+}
 
 pub fn init_debug_tools() {
 	#[cfg(not(target_arch = "wasm32"))]

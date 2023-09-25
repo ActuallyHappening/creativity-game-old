@@ -37,7 +37,7 @@ macro_rules! style {
 			style!{
 				prev {
 					let mut prev = $prev;
-					prev.margin = UiRect::all(Val::Px(to_literal_f32!($val)));
+					prev.margin = UiRect::all(Val::Px($crate::bevy::ui::macros::to_literal_f32!($val)));
 					prev
 				} ;next; $($rest)*
 			}
@@ -68,7 +68,7 @@ macro_rules! style {
 			style!{
 				prev {
 					let mut prev = $prev;
-					prev.$prop = Val::Percent(to_literal_f32!($val));
+					prev.$prop = Val::Percent($crate::bevy::ui::macros::to_literal_f32!($val));
 					prev
 				} ;next; $($rest)*
 			}
@@ -78,7 +78,7 @@ macro_rules! style {
 			style!{
 				prev {
 					let mut prev = $prev;
-					prev.$prop = Val::Px(to_literal_f32!($val));
+					prev.$prop = Val::Px($crate::bevy::ui::macros::to_literal_f32!($val));
 					prev
 				} ;next; $($rest)*
 			}
@@ -88,7 +88,7 @@ macro_rules! style {
 			style!{
 				prev {
 					let mut prev = $prev;
-					prev.$prop = to_literal_f32!($val);
+					prev.$prop = $crate::bevy::ui::macros::to_literal_f32!($val);
 					prev
 				} ;next; $($rest)*
 			}
