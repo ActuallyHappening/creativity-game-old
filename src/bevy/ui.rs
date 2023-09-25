@@ -31,8 +31,9 @@ fn ui(mut commands: Commands, ass: Res<AssetServer>) {
 					style: style! { first
 						width: 100%,
 						height: 100%,
-						justify-content: center,
-						align-items: end,
+						justify-content: end,
+						align-items: center,
+						margin: 10 px,
 					},
 					..default()
 				},

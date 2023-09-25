@@ -1,5 +1,6 @@
-
+#![allow(unused_imports)]
 use crate::utils::*;
+use bevy::{prelude::Style, ui::UiRect};
 
 macro_rules! to_literal_f32 {
 	($val:literal) => {
@@ -21,7 +22,19 @@ macro_rules! style {
 				;next; $($rest)*
 			}
 		};
-		// % percentages
+
+		// margin
+		(prev $prev:expr ;next; margin: $val:literal px, $($rest:tt)*) => {
+			style!{
+				prev {
+					let mut prev = $prev;
+					prev.margin = UiRect::all(Val::Px(to_literal_f32!($val)));
+					prev
+				} ;next; $($rest)*
+			}
+		};
+
+		// generic % percentages
 		(prev $prev:expr ;next; $prop:ident: $val:literal %, $($rest:tt)*) => {
 			style!{
 				prev {
@@ -31,7 +44,7 @@ macro_rules! style {
 				} ;next; $($rest)*
 			}
 		};
-		// px pixels
+		// generic px pixels
 		(prev $prev:expr ;next; $prop:ident: $val:literal px, $($rest:tt)*) => {
 			style!{
 				prev {
@@ -41,6 +54,7 @@ macro_rules! style {
 				} ;next; $($rest)*
 			}
 		};
+
 		// justify content
 		(prev $prev:expr ;next; justify-content: center, $($rest:tt)*) => {
 			style!{
@@ -97,6 +111,8 @@ macro_rules! style {
 				} ;next; $($rest)*
 			}
 		};
+
+		// base case
 		(prev $prev:expr ;next; ) => {
 			$prev
 		};
@@ -118,17 +134,37 @@ fn test_style_macro() {
 			..default()
 		}
 	);
-	assert_eq!(style!{first
-		justify-content: center,
-		justify-content: end,
-		justify-content: start,
-	}, Style { justify_content: JustifyContent::Start, ..default() });
+	assert_eq!(
+		style! {first
+			justify-content: center,
+			justify-content: end,
+			justify-content: start,
+		},
+		Style {
+			justify_content: JustifyContent::Start,
+			..default()
+		}
+	);
 
-	assert_eq!(style!{first
-		align-items: center,
-		align-items: end,
-		align-items: start,
-	}, Style { align_items: AlignItems::Start, ..default() });
+	assert_eq!(
+		style! {first
+			align-items: center,
+			align-items: end,
+			align-items: start,
+		},
+		Style {
+			align_items: AlignItems::Start,
+			..default()
+		}
+	);
+
+	assert_eq!(
+		style! {first margin: 69 px,},
+		Style {
+			margin: UiRect::all(Val::Px(69.)),
+			..default()
+		}
+	)
 }
 
 pub(crate) use style;
