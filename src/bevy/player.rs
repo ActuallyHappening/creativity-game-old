@@ -72,5 +72,5 @@ fn handle_player_movement(
 
 #[derive(Resource, Debug)]
 pub struct PlayerInventory {
-	copper: u32,
+	pub copper: u32,
 }

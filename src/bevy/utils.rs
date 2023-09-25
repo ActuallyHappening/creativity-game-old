@@ -10,7 +10,7 @@ pub type MMA<'a> = (
 );
 
 pub const PIXEL_SIZE: f32 = 5.;
-pub const WORLD_WIDTH: usize = 100;
+pub const WORLD_WIDTH: usize = 20;
 #[test]
 fn world_width_is_even() {
 	assert_eq!(WORLD_WIDTH % 2, 0);
