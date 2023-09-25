@@ -15,7 +15,6 @@ impl Plugin for UiPlugin {
 	}
 }
 
-
 fn ui(mut commands: Commands, ass: Res<AssetServer>) {
 	commands
 		.spawn(
@@ -28,11 +27,11 @@ fn ui(mut commands: Commands, ass: Res<AssetServer>) {
 					// 	align_items: AlignItems::Center,
 					// 	..default()
 					// },
-					style: style! { first
+					style: style! { Style
 						width: 100%,
 						height: 100%,
-						justify-content: end,
-						align-items: center,
+						justify_content: end,
+						align_items: center,
 						margin: 10 px,
 					},
 					..default()
@@ -42,29 +41,33 @@ fn ui(mut commands: Commands, ass: Res<AssetServer>) {
 				.not_pickable(),
 		)
 		.with_children(|parent| {
+			let text_style = TextStyle {
+				font: ass.load("fonts/FiraMono-Medium.ttf"),
+				font_size: 30.,
+				color: Color::PURPLE,
+			};
+
 			parent.spawn(
 				(
-					TextBundle::from_section(
-						"Copper count: ",
-						TextStyle {
-							font: ass.load("fonts/FiraMono-Medium.ttf"),
-							font_size: 30.,
-							color: Color::PURPLE,
-						},
-					)
-					.with_style(Style {
-						margin: UiRect::top(Val::Px(15.)),
-						..default()
+					TextBundle::from_sections([
+						TextSection::new("Copper: ", text_style.clone()),
+						TextSection::new("0", text_style),
+					])
+					.with_style(style!{Style 
+						margin: 5 px,
+						// max_width: 100 px,
 					}),
 					Name::from("Copper count"),
 				)
 					.not_pickable(),
 			);
+
+
 		});
 }
 
 fn update_inventory_ui(mut copper: Query<&mut Text, With<Name>>, inventory: Res<PlayerInventory>) {
 	let copper_count = inventory[PixelVariant::Copper];
 
-	copper.single_mut().sections[0].value = format!("Copper count: {copper_count}")
+	copper.single_mut().sections[1].value = format!("{copper_count}")
 }

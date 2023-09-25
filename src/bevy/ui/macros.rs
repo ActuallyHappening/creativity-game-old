@@ -2,6 +2,8 @@
 use crate::utils::*;
 use bevy::{prelude::Style, ui::UiRect};
 
+// concat_idents!()
+
 macro_rules! to_literal_f32 {
 	($val:literal) => {
 		stringify!($val.0)
@@ -12,8 +14,15 @@ macro_rules! to_literal_f32 {
 
 pub(crate) use to_literal_f32;
 
+// macro_rules! access {
+// 	($type:expr ;.; $prop:ident = $val:expr) => {
+// 		$type.$prop = $val;
+// 	}
+// }
+// pub(crate) use access;
+
 macro_rules! style {
-		( first $($rest:tt)+ ) => {
+		( Style $($rest:tt)+ ) => {
 			style!{
 				prev
 					Style {
@@ -56,7 +65,7 @@ macro_rules! style {
 		};
 
 		// justify content
-		(prev $prev:expr ;next; justify-content: center, $($rest:tt)*) => {
+		(prev $prev:expr ;next; justify_content: center, $($rest:tt)*) => {
 			style!{
 				prev {
 					let mut prev = $prev;
@@ -65,7 +74,7 @@ macro_rules! style {
 				} ;next; $($rest)*
 			}
 		};
-		(prev $prev:expr ;next; justify-content: end, $($rest:tt)*) => {
+		(prev $prev:expr ;next; justify_content: end, $($rest:tt)*) => {
 			style!{
 				prev {
 					let mut prev = $prev;
@@ -74,7 +83,7 @@ macro_rules! style {
 				} ;next; $($rest)*
 			}
 		};
-		(prev $prev:expr ;next; justify-content: start, $($rest:tt)*) => {
+		(prev $prev:expr ;next; justify_content: start, $($rest:tt)*) => {
 			style!{
 				prev {
 					let mut prev = $prev;
@@ -84,7 +93,7 @@ macro_rules! style {
 			}
 		};
 		// align items
-		(prev $prev:expr ;next; align-items: center, $($rest:tt)*) => {
+		(prev $prev:expr ;next; align_items: center, $($rest:tt)*) => {
 			style!{
 				prev {
 					let mut prev = $prev;
@@ -93,7 +102,7 @@ macro_rules! style {
 				} ;next; $($rest)*
 			}
 		};
-		(prev $prev:expr ;next; align-items: end, $($rest:tt)*) => {
+		(prev $prev:expr ;next; align_items: end, $($rest:tt)*) => {
 			style!{
 				prev {
 					let mut prev = $prev;
@@ -102,7 +111,7 @@ macro_rules! style {
 				} ;next; $($rest)*
 			}
 		};
-		(prev $prev:expr ;next; align-items: start, $($rest:tt)*) => {
+		(prev $prev:expr ;next; align_items: start, $($rest:tt)*) => {
 			style!{
 				prev {
 					let mut prev = $prev;
@@ -121,24 +130,24 @@ macro_rules! style {
 #[test]
 fn test_style_macro() {
 	assert_eq!(
-		style! {first width: 100%, },
+		style! {Style width: 100%, },
 		Style {
 			width: Val::Percent(100.),
 			..default()
 		}
 	);
 	assert_eq!(
-		style! {first height: 69%, },
+		style! {Style height: 69%, },
 		Style {
 			height: Val::Percent(69.),
 			..default()
 		}
 	);
 	assert_eq!(
-		style! {first
-			justify-content: center,
-			justify-content: end,
-			justify-content: start,
+		style! {Style
+			justify_content: center,
+			justify_content: end,
+			justify_content: start,
 		},
 		Style {
 			justify_content: JustifyContent::Start,
@@ -147,10 +156,10 @@ fn test_style_macro() {
 	);
 
 	assert_eq!(
-		style! {first
-			align-items: center,
-			align-items: end,
-			align-items: start,
+		style! {Style
+			align_items: center,
+			align_items: end,
+			align_items: start,
 		},
 		Style {
 			align_items: AlignItems::Start,
@@ -159,12 +168,20 @@ fn test_style_macro() {
 	);
 
 	assert_eq!(
-		style! {first margin: 69 px,},
+		style! {Style margin: 69 px,},
 		Style {
 			margin: UiRect::all(Val::Px(69.)),
 			..default()
 		}
-	)
+	);
+
+	assert_eq!(
+		style! {Style max_width: 69 px,},
+		Style {
+			max_width: Val::Px(69.),
+			..default()
+		}
+	);
 }
 
 pub(crate) use style;

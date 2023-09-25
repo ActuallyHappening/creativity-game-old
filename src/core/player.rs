@@ -26,10 +26,10 @@ impl std::ops::Index<PixelVariant> for PlayerInventory {
 
 impl std::ops::IndexMut<PixelVariant> for PlayerInventory {
 	fn index_mut(&mut self, index: PixelVariant) -> &mut Self::Output {
-		if !self.0.contains_key(&index) {
+		self.0.entry(index).or_insert_with(|| {
 			error!("PlayerInventory does not contain key {:?}", index);
-			self.0.insert(index, 0);
-		}
+			0
+		});
 		self.0.get_mut(&index).unwrap()
 	}
 }
