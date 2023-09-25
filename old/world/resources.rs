@@ -5,15 +5,12 @@ use bevy_mod_picking::events::Click;
 use bevy_mod_picking::prelude::{On, Pointer, Down};
 use tracing::info;
 
-use self::traits::{APixel, IsPixel, NaturallyOccurring};
 use crate::bevy::{utils::*, world::resources::world_gen::WorldGen};
 
-mod traits;
-
-mod copper;
-pub use copper::RCopper;
-mod dirt;
-pub use dirt::RDirt;
+mod _copper;
+pub use _copper::RCopper;
+mod _dirt;
+pub use _dirt::RDirt;
 
 pub struct WorldResourcesPlugin;
 impl Plugin for WorldResourcesPlugin {
@@ -71,7 +68,12 @@ fn pick_random_natural_pixel() -> Box<dyn IsPixel> {
 }
 
 fn generate_natural_pixel(point: WorldPoint, (meshs, mats, _): &mut MMA) -> impl Bundle {
-	let material = pick_random_natural_pixel().get_pixel().material;
+	let px = pick_random_natural_pixel();
+	if px.as_any().is::<RCopper>() {
+		return generate_pixel::<RCopper>(point, (meshs, mats, _));
+	}
+
+	let material = px.get_pixel().material;
 
 	(
 		PbrBundle {
@@ -95,4 +97,9 @@ fn generate_natural_pixel(point: WorldPoint, (meshs, mats, _): &mut MMA) -> impl
 pub struct PixelComponent {
 	pub point: WorldPoint,
 	// pub pixel: APixel,
+}
+
+pub struct CPlayerMineable {
+	px: PixelComponent,
+	variant: MineableType,
 }

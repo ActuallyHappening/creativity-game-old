@@ -2,7 +2,8 @@ use bevy::prelude::*;
 use bevy_dolly::prelude::*;
 use bevy_mod_picking::prelude::RaycastPickCamera;
 
-use super::{player::MainPlayer, utils::CAMERA_HEIGHT};
+use super::{player::MainPlayer,};
+use crate::utils::*; 
 
 pub struct CameraPlugin;
 impl Plugin for CameraPlugin {

@@ -1,6 +1,6 @@
 use bevy::prelude::Color;
 
-use super::traits::impl_pixel_type;
+use super::_traits::impl_pixel_type;
 
 pub struct RDirt;
 impl_pixel_type!(

@@ -1,7 +1,7 @@
 use bevy::prelude::Color;
 use rand::Rng;
 
-use super::traits::impl_pixel_type;
+use super::_traits::impl_pixel_type;
 use crate::bevy::utils::*;
 
 #[derive(rand_derive::Rand)]

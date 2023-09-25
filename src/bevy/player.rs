@@ -1,8 +1,10 @@
+use crate::core::PlayerInventory;
+
 use super::{
 	camera::{handle_camera_movement, MainCamera},
-	utils::*,
 };
 use bevy::prelude::*;
+use crate::utils::*;
 
 pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
@@ -70,9 +72,4 @@ fn handle_player_movement(
 		player.translation += translation;
 		// camera.translation += translation;
 	}
-}
-
-#[derive(Resource, Debug, Default)]
-pub struct PlayerInventory {
-	pub copper: u32,
 }

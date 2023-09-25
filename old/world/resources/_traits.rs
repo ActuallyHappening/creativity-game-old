@@ -76,9 +76,14 @@ pub trait IsResource: IsPixel {
 }
 // assert_obj_safe!(IsResource);
 
-pub trait IsPlayerMinable: IsResource {
+pub trait IsPlayerMineable: IsResource {
 	/// How much of this resource is collected per hit
 	const COLLECT_AMOUNT: u32;
+
+	fn get_mineable_type() -> MineableType;
+}
+pub enum MineableType {
+	Copper,
 }
 
 pub trait NaturallyOccurring: IsPixel {

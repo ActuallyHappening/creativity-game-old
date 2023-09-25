@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
-use super::{player::PlayerInventory, utils::BundleExt};
+use crate::{utils::BundleExt};
+use crate::core::*;
 
 pub struct UiPlugin;
 impl Plugin for UiPlugin {
@@ -43,7 +44,7 @@ fn ui(mut commands: Commands, ass: Res<AssetServer>) {
 }
 
 fn update_inventory_ui(mut copper: Query<&mut Text, With<Name>>, inventory: Res<PlayerInventory>) {
-	let copper_count = inventory.copper;
+	let copper_count = inventory[&PixelVariants::Copper];
 
 	copper.single_mut().sections[0].value = format!("Copper count: {copper_count}")
 }

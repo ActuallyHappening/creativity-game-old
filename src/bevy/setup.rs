@@ -5,12 +5,11 @@ use bevy_mod_picking::{
 };
 #[cfg(feature = "dev")]
 use bevy_screen_diagnostics::{ScreenDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin};
-use crate::bevy::utils::*;
 
 use super::{
 	camera::{CameraPlugin, MainCamera},
-	utils::LIGHT_HEIGHT,
 };
+use crate::utils::*;
 
 pub struct SetupPlugin;
 impl Plugin for SetupPlugin {
