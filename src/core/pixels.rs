@@ -1,6 +1,5 @@
-use bevy::prelude::*;
 use strum::EnumIter;
-
+use crate::utils::*;
 
 /// Data about a class of pixels
 #[derive(Component, Debug, Clone,)]
@@ -38,7 +37,7 @@ impl PixelVariant {
 			PV::Dirt => Pixel {
 				name: "Dirt",
 				description: "A block of dirt",
-				colour: Color::rgb(0.5, 0.25, 0.0),
+				colour: Color::rgb(0.3, 0.25, 0.0),
 				player_mineable: None,
 				naturally_spawning: Some(Natural { frequency: 100 }),
 				variant: self,
@@ -46,7 +45,7 @@ impl PixelVariant {
 			PV::Copper => Pixel {
 				name: "Copper",
 				description: "A block of copper",
-				colour: Color::rgb(0.5, 0.25, 0.0),
+				colour: Color::rgb(0.6, 0.25, 0.05),
 				player_mineable: Some(PlayerMineable { amount_multiplier: 2 }),
 				naturally_spawning: Some(Natural { frequency: 10 }),
 				variant: self,
@@ -54,6 +53,7 @@ impl PixelVariant {
 		}
 	}
 
+	#[ensures(ret.len() == 2)]
 	pub fn natural_pool() -> Vec<(PixelVariant, Natural)> {
 		let mut pool = Vec::new();
 		for variant in Self::iter() {

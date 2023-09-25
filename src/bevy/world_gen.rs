@@ -8,8 +8,30 @@ pub fn spawn_random_world(mut commands: Commands, mut mma: MMA) {
 	for (x, height, z) in r {
 		for y in 0..height {
 			let point = WorldPoint { x, y, z };
-			commands.spawn(PixelVariant::Dirt.default().into_bundle(point, &mut mma));
+			commands.spawn(PixelVariant::weighted_random_pixel().into_bundle(point, &mut mma));
 		}
+	}
+}
+
+impl PixelVariant {
+	fn weighted_natural_pool() -> (Vec<(PixelVariant, u8)>, u32) {
+		let pool = PixelVariant::natural_pool();
+		let sum = pool.iter().map(|(_, natural)| natural.frequency as u32).sum();
+		(pool.into_iter().map(|(p, n)| (p, n.frequency)).collect(), sum)
+	}
+
+	fn weighted_random_pixel() -> Pixel {
+		let (pool, sum) = Self::weighted_natural_pool();
+		let r = rand::random::<u32>() % sum;
+
+		let mut acc = 0;
+		for (pixel, freq) in pool.into_iter() {
+			acc += freq as u32;
+			if acc >= r {
+				return pixel.default();
+			}
+		}
+		unreachable!("This should never happen unless there are no pixels in the pool");
 	}
 }
 
