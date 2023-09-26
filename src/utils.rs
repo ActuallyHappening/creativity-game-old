@@ -34,7 +34,7 @@ impl Color {
 }
 
 #[extension(pub trait BundleExt)]
-impl<T> T {
+impl<T: Bundle> T {
 	fn pickable(self) -> (PickableBundle, RaycastPickTarget, Self) {
 		(PickableBundle::default(), RaycastPickTarget::default(), self)
 	}

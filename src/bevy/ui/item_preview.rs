@@ -10,7 +10,7 @@ impl Plugin for ItemPreview {
 	fn build(&self, app: &mut App) {
 			app.add_systems(Startup, |mut commands: Commands| {
 				commands.spawn(Camera3dBundle {
-					transform: Transform::from_xyz(0., CAMERA_HEIGHT, 0.),
+					transform: Transform::from_xyz(0., CAMERA_HEIGHT, 0.).with_rotation(*INITIAL_ROT),
 					camera: Camera {
 						order: 1,
 						..default()
@@ -20,7 +20,7 @@ impl Plugin for ItemPreview {
 						..default()
 					},
 					..default()
-				}.insert(PreviewCamera)).not_pickable();
+				}.insert(PreviewCamera).not_pickable());
 			}).add_systems(Update, update_preview_cam);
 	}
 }
@@ -34,8 +34,13 @@ lazy_static::lazy_static! {
 
 impl ItemPreview {
 	/// Width of viewport taken by item preview
-	const WIDTH_PERCENT: f32 = 20.;
-	const MARGIN: f32 = 0.;
+	const WIDTH_PERCENT: u32 = 20;
+	/// Around on all sides of preview, used to make preview wit within the *border*
+	/// CSS property in style!{} below in UI code
+	const MARGIN: u32 = 10;
+
+	// TODO Implement
+	const EDGE_OFFSET: u32 = 0;
 
 	/// Flex location of preview, assuming placed in top right of screen
 	/// with no margin between this and viewport border
@@ -46,18 +51,32 @@ impl ItemPreview {
 				NodeBundle {
 					style: style! {Style
 						// aspect_ratio: 1,
-						border: 0 px,
+						border: 5 px,
 						margin: 0 px,
 					}
-					.with_width_vw(Self::WIDTH_PERCENT)
-					.with_height_vw(Self::WIDTH_PERCENT),
+					.with_width_vw(Self::WIDTH_PERCENT as f32)
+					.with_height_vw(Self::WIDTH_PERCENT as f32),
 					border_color: Color::BLACK.into(),
 					// background_color: Color::PURPLE.into(),
 					..default()
 				}
+				.not_pickable()
 				.named("Item Preview UI"),
-			)
-			.not_pickable();
+			);
+			// todo: maybe use right: EDGE_OFFSET and top EDGE_OFFSET plus display: absolute to get an edge offset for preview ui
+			// .with_children(|parent| {
+			// 	parent.spawn(NodeBundle {
+			// 		style: style!{Style
+			// 			width: 100%,
+			// 			height: 100%,
+
+			// 			margin: 5 px,
+			// 			border: 5 px,
+			// 		},
+			// 		border_color: Color::BLACK.into(),
+			// 		..default()
+			// 	}.named("Item preview"));
+			// });
 	}
 }
 
@@ -72,15 +91,15 @@ fn update_preview_cam(
 		let window = windows.get(resize_event.window).unwrap();
 		let mut preview_cam = cam.single_mut();
 
-		let width = window.resolution.physical_width() as f32;
-		let _height = window.resolution.physical_height() as f32;
-		let preview_width = (ItemPreview::WIDTH_PERCENT / 100.) * width;
-		let top_left_x = width - ItemPreview::MARGIN * 2. - preview_width;
-		let top_left_y = 0. - ItemPreview::MARGIN;
+		let width = window.resolution.physical_width();
+		let _height = window.resolution.physical_height();
+		let preview_width = ((ItemPreview::WIDTH_PERCENT as f32 / 100.) * width as f32).round() as u32 - ItemPreview::MARGIN * 2;
+		let top_left_x = width - preview_width - ItemPreview::MARGIN - ItemPreview::EDGE_OFFSET;
+		let top_left_y = ItemPreview::MARGIN + ItemPreview::EDGE_OFFSET;
 
 		preview_cam.viewport = Some(Viewport {
-			physical_position: UVec2::new(top_left_x as u32, top_left_y as u32),
-			physical_size: UVec2::new(preview_width as u32, preview_width as u32),
+			physical_position: UVec2::new(top_left_x, top_left_y),
+			physical_size: UVec2::new(preview_width, preview_width),
 			..default()
 		});
 
