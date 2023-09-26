@@ -104,6 +104,26 @@ macro_rules! style {
 				} ;next; $($rest)*
 			}
 		};
+		// generic vw viewport width
+		(prev $prev:expr ;next; $prop:ident: $val:literal vw, $($rest:tt)*) => {
+			style!{
+				prev {
+					let mut prev = $prev;
+					prev.$prop = Val::Vw($crate::bevy::ui::macros::to_literal_f32!($val));
+					prev
+				} ;next; $($rest)*
+			}
+		};
+		// // generic vw expr
+		// (prev $prev:expr ;next; $prop:ident: $val:expr vw, $($rest:tt)*) => {
+		// 	style!{
+		// 		prev {
+		// 			let mut prev = $prev;
+		// 			prev.$prop = Val::Vw($val);
+		// 			prev
+		// 		} ;next; $($rest)*
+		// 	}
+		// };
 		// generic f32 literals
 		(prev $prev:expr ;next; $prop:ident: $val:literal, $($rest:tt)*) => {
 			style!{

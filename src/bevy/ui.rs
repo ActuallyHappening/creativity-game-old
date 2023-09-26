@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::utils::{*, Font};
+use crate::utils::*;
 
 mod macros;
 use macros::*;
@@ -20,6 +20,7 @@ impl Plugin for UiPlugin {
 }
 
 fn ui(mut commands: Commands, mut mma: MMA) {
+
 	commands
 		.spawn(
 			NodeBundle {
@@ -35,9 +36,9 @@ fn ui(mut commands: Commands, mut mma: MMA) {
 					height: 100%,
 					justify_content: center,
 					align_items: end,
-					margin: 10 px,
+					// margin: 10 px,
 					flex_direction: column,
-					flex_grow: 1,
+					// flex_grow: 1,
 				},
 				..default()
 			}
@@ -45,28 +46,12 @@ fn ui(mut commands: Commands, mut mma: MMA) {
 			.not_pickable(),
 		)
 		.with_children(|parent| {
-			parent
-				.spawn(NodeBundle {
-					style: style! {Style
-						flex_grow: 1,
-						aspect_ratio: 1,
-						border: 2 px,
-						// width: 100 %,
-						height: 100 %,
-						max_height: 250 px,
-					},
-					background_color: Color::ALICE_BLUE.with_a(0.2).into(),
-					border_color: Color::BLACK.into(),
-					..default()
-				})
-				.with_children(|parent| {
-					ItemPreview::ui(parent, &mut mma);
-				});
+			ItemPreview::ui(parent);
 
 			parent
 				.spawn(NodeBundle {
 					style: style! {Style
-						flex_grow: 5,
+						flex_grow: 1,
 					},
 					..default()
 				})

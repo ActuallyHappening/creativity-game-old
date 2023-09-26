@@ -20,7 +20,7 @@ fn main() {
 		)
 		.add_plugins(MainPlugin);
 
-	#[cfg(feature = "dev")]
+	#[cfg(feature = "debugging")]
 	app.add_plugins(bevy_editor_pls::prelude::EditorPlugin::default());
 
 	app.run();

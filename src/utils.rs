@@ -80,6 +80,14 @@ impl Font {
 	}
 }
 
+#[extension(pub trait StyleExt)]
+impl Style {
+	fn with_width_vw(mut self, vw: impl Into<f32>) -> Self {
+		self.width = Val::Vw(vw.into());
+		self
+	}
+}
+
 pub fn init_debug_tools() {
 	#[cfg(not(target_arch = "wasm32"))]
 	tracing_subscriber::fmt::init();
