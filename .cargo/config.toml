@@ -1,2 +1,3 @@
 [alias]
 xtask = "run -p xtask --"
+rd = "run --no-default-features -F dev"

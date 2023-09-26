@@ -21,18 +21,25 @@ impl Plugin for SetupPlugin {
 					.disable::<DefaultHighlightingPlugin>()
 					.disable::<DebugPickingPlugin>(),
 			);
+
 		#[cfg(feature = "dev")]
 		app.add_plugins((
 			ScreenFrameDiagnosticsPlugin,
 			ScreenDiagnosticsPlugin::default(),
 		));
+
+		app.add_plugins(RapierPhysicsPlugin::<NoUserData>::default());
+		app.add_systems(Startup, |mut physics_config: ResMut<RapierConfiguration>| {
+			physics_config.gravity = Vec3::ZERO;
+		});
+
+		#[cfg(feature = "debugging")]
+		app.add_plugins(RapierDebugRenderPlugin::default());
 	}
 }
 
 pub fn setup(
 	mut commands: Commands,
-	mut meshes: ResMut<Assets<Mesh>>,
-	mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
 	// cam
 	commands.spawn(CameraPlugin::default());
@@ -48,15 +55,4 @@ pub fn setup(
 		transform: Transform::from_xyz(0., LIGHT_HEIGHT, 0.),
 		..default()
 	});
-
-	// ground plane
-	// commands.spawn((
-	// 	PbrBundle {
-	// 		mesh: meshes.add(shape::Plane::from_size(50000.0).into()),
-	// 		material: materials.add(Color::SILVER.into()),
-	// 		// transform to be behind, xy plane
-	// 		transform: Transform::from_xyz(0., 0., 0.),
-	// 		..default()
-	// 	},
-	// ).pickable());
 }

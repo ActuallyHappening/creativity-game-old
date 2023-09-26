@@ -2,6 +2,7 @@
 
 use bevy::prelude::*;
 use bevy_mod_picking::{PickableBundle, prelude::{RaycastPickTarget, Pickable}};
+use bevy_rapier3d::rapier::prelude::RigidBodyType;
 use extension_traits::extension;
 
 pub use bevy::prelude::*;
@@ -10,6 +11,7 @@ pub use crate::core::*;
 pub use contracts::*;
 pub use derive_more::*;
 pub use derive_more::Deref;
+pub use bevy_rapier3d::prelude::*;
 
 #[allow(clippy::upper_case_acronyms)]
 pub type MMA<'a> = (
@@ -49,6 +51,17 @@ impl<T: Bundle> T {
 
 	fn insert<B: Bundle>(self, bundle: B) -> (B, Self) {
 		(bundle, self)
+	}
+
+	// physics
+	fn physics_dynamic(self,) -> (RigidBody, Self) {
+		self.insert(RigidBody::Dynamic)
+	}
+	fn physics_collider_ball(self, size: f32) -> (Collider, Self) {
+		self.insert(Collider::ball(size))
+	}
+	fn physics_restitution(self, coefficient: f32) -> (Restitution, Self) {
+		self.insert(Restitution::coefficient(coefficient))
 	}
 }
 
