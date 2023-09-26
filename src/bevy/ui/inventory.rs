@@ -35,7 +35,9 @@ impl PlayerInventory {
 					])
 					.with_style(style! {Style
 						margin: 5 px,
-						// max_width: 100 px,
+						width: 100%,
+						height: 100%,
+						flex_grow: 1,
 					}),
 					PlayerInventoryText::new(pixel.variant),
 				)

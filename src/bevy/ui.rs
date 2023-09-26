@@ -40,9 +40,10 @@ fn ui(mut commands: Commands, mut mma: MMA) {
 					flex_direction: column,
 					// flex_grow: 1,
 				},
+				// background_color: Color::GREEN.into(),
 				..default()
 			}
-			.named("Inventory UI")
+			.named("UI Root")
 			.not_pickable(),
 		)
 		.with_children(|parent| {
@@ -52,9 +53,16 @@ fn ui(mut commands: Commands, mut mma: MMA) {
 				.spawn(NodeBundle {
 					style: style! {Style
 						flex_grow: 1,
+						flex_direction: column,
+						justify_content: space_evenly,
+						align_items: center,
+
+						width: 100%,
+						max_width: 20 vw,
 					},
+					// background_color: Color::DARK_GREEN.into(),
 					..default()
-				})
+				}.named("Inventory Root"))
 				.with_children(|parent| {
 					PlayerInventory::ui(parent, &mut mma);
 				});

@@ -86,6 +86,16 @@ impl Style {
 		self.width = Val::Vw(vw.into());
 		self
 	}
+
+	fn with_height_vh(mut self, vh: impl Into<f32>) -> Self {
+		self.height = Val::Vh(vh.into());
+		self
+	}
+
+	fn with_height_vw(mut self, vh: impl Into<f32>) -> Self {
+		self.height = Val::Vw(vh.into());
+		self
+	}
 }
 
 pub fn init_debug_tools() {

@@ -163,6 +163,34 @@ macro_rules! style {
 				} ;next; $($rest)*
 			}
 		};
+		(prev $prev:expr ;next; justify_content: space_evenly, $($rest:tt)*) => {
+			style!{
+				prev {
+					let mut prev = $prev;
+					prev.justify_content = JustifyContent::SpaceEvenly;
+					prev
+				} ;next; $($rest)*
+			}
+		};
+		(prev $prev:expr ;next; justify_content: space_around, $($rest:tt)*) => {
+			style!{
+				prev {
+					let mut prev = $prev;
+					prev.justify_content = JustifyContent::SpaceAround;
+					prev
+				} ;next; $($rest)*
+			}
+		};
+		(prev $prev:expr ;next; justify_content: space_between, $($rest:tt)*) => {
+			style!{
+				prev {
+					let mut prev = $prev;
+					prev.justify_content = JustifyContent::SpaceBetween;
+					prev
+				} ;next; $($rest)*
+			}
+		};
+
 		// align items
 		(prev $prev:expr ;next; align_items: center, $($rest:tt)*) => {
 			style!{
