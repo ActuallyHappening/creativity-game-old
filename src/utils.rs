@@ -46,6 +46,10 @@ impl<T> T {
 	fn named(self, name: impl Into<std::borrow::Cow<'static, str>>) -> (Name, Self) {
 		(Name::new(name), self)
 	}
+
+	fn insert<B: Bundle>(self, bundle: B) -> (B, Self) {
+		(bundle, self)
+	}
 }
 
 #[derive(derive_more::Constructor, Debug, Clone, Copy, PartialEq, Eq, Hash)]

@@ -14,6 +14,7 @@ pub struct UiPlugin;
 impl Plugin for UiPlugin {
 	fn build(&self, app: &mut App) {
 		app
+    .add_plugins(ItemPreview)
 			.add_systems(Startup, ui)
 			.add_systems(Update, update_inventory_ui);
 	}
