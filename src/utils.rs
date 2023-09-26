@@ -76,6 +76,12 @@ impl<T: Bundle> T {
 			torque: Vec3::ZERO,
 		})
 	}
+	fn physics_zero_velocity(self) -> (Velocity, Self) {
+		self.insert(Velocity {
+			linvel: Vec3::ZERO,
+			angvel: Vec3::ZERO,
+		})
+	}
 }
 
 #[derive(derive_more::Constructor, Debug, Clone, Copy, PartialEq, Eq, Hash)]
