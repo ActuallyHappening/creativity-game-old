@@ -51,43 +51,52 @@ fn initial_spawn_player(mut commands: Commands, (mut meshs, mut mats, _): MMA) {
 }
 
 fn handle_player_movement(
-	mut player: Query<&mut ExternalForce, With<MainPlayer>>,
+	mut player: Query<(&mut ExternalForce, &Transform), With<MainPlayer>>,
+	time: Res<Time>,
 	keyboard_input: Res<Input<KeyCode>>,
 ) {
-	let mut player = player.single_mut();
+	let (mut player, transform) = player.single_mut();
+	const FACTOR: f32 = 50_000_000.;
 
 	// movement
 	let mut movement_force = Vec3::ZERO;
+	let mut torque = Vec3::ZERO;
+	let forward = transform.forward().normalize();
+	let up = transform.up().normalize();
 	if keyboard_input.pressed(KeyCode::W) {
-		movement_force -= Vec3::Z;
+		// forward
+		movement_force += forward;
 	}
 	if keyboard_input.pressed(KeyCode::S) {
-		movement_force += Vec3::Z;
+		// backwards
+		movement_force -= forward;
 	}
 	if keyboard_input.pressed(KeyCode::A) {
-		movement_force -= Vec3::X;
+		// left
+		torque += up;
 	}
 	if keyboard_input.pressed(KeyCode::D) {
-		movement_force += Vec3::X;
+		// right
+		torque -= up;
 	}
+	if keyboard_input.pressed(KeyCode::Space) {
+		// tilt up
+		torque += forward.cross(up).normalize();
+	}
+	if keyboard_input.pressed(KeyCode::ShiftLeft) {
+		// tilt down
+		torque -= forward.cross(up).normalize();
+	}
+
 	if movement_force == Vec3::ZERO {
 		player.force = Vec3::ZERO;
 	} else {
-		player.force = movement_force.normalize() * 2000000.;
-	}
-
-	// rotation
-	let mut torque = Vec3::ZERO;
-	if keyboard_input.pressed(KeyCode::Space) {
-		torque += Vec3::Y;
-	}
-	if keyboard_input.pressed(KeyCode::ShiftLeft) {
-		torque -= Vec3::Y;
+		player.force = movement_force.normalize() * FACTOR * time.delta_seconds_f64() as f32;
 	}
 	if torque == Vec3::ZERO {
 		player.torque = Vec3::ZERO;
 	} else {
-		player.torque = torque.normalize() * 2.;
+		player.torque = torque.normalize() * FACTOR * time.delta_seconds_f64() as f32;
 	}
 
 	#[cfg(feature = "debugging")]
