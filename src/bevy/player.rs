@@ -3,7 +3,7 @@ use crate::core::PlayerInventory;
 use super::camera::{handle_camera_movement, MainCamera};
 use crate::utils::*;
 use bevy::prelude::*;
-use std::ops::{Deref, Add, Div};
+use std::ops::{Add, Deref, Div};
 
 pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
@@ -53,10 +53,10 @@ fn initial_spawn_player(mut commands: Commands, (mut meshs, mut mats, _): MMA) {
 
 impl MainPlayer {
 	const MOVE_FACTOR: f32 = 5_000_000.;
-	const TURN_FACTOR: f32 = MainPlayer::MOVE_FACTOR / 5.;
+	const TURN_FACTOR: f32 = 25_000_000.;
 
 	const MAX_LINEAR_VELOCITY: f32 = 10.;
-	const MAX_ANGULAR_VELOCITY: f32 = 10.;
+	const MAX_ANGULAR_VELOCITY: f32 = 0.3;
 }
 
 fn handle_player_movement(
@@ -66,7 +66,8 @@ fn handle_player_movement(
 ) {
 	let (mut player, transform, velocity) = player.single_mut();
 
-	// movement
+	// gather inputs
+
 	let mut movement_force = Vec3::ZERO;
 	let mut torque = Vec3::ZERO;
 	let forward = transform.forward().normalize();
@@ -96,6 +97,8 @@ fn handle_player_movement(
 		torque -= forward.cross(up).normalize();
 	}
 
+	// enact inputs
+
 	if movement_force == Vec3::ZERO {
 		player.force = Vec3::ZERO;
 	} else {
@@ -104,22 +107,20 @@ fn handle_player_movement(
 
 		// limit velocity
 		let current_velocity = velocity.linvel;
-
-		let forward_factor = player
-			.force
-			.normalize()
-			.dot(current_velocity.normalize())
-
-			.add(1.)
-			.div(2.);
-
-		info!(
-			"len = {} Forward factor: {}",
-			current_velocity.length(),
-			forward_factor
-		);
-
 		if current_velocity.length() > MainPlayer::MAX_LINEAR_VELOCITY {
+			let forward_factor = player
+				.force
+				.normalize()
+				.dot(current_velocity.normalize())
+				.add(1.)
+				.div(2.);
+
+			// info!(
+			// 	"len = {} Forward factor: {}",
+			// 	current_velocity.length(),
+			// 	forward_factor
+			// );
+
 			player.force *= 1. - forward_factor;
 		}
 	}
@@ -129,19 +130,25 @@ fn handle_player_movement(
 		player.torque = torque.normalize() * MainPlayer::TURN_FACTOR * time.delta_seconds_f64() as f32;
 
 		// limit angular velocity
-		if velocity.angvel.length() > MainPlayer::MAX_ANGULAR_VELOCITY {
-			player.torque = Vec3::ZERO;
+		let current_angular_velocity = velocity.angvel;
+
+		if current_angular_velocity.length() > MainPlayer::MAX_ANGULAR_VELOCITY {
+			let turn_factor = player
+				.torque
+				.normalize()
+				.dot(current_angular_velocity.normalize())
+				.add(1.)
+				.div(2.);
+
+			info!(
+				"len = {} angle_factor factor: {}",
+				current_angular_velocity.length(),
+				turn_factor
+			);
+
+			player.torque *= 1. - turn_factor;
 		}
 	}
-
-	// #[cfg(feature = "debugging")]
-	// info!(
-	// 	"Player force: {:?}, torque: {:?}, velocity: {:?}",
-	// 	player.force, player.torque, velocity
-	// );
-
-	// #[cfg(feature = "debugging")]
-	// info!("Player linear velocity (len = {}): {:?}", velocity.linvel.length(), velocity.linvel);
 }
 
 fn handle_player_mined_px(
