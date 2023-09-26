@@ -45,45 +45,53 @@ fn initial_spawn_player(mut commands: Commands, (mut meshs, mut mats, _): MMA) {
 		)
 			.named("Main Player")
 			.physics_dynamic()
-			.physics_collider_ball(10.),
+			.physics_collider_ball(10.)
+			.physics_zero_force(),
 	);
 }
 
 fn handle_player_movement(
-	mut player: Query<&mut Transform, (With<MainPlayer>, Without<MainCamera>)>,
-	// mut camera: Query<&mut Transform, (With<MainCamera>, Without<MainPlayer>)>,
+	mut player: Query<&mut ExternalForce, With<MainPlayer>>,
 	keyboard_input: Res<Input<KeyCode>>,
 ) {
 	let mut player = player.single_mut();
-	// let mut camera = camera.single_mut();
 
-	let mut translation = Vec3::ZERO;
+	// movement
+	let mut movement_force = Vec3::ZERO;
 	if keyboard_input.pressed(KeyCode::W) {
-		translation -= Vec3::Z;
+		movement_force -= Vec3::Z;
 	}
 	if keyboard_input.pressed(KeyCode::S) {
-		translation += Vec3::Z;
+		movement_force += Vec3::Z;
 	}
 	if keyboard_input.pressed(KeyCode::A) {
-		translation -= Vec3::X;
+		movement_force -= Vec3::X;
 	}
 	if keyboard_input.pressed(KeyCode::D) {
-		translation += Vec3::X;
+		movement_force += Vec3::X;
 	}
-	#[cfg(feature = "dev")]
-	if keyboard_input.pressed(KeyCode::Space) {
-		translation += Vec3::Y;
-	}
-	#[cfg(feature = "dev")]
-	if keyboard_input.pressed(KeyCode::ShiftLeft) {
-		translation -= Vec3::Y;
+	if movement_force == Vec3::ZERO {
+		player.force = Vec3::ZERO;
+	} else {
+		player.force = movement_force.normalize() * 2000000.;
 	}
 
-	if translation != Vec3::ZERO {
-		let translation = translation.normalize() * 2.;
-		player.translation += translation;
-		// camera.translation += translation;
+	// rotation
+	let mut torque = Vec3::ZERO;
+	if keyboard_input.pressed(KeyCode::Space) {
+		torque += Vec3::Y;
 	}
+	if keyboard_input.pressed(KeyCode::ShiftLeft) {
+		torque -= Vec3::Y;
+	}
+	if torque == Vec3::ZERO {
+		player.torque = Vec3::ZERO;
+	} else {
+		player.torque = torque.normalize() * 2.;
+	}
+
+	#[cfg(feature = "debugging")]
+	info!("Player force: {:?} and impulse: {:?}", player.force, player.torque);
 }
 
 fn handle_player_mined_px(

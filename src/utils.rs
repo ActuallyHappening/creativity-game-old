@@ -1,17 +1,20 @@
 //! Various constants and utility types
 
 use bevy::prelude::*;
-use bevy_mod_picking::{PickableBundle, prelude::{RaycastPickTarget, Pickable}};
+use bevy_mod_picking::{
+	prelude::{Pickable, RaycastPickTarget},
+	PickableBundle,
+};
 use bevy_rapier3d::rapier::prelude::RigidBodyType;
 use extension_traits::extension;
 
+pub use crate::core::*;
 pub use bevy::prelude::*;
 pub use bevy_mod_picking::prelude::*;
-pub use crate::core::*;
-pub use contracts::*;
-pub use derive_more::*;
-pub use derive_more::Deref;
 pub use bevy_rapier3d::prelude::*;
+pub use contracts::*;
+pub use derive_more::Deref;
+pub use derive_more::*;
 
 #[allow(clippy::upper_case_acronyms)]
 pub type MMA<'a> = (
@@ -38,7 +41,11 @@ impl Color {
 #[extension(pub trait BundleExt)]
 impl<T: Bundle> T {
 	fn pickable(self) -> (PickableBundle, RaycastPickTarget, Self) {
-		(PickableBundle::default(), RaycastPickTarget::default(), self)
+		(
+			PickableBundle::default(),
+			RaycastPickTarget::default(),
+			self,
+		)
 	}
 
 	fn not_pickable(self) -> (Pickable, Self) {
@@ -54,7 +61,7 @@ impl<T: Bundle> T {
 	}
 
 	// physics
-	fn physics_dynamic(self,) -> (RigidBody, Self) {
+	fn physics_dynamic(self) -> (RigidBody, Self) {
 		self.insert(RigidBody::Dynamic)
 	}
 	fn physics_collider_ball(self, size: f32) -> (Collider, Self) {
@@ -62,6 +69,12 @@ impl<T: Bundle> T {
 	}
 	fn physics_restitution(self, coefficient: f32) -> (Restitution, Self) {
 		self.insert(Restitution::coefficient(coefficient))
+	}
+	fn physics_zero_force(self) -> (ExternalForce, Self) {
+		self.insert(ExternalForce {
+			force: Vec3::ZERO,
+			torque: Vec3::ZERO,
+		})
 	}
 }
 
