@@ -1,11 +1,11 @@
 //! Handle main camera
 
-use bevy::prelude::*;
+use bevy::{prelude::*, core_pipeline::clear_color::ClearColorConfig};
 use bevy_dolly::prelude::*;
 use bevy_mod_picking::prelude::RaycastPickCamera;
 
 use super::player::MainPlayer;
-use crate::utils::*; 
+use crate::utils::*;
 
 pub struct CameraPlugin;
 impl Plugin for CameraPlugin {
@@ -23,11 +23,15 @@ lazy_static::lazy_static! {
 
 impl CameraPlugin {
 	/// Returns the default camera
-	pub fn default() -> impl Bundle  {
+	pub fn default() -> impl Bundle {
 		let initial_pos = Vec3::new(0., CAMERA_HEIGHT, 0.);
 		(
 			Camera3dBundle {
 				transform: Transform::from_translation(initial_pos).with_rotation(*INITIAL_ROT),
+				camera_3d: Camera3d {
+					clear_color: ClearColorConfig::Custom(Color::BLACK),
+					..default()
+				},
 				..default()
 			},
 			// Rig::builder()
