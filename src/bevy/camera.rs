@@ -7,7 +7,9 @@ use bevy_mod_picking::prelude::RaycastPickCamera;
 use super::player::MainPlayer;
 use crate::utils::*;
 
-// mod orbit;
+mod orbit;
+mod dolly_rig;
+use dolly_rig::*;
 
 pub struct CameraPlugin;
 impl Plugin for CameraPlugin {
@@ -63,21 +65,6 @@ impl CameraPlugin {
 			// 	..default()
 			// },
 		)
-	}
-}
-
-#[derive(Debug, Constructor)]
-struct RotationArm<const N: usize> {
-	pub offset: Quat,
-}
-
-impl<const N: usize> RigDriver for RotationArm<N> {
-	fn update(&mut self, params: bevy_dolly::dolly::rig::RigUpdateParams) -> Transform {
-		Transform {
-			rotation: params.parent.rotation.mul_quat(self.offset),
-			translation: params.parent.translation,
-			scale: Vec3::ONE,
-		}
 	}
 }
 
