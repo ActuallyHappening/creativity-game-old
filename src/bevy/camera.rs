@@ -1,23 +1,20 @@
 //! Handle main camera
 
-use bevy::{core_pipeline::clear_color::ClearColorConfig, prelude::*, input::mouse::MouseMotion};
+use bevy::{core_pipeline::clear_color::ClearColorConfig, input::mouse::MouseMotion, prelude::*};
 use bevy_dolly::prelude::*;
 use bevy_mod_picking::prelude::RaycastPickCamera;
 
 use super::player::MainPlayer;
 use crate::utils::*;
 
-mod orbit;
 mod dolly_rig;
+mod orbit;
 use dolly_rig::*;
 
 pub struct CameraPlugin;
 impl Plugin for CameraPlugin {
 	fn build(&self, app: &mut App) {
-		app.add_systems(
-			Update,
-			Dolly::<MainCamera>::update_active,
-		);
+		app.add_systems(Update, Dolly::<MainCamera>::update_active);
 	}
 }
 
@@ -70,6 +67,7 @@ pub fn handle_camera_movement(
 	mut camera: Query<&mut Rig, (With<MainCamera>, Without<MainPlayer>)>,
 
 	mut scroll: EventReader<MouseMotion>,
+	mouse: Res<Input<MouseButton>>,
 ) {
 	let player = player.single();
 	let mut rig = camera.single_mut();
@@ -80,12 +78,16 @@ pub fn handle_camera_movement(
 
 	let mut scroll_x = 0.;
 	let mut scroll_y = 0.;
-	for ev in scroll.iter() {
-		scroll_x += ev.delta.x / 100.;
-		scroll_y += ev.delta.y;
+	if mouse.pressed(MouseButton::Right) {
+		for ev in scroll.iter() {
+			scroll_x += ev.delta.x / -100.;
+			scroll_y += ev.delta.y;
+		}
 	}
 
-	rig.driver_mut::<OrbitArm>().orbit(player.up(), scroll_x, scroll_y);
+	rig
+		.driver_mut::<OrbitArm>()
+		.orbit(player.up(), scroll_x, scroll_y);
 
 	scroll.clear();
 }
