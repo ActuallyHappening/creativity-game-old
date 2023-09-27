@@ -16,6 +16,7 @@ pub use derive_more::Deref;
 pub use derive_more::*;
 pub use extension_traits::extension;
 pub use rand::{random, Rng};
+pub use std::{marker::PhantomData, ops::{Add, Div}};
 
 // todo convert into system param
 #[allow(clippy::upper_case_acronyms)]
@@ -140,6 +141,22 @@ impl Style {
 	fn with_height_vw(mut self, vh: impl Into<f32>) -> Self {
 		self.height = Val::Vw(vh.into());
 		self
+	}
+}
+
+pub fn join<A, B, AMarker, BMarker>(
+	mut system_a: A,
+	mut system_b: B,
+) -> impl FnMut(In<A::In>, ParamSet<(A::Param, B::Param)>) -> (A::Out, B::Out)
+where
+	A: SystemParamFunction<AMarker>,
+	B: SystemParamFunction<BMarker, In = A::In>,
+	A::In: Copy,
+{
+	move |In(input), mut params| {
+		let out_a = system_a.run(input, params.p0());
+		let out_b = system_b.run(input, params.p1());
+		(out_a, out_b)
 	}
 }
 

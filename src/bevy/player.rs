@@ -2,7 +2,7 @@ use crate::core::PlayerInventory;
 
 use super::camera::handle_camera_movement;
 use crate::utils::*;
-use std::ops::{Add, Deref, Div};
+use std::ops::Deref;
 
 mod thrust;
 use thrust::*;
@@ -22,6 +22,8 @@ impl Plugin for PlayerPlugin {
 				(
 					handle_camera_movement,
 					handle_player_mined_px,
+					// gather_player_movement.pipe(vectorise_input_flags).pipe(info)
+					manual_get_final_thrust.pipe(apply_thrust).pipe(info),
 				),
 			);
 	}
@@ -70,14 +72,6 @@ fn initial_spawn_player(
 				..default()
 			});
 		});
-}
-
-impl MainPlayer {
-	const MOVE_FACTOR: f32 = 5_000_000.;
-	const TURN_FACTOR: f32 = 25_000_000.;
-
-	const MAX_LINEAR_VELOCITY: f32 = 10.;
-	const MAX_ANGULAR_VELOCITY: f32 = 0.3;
 }
 
 fn handle_player_mined_px(
