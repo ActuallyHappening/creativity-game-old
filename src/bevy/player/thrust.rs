@@ -249,11 +249,10 @@ pub const fn get_max_velocity_vectors() -> Thrust<MaxVelocityMagnitudes> {
 
 pub const fn get_force_factors() -> Thrust<ForceFactors> {
 	impl MainPlayer {
-		const MOVE_FACTOR: f32 = 5_000_000_000.;
+		const MOVE_FACTOR: f32 = 5_000_000.;
 		const TURN_FACTOR: f32 = 5_000_000.;
-
-		const MAX_TOTAL_ANGULAR_FORCE: f32 = 10_000_000.;
 	}
+
 	Thrust::<ForceFactors> {
 		turn_left: MainPlayer::TURN_FACTOR,
 		tilt_up: MainPlayer::TURN_FACTOR,
@@ -318,17 +317,22 @@ pub fn apply_thrust(
 	let mut player = player.single_mut();
 	let delta = time.delta_seconds_f64() as f32;
 
+	impl MainPlayer {
+		const MAX_TOTAL_ANGULAR_FORCE: f32 = 10_000_000.;
+	}
+
 	player.force = thrust.forward;
 	player.force *= delta;
 
-	player.torque = (thrust.turn_left + thrust.tilt_up + thrust.roll_left).clamp_length(0., MainPlayer::MAX_TOTAL_ANGULAR_VELOCITY);
+	player.torque = (thrust.turn_left + thrust.tilt_up + thrust.roll_left).clamp_length(0., MainPlayer::MAX_TOTAL_ANGULAR_FORCE);
 	player.torque *= delta;
 
-	info!("Thrust: (ang len = {})");
+	// info!("Thrust: (ang len = {})");
 
 	thrust
 }
 
+// #[bevycheck::system]
 pub fn manual_get_final_thrust(
 	keyboard_input: Res<Input<KeyCode>>,
 	player_pos: Query<&Transform, With<MainPlayer>>,
