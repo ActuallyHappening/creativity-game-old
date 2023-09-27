@@ -1,6 +1,6 @@
 //! Handle main camera
 
-use bevy::{core_pipeline::clear_color::ClearColorConfig, prelude::*};
+use bevy::{core_pipeline::clear_color::ClearColorConfig, prelude::*, input::mouse::MouseMotion};
 use bevy_dolly::prelude::*;
 use bevy_mod_picking::prelude::RaycastPickCamera;
 
@@ -48,7 +48,7 @@ impl CameraPlugin {
 			Rig::builder()
 				.with(Position::new(Vec3::ZERO))
 				.with(Rotation::new(*INITIAL_ROT))
-				.with(Arm::new(ARM))
+				.with(OrbitArm::new_from_arm(ARM))
 				// .with(
 				// 	LookAt::new(Vec3::ZERO)
 				// 		.tracking_predictive(false)
@@ -60,10 +60,6 @@ impl CameraPlugin {
 				.build(),
 			RaycastPickCamera::default(),
 			MainCamera,
-			// orbit::PanOrbitCamera {
-			// 	radius: ARM.length(),
-			// 	..default()
-			// },
 		)
 	}
 }
@@ -72,6 +68,8 @@ impl CameraPlugin {
 pub fn handle_camera_movement(
 	player: Query<&Transform, (With<MainPlayer>, Without<MainCamera>)>,
 	mut camera: Query<&mut Rig, (With<MainCamera>, Without<MainPlayer>)>,
+
+	mut scroll: EventReader<MouseMotion>,
 ) {
 	let player = player.single();
 	let mut rig = camera.single_mut();
@@ -79,4 +77,15 @@ pub fn handle_camera_movement(
 	rig.driver_mut::<Position>().position = player.translation;
 	rig.driver_mut::<Rotation>().rotation = player.rotation;
 	// rig.driver_mut::<LookAt>().target = player.translation;
+
+	let mut scroll_x = 0.;
+	let mut scroll_y = 0.;
+	for ev in scroll.iter() {
+		scroll_x += ev.delta.x / 100.;
+		scroll_y += ev.delta.y;
+	}
+
+	rig.driver_mut::<OrbitArm>().orbit(player.up(), scroll_x, scroll_y);
+
+	scroll.clear();
 }
