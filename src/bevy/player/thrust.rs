@@ -5,7 +5,7 @@ use super::MainPlayer;
 #[derive(Debug, Default, Clone)]
 pub struct Thrust<S: ThrustStage> {
 	/// Left is positive
-	side_left: <S as self::ThrustStage>::DimensionType,
+	turn_left: <S as self::ThrustStage>::DimensionType,
 
 	/// Upwards is positive
 	tilt_up: <S as self::ThrustStage>::DimensionType,
@@ -82,7 +82,7 @@ pub fn gather_player_movement(keyboard_input: Res<Input<KeyCode>>) -> Thrust<Inp
 			(true, false) => Some(true),
 			(false, true) => Some(false),
 		},
-		side_left: match (
+		turn_left: match (
 			keyboard_input.pressed(KeyCode::A),
 			keyboard_input.pressed(KeyCode::D),
 		) {
@@ -134,10 +134,11 @@ pub fn vectorise_input_flags(
 	let forward = player.forward();
 	let up = player.up();
 
+	// the meat of the system
 	Thrust::<NormalVectors> {
 		forward: forward * input_flags.forward.into_f32(),
-		side_left: up * input_flags.tilt_up.into_f32(),
-		tilt_up: forward.cross(up) * input_flags.side_left.into_f32(),
+		turn_left: up * input_flags.turn_left.into_f32(),
+		tilt_up: forward.cross(up) * input_flags.tilt_up.into_f32(),
 		roll_left: forward * input_flags.roll_left.into_f32(),
 		_stage: PhantomData,
 	}
@@ -149,7 +150,7 @@ pub fn get_relative_strengths(
 	player: Query<(&Velocity, &Transform), With<MainPlayer>>,
 ) -> Thrust<RelativeStrength> {
 	Thrust::<RelativeStrength> {
-		side_left: 1.,
+		turn_left: 1.,
 		tilt_up: 1.,
 		roll_left: 1.,
 		forward: 1.,
@@ -164,7 +165,7 @@ pub const fn get_max_velocity_vectors() -> Thrust<MaxVelocityMagnitudes> {
 	}
 
 	Thrust::<MaxVelocityMagnitudes> {
-		side_left: MainPlayer::MAX_ANGULAR_VELOCITY,
+		turn_left: MainPlayer::MAX_ANGULAR_VELOCITY,
 		tilt_up: MainPlayer::MAX_ANGULAR_VELOCITY,
 		roll_left: MainPlayer::MAX_ANGULAR_VELOCITY,
 		forward: MainPlayer::MAX_LINEAR_VELOCITY,
@@ -178,7 +179,7 @@ pub const fn get_force_factors() -> Thrust<ForceFactors> {
 		const TURN_FACTOR: f32 = 25_000_000.;
 	}
 	Thrust::<ForceFactors> {
-		side_left: MainPlayer::TURN_FACTOR,
+		turn_left: MainPlayer::TURN_FACTOR,
 		tilt_up: MainPlayer::TURN_FACTOR,
 		roll_left: MainPlayer::TURN_FACTOR,
 		forward: MainPlayer::MOVE_FACTOR,
@@ -202,7 +203,7 @@ pub fn save_thrust_stages(
 
 		fn mul(self, rhs: Thrust<RelativeStrength>) -> Self::Output {
 			Thrust::<AlmostFinalVectors> {
-				side_left: self.side_left * rhs.side_left,
+				turn_left: self.turn_left * rhs.turn_left,
 				tilt_up: self.tilt_up * rhs.tilt_up,
 				roll_left: self.roll_left * rhs.roll_left,
 				forward: self.forward * rhs.forward,
@@ -217,7 +218,7 @@ pub fn save_thrust_stages(
 
 		fn mul(self, rhs: Thrust<ForceFactors>) -> Self::Output {
 			Thrust::<FinalVectors> {
-				side_left: self.side_left * rhs.side_left,
+				turn_left: self.turn_left * rhs.turn_left,
 				tilt_up: self.tilt_up * rhs.tilt_up,
 				roll_left: self.roll_left * rhs.roll_left,
 				forward: self.forward * rhs.forward,
@@ -243,7 +244,7 @@ pub fn apply_thrust(
 
 	player.force = thrust.forward;
 
-	player.torque = thrust.side_left + thrust.tilt_up + thrust.roll_left;
+	player.torque = thrust.turn_left + thrust.tilt_up + thrust.roll_left;
 	player.torque *= delta;
 
 	thrust
