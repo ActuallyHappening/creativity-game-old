@@ -37,6 +37,10 @@ impl CameraPlugin {
 					clear_color: ClearColorConfig::Custom(Color::BLACK),
 					..default()
 				},
+				projection: Projection::Perspective(PerspectiveProjection {
+					far: 10_000_000.,
+					..default()
+				}),
 				..default()
 			},
 			Rig::builder()
