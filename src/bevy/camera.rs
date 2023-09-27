@@ -29,15 +29,12 @@ impl CameraPlugin {
 			Camera3dBundle {
 				transform: Transform::from_translation(initial_pos),
 				camera_3d: Camera3d {
+					// gives the black background of space
 					clear_color: ClearColorConfig::Custom(Color::BLACK),
 					..default()
 				},
 				..default()
 			},
-			// Rig::builder()
-			// 	.with(MovableLookAt::from_position_target(Vec3::ZERO))
-			// 	.with(Arm::new(Vec3::new(0., CAMERA_HEIGHT, 5.)))
-			// 	.build(),
 			Rig::builder()
 				.with(Position::new(Vec3::ZERO))
 				.with(Rotation::new(*INITIAL_ROT))
@@ -45,7 +42,7 @@ impl CameraPlugin {
 				.with(
 					LookAt::new(Vec3::ZERO)
 						.tracking_predictive(false)
-						// .tracking_smoothness(1.25),
+						.tracking_smoothness(0.),
 				)
 				// .with(Smooth::new_position(0.75).predictive(true))
 				.build(),
@@ -63,11 +60,7 @@ pub fn handle_camera_movement(
 	let player = player.single();
 	let mut rig = camera.single_mut();
 
-	// rig
-	// 	.driver_mut::<MovableLookAt>()
-	// 	.set_position_target(player.translation, *INITIAL_ROT);
-
-	rig.driver_mut::<Position>().position = player.translation + Vec3::Y;
+	rig.driver_mut::<Position>().position = player.translation;
 	rig.driver_mut::<Rotation>().rotation = player.rotation;
 	rig.driver_mut::<LookAt>().target = player.translation;
 }

@@ -49,7 +49,14 @@ fn initial_spawn_player(mut commands: Commands, (mut meshs, mut mats, _): MMA) {
 			.physics_zero_force()
 			.physics_zero_velocity()
 			.physics_zero_damping(),
-	);
+	).with_children(|parent| {
+		parent.spawn(PbrBundle{
+			material: mats.add(Color::GREEN.into()),
+			transform: Transform::from_xyz(0., 0., -15.),
+			mesh:meshs.add(shape::Box::new(PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE).into()),
+			..default()
+		});
+	});
 }
 
 impl MainPlayer {
