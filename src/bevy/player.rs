@@ -92,11 +92,11 @@ fn handle_player_movement(
 		movement_force -= forward / 2.;
 	}
 	if keyboard_input.pressed(KeyCode::A) {
-		// left
+		// turn left
 		torque += up;
 	}
 	if keyboard_input.pressed(KeyCode::D) {
-		// right
+		// turn right
 		torque -= up;
 	}
 	if keyboard_input.pressed(KeyCode::Space) {
@@ -106,6 +106,14 @@ fn handle_player_movement(
 	if keyboard_input.pressed(KeyCode::ShiftLeft) {
 		// tilt down
 		torque -= forward.cross(up).normalize();
+	}
+	if keyboard_input.pressed(KeyCode::Q) {
+		// roll left
+		torque -= forward;
+	}
+	if keyboard_input.pressed(KeyCode::E) {
+		// roll right
+		torque += forward;
 	}
 
 	// enact inputs
@@ -126,6 +134,7 @@ fn handle_player_movement(
 				.add(1.)
 				.div(2.);
 
+			// #[cfg(feature = "debugging")]
 			// info!(
 			// 	"len = {} Forward factor: {}",
 			// 	current_velocity.length(),
@@ -152,11 +161,12 @@ fn handle_player_movement(
 				.add(1.)
 				.div(2.);
 
-			info!(
-				"len = {} angle_factor factor: {}",
-				current_angular_velocity.length(),
-				turn_factor
-			);
+			// #[cfg(feature = "debugging")]
+			// info!(
+			// 	"len = {} angle_factor factor: {}",
+			// 	current_angular_velocity.length(),
+			// 	turn_factor
+			// );
 
 			player.torque *= 1. - turn_factor;
 		}
