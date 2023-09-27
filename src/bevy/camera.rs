@@ -72,14 +72,9 @@ pub fn handle_camera_movement(
 	let player = player.single();
 	let mut rig = camera.single_mut();
 
-	rig.driver_mut::<Position>().position = player.translation;
-	rig.driver_mut::<Rotation>().rotation = player.rotation;
-	// rig.driver_mut::<LookAt>().target = player.translation;
-
 	let mut scroll_x = 0.;
 	let mut scroll_y = 0.;
-	let reset_percent;
-	if mouse.pressed(MouseButton::Right) {
+	let should_reset_orbit = if mouse.pressed(MouseButton::Right) {
 		for ev in scroll.iter() {
 			scroll_x += ev.delta.x / -100.;
 			scroll_y += ev.delta.y / 100.;
@@ -95,15 +90,20 @@ pub fn handle_camera_movement(
 			scroll_x = 0.;
 		}
 
-		reset_percent = 0.;
+		false
 	} else {
-		reset_percent = 0.1;
+		true
+	};
+
+	rig.driver_mut::<Position>().position = player.translation;
+	if should_reset_orbit {
+		rig.driver_mut::<Rotation>().rotation = player.rotation;
 	}
 
 	rig
 		.driver_mut::<OrbitArm>()
 		.orbit(player.up(), player.forward(), scroll_x, scroll_y)
-		.reset_percentage(reset_percent);
+		.reset_percentage(if should_reset_orbit { 0.1 } else { 0. });
 
 	scroll.clear();
 }
