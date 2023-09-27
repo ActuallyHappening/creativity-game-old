@@ -80,6 +80,12 @@ fn handle_player_mined_px(
 ) {
 	for px in e.iter().map(|p| p.deref()) {
 		info!("Player mined pixel: {:?}", px);
-		inventory[px.variant] += px.collectable.as_ref().unwrap().amount_multiplier as u32;
+		inventory[px.variant] += px
+			.variant
+			.get_variant_info()
+			.collectable
+			.as_ref()
+			.unwrap()
+			.amount_multiplier as u32;
 	}
 }

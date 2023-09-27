@@ -12,7 +12,7 @@ pub fn update_inventory_ui(
 	inventory: Res<PlayerInventory>,
 ) {
 	for (mut text, PlayerInventoryText { variant }) in invent_texts.iter_mut() {
-		if variant.default().collectable.is_some() {
+		if variant.get_variant_info().collectable.is_some() {
 			text.sections[1].value = format!("{}", inventory[*variant]);
 		}
 	}
@@ -26,7 +26,7 @@ impl PlayerInventory {
 			color: Color::BLUE,
 		};
 
-		for pixel in Pixel::iter_mineable() {
+		for pixel in PixelVariant::get_mineable_variants().map(|pv| pv.get_default_pixel()) {
 			parent.spawn(
 				(
 					TextBundle::from_sections([

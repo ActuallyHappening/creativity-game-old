@@ -16,7 +16,11 @@ pub use derive_more::Deref;
 pub use derive_more::*;
 pub use extension_traits::extension;
 pub use rand::{random, Rng};
-pub use std::{marker::PhantomData, ops::{Add, Div}};
+pub use std::{
+	marker::PhantomData,
+	ops::{Add, Div},
+};
+pub use strum::*;
 
 // todo convert into system param
 #[allow(clippy::upper_case_acronyms)]

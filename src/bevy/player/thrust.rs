@@ -324,7 +324,8 @@ pub fn apply_thrust(
 	player.force = thrust.forward;
 	player.force *= delta;
 
-	player.torque = (thrust.turn_left + thrust.tilt_up + thrust.roll_left).clamp_length(0., MainPlayer::MAX_TOTAL_ANGULAR_FORCE);
+	player.torque = (thrust.turn_left + thrust.tilt_up + thrust.roll_left)
+		.clamp_length(0., MainPlayer::MAX_TOTAL_ANGULAR_FORCE);
 	player.torque *= delta;
 
 	// info!("Thrust: (ang len = {})");

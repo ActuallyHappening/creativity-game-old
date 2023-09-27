@@ -34,7 +34,7 @@ impl PixelVariant {
 		for (pixel, freq) in pool.into_iter() {
 			acc += freq as u32;
 			if acc >= r {
-				return pixel.default();
+				return pixel.get_default_pixel();
 			}
 		}
 		unreachable!("This should never happen unless there are no pixels in the pool");

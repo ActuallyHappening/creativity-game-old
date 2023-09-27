@@ -5,7 +5,7 @@ pub struct PlayerMinedPixel(Pixel);
 
 impl PlayerMinedPixel {
 	pub fn new(pixel: Pixel) -> Option<Self> {
-		if pixel.collectable.is_some() {
+		if pixel.variant.get_variant_info().is_player_mineable() {
 			Some(Self(pixel))
 		} else {
 			None
