@@ -30,7 +30,7 @@ const PLAYER_HEIGHT: f32 = 25.;
 #[derive(Component)]
 pub struct MainPlayer;
 
-fn initial_spawn_player(mut commands: Commands, (mut meshs, mut mats, _): MMA) {
+fn initial_spawn_player(mut commands: Commands, MMA {mut meshs, mut mats, .. }: MMA) {
 	info!("Spawning player");
 	commands
 		.spawn(

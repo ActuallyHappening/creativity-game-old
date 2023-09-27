@@ -1,12 +1,10 @@
 //! Various constants and utility types
 
-use bevy::prelude::*;
+use bevy::ecs::system::SystemParam;
 use bevy_mod_picking::{
 	prelude::{Pickable, RaycastPickTarget},
 	PickableBundle,
 };
-use bevy_rapier3d::rapier::prelude::RigidBodyType;
-use extension_traits::extension;
 
 pub use crate::core::*;
 pub use bevy::prelude::*;
@@ -16,13 +14,17 @@ pub use bevy_dolly::prelude::*;
 pub use contracts::*;
 pub use derive_more::Deref;
 pub use derive_more::*;
+pub use rand::{random, Rng};
+pub use extension_traits::extension;
 
+// todo convert into system param
 #[allow(clippy::upper_case_acronyms)]
-pub type MMA<'a> = (
-	ResMut<'a, Assets<Mesh>>,
-	ResMut<'a, Assets<StandardMaterial>>,
-	ResMut<'a, AssetServer>,
-);
+#[derive(SystemParam)]
+pub struct MMA<'w> {
+	pub meshs: ResMut<'w, Assets<Mesh>>,
+	pub mats: ResMut<'w, Assets<StandardMaterial>>,
+	pub ass: Res<'w, AssetServer>,
+}
 
 pub const PIXEL_SIZE: f32 = 5.;
 pub const WORLD_WIDTH: usize = 20;

@@ -6,6 +6,8 @@ use bevy_mod_picking::{
 #[cfg(feature = "dev")]
 use bevy_screen_diagnostics::{ScreenDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin};
 
+mod stars;
+
 use super::{camera::CameraPlugin, world_gen::spawn_random_world};
 use crate::utils::*;
 
@@ -47,7 +49,7 @@ impl Plugin for SetupPlugin {
 	}
 }
 
-pub fn setup(mut commands: Commands) {
+pub fn setup(mut commands: Commands, mut mma: MMA) {
 	// cam
 	commands.spawn(CameraPlugin::default());
 
@@ -62,6 +64,12 @@ pub fn setup(mut commands: Commands) {
 		transform: Transform::from_xyz(0., LIGHT_HEIGHT, 0.),
 		..default()
 	});
+
+	// stars
+	for _ in 0..100 {
+		stars::spawn_random_star(&mut commands, &mut mma);
+		// tracing::info!("Spawned star");
+	}
 }
 
 #[cfg(feature = "dev")]

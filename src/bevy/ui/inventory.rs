@@ -19,7 +19,7 @@ pub fn update_inventory_ui(
 }
 
 impl PlayerInventory {
-	pub fn ui(parent: &mut ChildBuilder, (_, _, ass): &mut MMA) {
+	pub fn ui(parent: &mut ChildBuilder, ass: &Res<AssetServer>) {
 		let text_style = TextStyle {
 			font: ass.load(Font::Medium.into_path()),
 			font_size: 30.,

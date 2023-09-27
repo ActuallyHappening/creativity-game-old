@@ -67,7 +67,7 @@ fn ui(mut commands: Commands, mut mma: MMA) {
 					.named("Inventory Root"),
 				)
 				.with_children(|parent| {
-					PlayerInventory::ui(parent, &mut mma);
+					PlayerInventory::ui(parent, &mma.ass);
 				});
 		});
 }
