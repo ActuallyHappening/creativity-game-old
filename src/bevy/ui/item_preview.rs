@@ -1,4 +1,6 @@
-use bevy::{render::camera::Viewport, window::WindowResized, core_pipeline::clear_color::ClearColorConfig};
+use bevy::{
+	core_pipeline::clear_color::ClearColorConfig, render::camera::Viewport, window::WindowResized,
+};
 
 use crate::bevy::camera::MainCamera;
 
@@ -8,20 +10,26 @@ use super::*;
 pub struct ItemPreview;
 impl Plugin for ItemPreview {
 	fn build(&self, app: &mut App) {
-			app.add_systems(Startup, |mut commands: Commands| {
-				commands.spawn(Camera3dBundle {
-					transform: Transform::from_xyz(0., CAMERA_HEIGHT, 0.).with_rotation(*INITIAL_ROT),
-					camera: Camera {
-						order: 1,
+		app
+			.add_systems(Startup, |mut commands: Commands| {
+				commands.spawn(
+					Camera3dBundle {
+						transform: Transform::from_xyz(0., CAMERA_HEIGHT, 0.).with_rotation(*INITIAL_ROT),
+						camera: Camera {
+							order: 1,
+							..default()
+						},
+						camera_3d: Camera3d {
+							clear_color: ClearColorConfig::None,
+							..default()
+						},
 						..default()
-					},
-					camera_3d: Camera3d {
-						clear_color: ClearColorConfig::None,
-						..default()
-					},
-					..default()
-				}.insert(PreviewCamera).not_pickable());
-			}).add_systems(Update, update_preview_cam);
+					}
+					.insert(PreviewCamera)
+					.not_pickable(),
+				);
+			})
+			.add_systems(Update, update_preview_cam);
 	}
 }
 
@@ -46,37 +54,36 @@ impl ItemPreview {
 	/// with no margin between this and viewport border
 	pub fn ui(parent: &mut ChildBuilder) {
 		// ui for preview with border
-		parent
-			.spawn(
-				NodeBundle {
-					style: style! {Style
-						// aspect_ratio: 1,
-						border: 5 px,
-						margin: 0 px,
-					}
-					.with_width_vw(Self::WIDTH_PERCENT as f32)
-					.with_height_vw(Self::WIDTH_PERCENT as f32),
-					border_color: Color::BLACK.into(),
-					// background_color: Color::PURPLE.into(),
-					..default()
+		parent.spawn(
+			NodeBundle {
+				style: style! {Style
+					// aspect_ratio: 1,
+					border: 5 px,
+					margin: 0 px,
 				}
-				.not_pickable()
-				.named("Item Preview UI"),
-			);
-			// todo: maybe use right: EDGE_OFFSET and top EDGE_OFFSET plus display: absolute to get an edge offset for preview ui
-			// .with_children(|parent| {
-			// 	parent.spawn(NodeBundle {
-			// 		style: style!{Style
-			// 			width: 100%,
-			// 			height: 100%,
+				.with_width_vw(Self::WIDTH_PERCENT as f32)
+				.with_height_vw(Self::WIDTH_PERCENT as f32),
+				border_color: Color::BLACK.into(),
+				// background_color: Color::PURPLE.into(),
+				..default()
+			}
+			.not_pickable()
+			.named("Item Preview UI"),
+		);
+		// todo: maybe use right: EDGE_OFFSET and top EDGE_OFFSET plus display: absolute to get an edge offset for preview ui
+		// .with_children(|parent| {
+		// 	parent.spawn(NodeBundle {
+		// 		style: style!{Style
+		// 			width: 100%,
+		// 			height: 100%,
 
-			// 			margin: 5 px,
-			// 			border: 5 px,
-			// 		},
-			// 		border_color: Color::BLACK.into(),
-			// 		..default()
-			// 	}.named("Item preview"));
-			// });
+		// 			margin: 5 px,
+		// 			border: 5 px,
+		// 		},
+		// 		border_color: Color::BLACK.into(),
+		// 		..default()
+		// 	}.named("Item preview"));
+		// });
 	}
 }
 
@@ -93,7 +100,8 @@ fn update_preview_cam(
 
 		let width = window.resolution.physical_width();
 		let _height = window.resolution.physical_height();
-		let preview_width = ((ItemPreview::WIDTH_PERCENT as f32 / 100.) * width as f32).round() as u32 - ItemPreview::MARGIN * 2;
+		let preview_width = ((ItemPreview::WIDTH_PERCENT as f32 / 100.) * width as f32).round() as u32
+			- ItemPreview::MARGIN * 2;
 		let top_left_x = width - preview_width - ItemPreview::MARGIN - ItemPreview::EDGE_OFFSET;
 		let top_left_y = ItemPreview::MARGIN + ItemPreview::EDGE_OFFSET;
 

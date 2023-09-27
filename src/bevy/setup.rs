@@ -29,18 +29,25 @@ impl Plugin for SetupPlugin {
 		));
 
 		app.add_plugins(RapierPhysicsPlugin::<NoUserData>::default());
-		app.add_systems(Startup, |mut physics_config: ResMut<RapierConfiguration>| {
-			physics_config.gravity = Vec3::ZERO;
-		});
+		app.add_systems(
+			Startup,
+			|mut physics_config: ResMut<RapierConfiguration>| {
+				physics_config.gravity = Vec3::ZERO;
+			},
+		);
 
 		#[cfg(feature = "debugging")]
 		app.add_plugins(RapierDebugRenderPlugin::default());
+
+		#[cfg(feature = "dev")]
+		#[cfg(feature = "debugging")]
+		app
+			.add_plugins(bevy_editor_pls::prelude::EditorPlugin::default())
+			.insert_resource(editor_controls());
 	}
 }
 
-pub fn setup(
-	mut commands: Commands,
-) {
+pub fn setup(mut commands: Commands) {
 	// cam
 	commands.spawn(CameraPlugin::default());
 
@@ -55,4 +62,23 @@ pub fn setup(
 		transform: Transform::from_xyz(0., LIGHT_HEIGHT, 0.),
 		..default()
 	});
+}
+
+#[cfg(feature = "dev")]
+fn editor_controls() -> bevy_editor_pls::controls::EditorControls {
+	use bevy_editor_pls::controls;
+	use bevy_editor_pls::controls::EditorControls;
+
+	let mut editor_controls = EditorControls::default_bindings();
+	editor_controls.unbind(controls::Action::PlayPauseEditor);
+
+	editor_controls.insert(
+		controls::Action::PlayPauseEditor,
+		controls::Binding {
+			input: controls::UserInput::Single(controls::Button::Keyboard(KeyCode::Backslash)),
+			conditions: vec![controls::BindingCondition::ListeningForText(false)],
+		},
+	);
+
+	editor_controls
 }

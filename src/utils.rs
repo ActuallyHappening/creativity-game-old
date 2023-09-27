@@ -83,7 +83,10 @@ impl<T: Bundle> T {
 		})
 	}
 	fn physics_zero_damping(self) -> (Damping, Self) {
-		self.insert(Damping { linear_damping: 0., angular_damping: 0. })
+		self.insert(Damping {
+			linear_damping: 0.,
+			angular_damping: 0.,
+		})
 	}
 }
 

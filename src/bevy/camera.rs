@@ -38,7 +38,7 @@ impl CameraPlugin {
 			Rig::builder()
 				.with(Position::new(Vec3::ZERO))
 				.with(Rotation::new(*INITIAL_ROT))
-				.with(Arm::new(Vec3::new(0., 50., 50.,)))
+				.with(Arm::new(Vec3::new(0., CAMERA_HEIGHT, CAMERA_HEIGHT)))
 				// .with(
 				// 	LookAt::new(Vec3::ZERO)
 				// 		.tracking_predictive(false)

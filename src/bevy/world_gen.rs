@@ -16,8 +16,14 @@ pub fn spawn_random_world(mut commands: Commands, mut mma: MMA) {
 impl PixelVariant {
 	fn weighted_natural_pool() -> (Vec<(PixelVariant, u16)>, u32) {
 		let pool = PixelVariant::natural_pool();
-		let sum = pool.iter().map(|(_, natural)| natural.frequency as u32).sum();
-		(pool.into_iter().map(|(p, n)| (p, n.frequency)).collect(), sum)
+		let sum = pool
+			.iter()
+			.map(|(_, natural)| natural.frequency as u32)
+			.sum();
+		(
+			pool.into_iter().map(|(p, n)| (p, n.frequency)).collect(),
+			sum,
+		)
 	}
 
 	fn weighted_random_pixel() -> Pixel {

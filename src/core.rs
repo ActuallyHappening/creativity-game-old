@@ -1,10 +1,10 @@
+mod events;
 mod pixels;
 mod player;
-mod events;
 
+pub use events::*;
 pub use pixels::*;
 pub use player::*;
-pub use events::*;
 
 pub struct CorePlugin;
 impl bevy::prelude::Plugin for CorePlugin {

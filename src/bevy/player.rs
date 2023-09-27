@@ -33,30 +33,33 @@ pub struct MainPlayer;
 
 fn initial_spawn_player(mut commands: Commands, (mut meshs, mut mats, _): MMA) {
 	info!("Spawning player");
-	commands.spawn(
-		(
-			PbrBundle {
-				material: mats.add(Color::SILVER.into()),
-				transform: Transform::from_xyz(0., PLAYER_HEIGHT, 0.),
-				mesh: meshs.add(shape::Box::new(2. * PIXEL_SIZE, 2. * PIXEL_SIZE, 2. * PIXEL_SIZE).into()),
-				..default()
-			},
-			MainPlayer,
+	commands
+		.spawn(
+			(
+				PbrBundle {
+					material: mats.add(Color::SILVER.into()),
+					transform: Transform::from_xyz(0., PLAYER_HEIGHT, 0.),
+					mesh: meshs
+						.add(shape::Box::new(2. * PIXEL_SIZE, 2. * PIXEL_SIZE, 2. * PIXEL_SIZE).into()),
+					..default()
+				},
+				MainPlayer,
+			)
+				.named("Main Player")
+				.physics_dynamic()
+				.physics_collider_ball(10.)
+				.physics_zero_force()
+				.physics_zero_velocity()
+				.physics_zero_damping(),
 		)
-			.named("Main Player")
-			.physics_dynamic()
-			.physics_collider_ball(10.)
-			.physics_zero_force()
-			.physics_zero_velocity()
-			.physics_zero_damping(),
-	).with_children(|parent| {
-		parent.spawn(PbrBundle{
-			material: mats.add(Color::GREEN.into()),
-			transform: Transform::from_xyz(0., 0., -15.),
-			mesh:meshs.add(shape::Box::new(PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE).into()),
-			..default()
+		.with_children(|parent| {
+			parent.spawn(PbrBundle {
+				material: mats.add(Color::GREEN.into()),
+				transform: Transform::from_xyz(0., 0., -15.),
+				mesh: meshs.add(shape::Box::new(PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE).into()),
+				..default()
+			});
 		});
-	});
 }
 
 impl MainPlayer {

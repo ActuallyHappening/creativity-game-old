@@ -65,7 +65,7 @@ impl PixelVariant {
 				}),
 				naturally_spawning: Some(Natural { frequency: 3 }),
 				variant: self,
-			}
+			},
 		}
 	}
 

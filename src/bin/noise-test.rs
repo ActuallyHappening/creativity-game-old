@@ -1,6 +1,6 @@
 use noise::utils::{NoiseMapBuilder, PlaneMapBuilder};
-use noise::{Fbm, Perlin};
 use noise::NoiseFn;
+use noise::{Fbm, Perlin};
 
 fn main() {
 	let fbm = Fbm::<Perlin>::new(0);

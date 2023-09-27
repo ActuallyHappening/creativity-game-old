@@ -13,6 +13,12 @@ mod world_gen;
 pub struct MainPlugin;
 impl Plugin for MainPlugin {
 	fn build(&self, app: &mut App) {
-		app.add_plugins((CorePlugin, SetupPlugin, PlayerPlugin, CameraPlugin, UiPlugin));
+		app.add_plugins((
+			CorePlugin,
+			SetupPlugin,
+			PlayerPlugin,
+			CameraPlugin,
+			UiPlugin,
+		));
 	}
 }

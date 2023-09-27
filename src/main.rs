@@ -18,10 +18,6 @@ fn main() {
 				})
 				.build(),
 		)
-		.add_plugins(MainPlugin);
-
-	#[cfg(feature = "debugging")]
-	app.add_plugins(bevy_editor_pls::prelude::EditorPlugin::default());
-
-	app.run();
+		.add_plugins(MainPlugin)
+		.run();
 }
