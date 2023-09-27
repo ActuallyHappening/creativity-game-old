@@ -156,7 +156,9 @@ pub fn get_relative_strengths(
 	assert!(!velocity.linvel.is_nan());
 	let forward = if aimed_direction.forward.length() == 0. {
 		0.
-	} else if velocity.linvel.length() == 0. { 1. } else {
+	} else if velocity.linvel.length() == 0. {
+		1.
+	} else {
 		// 0 if speeding up, 1 if slowing down
 		let factor_slowing_down = 1.
 			- aimed_direction
@@ -165,7 +167,7 @@ pub fn get_relative_strengths(
 				.dot(velocity.linvel.normalize())
 				.add(1.)
 				.div(2.);
-		
+
 		#[cfg(feature = "debugging")]
 		assert!(!factor_slowing_down.is_nan(), "Factor slowing down is NaN, aimed normalized: {:?}, velocity normalized: {:?} (unnormalized: {:?})", aimed_direction.forward.normalize(), velocity.linvel.normalize(), velocity.linvel);
 
@@ -182,8 +184,8 @@ pub fn get_relative_strengths(
 
 		// max=1 & factor=0 -> 0
 		// max=1 & factor=1 -> 1
-		
-		// max=0.5 & factor=x -> 
+
+		// max=0.5 & factor=x ->
 
 		// max=0 -> 1
 
@@ -195,10 +197,36 @@ pub fn get_relative_strengths(
 	};
 	assert!(!forward.is_nan());
 
+	let turn = if velocity.angvel.length() == 0. {
+		1.
+	} else {
+		let aimed = aimed_direction.roll_left + aimed_direction.tilt_up + aimed_direction.turn_left;
+		let max = max.roll_left + max.tilt_up + max.turn_left;
+
+		if aimed.length() == 0. {
+			0.
+		} else {
+			let factor_slowing_down = 1.
+				- aimed
+					.normalize()
+					.dot(velocity.angvel.normalize())
+					.add(1.)
+					.div(2.);
+
+			let percentage_of_max_allowed_velocity = (velocity.angvel.length() / max).clamp(0., 1.);
+
+			if percentage_of_max_allowed_velocity > 0.9 {
+				factor_slowing_down
+			} else {
+				1.
+			}
+		}
+	};
+
 	Thrust::<RelativeStrength> {
-		turn_left: 1.,
-		tilt_up: 1.,
-		roll_left: 1.,
+		turn_left: turn,
+		tilt_up: turn,
+		roll_left: turn,
 		forward,
 		_stage: PhantomData,
 	}
@@ -207,7 +235,7 @@ pub fn get_relative_strengths(
 pub const fn get_max_velocity_vectors() -> Thrust<MaxVelocityMagnitudes> {
 	impl MainPlayer {
 		const MAX_LINEAR_VELOCITY: f32 = 10.;
-		const MAX_ANGULAR_VELOCITY: f32 = 0.3;
+		const MAX_ANGULAR_VELOCITY: f32 = 0.2;
 	}
 
 	Thrust::<MaxVelocityMagnitudes> {
@@ -232,6 +260,8 @@ pub const fn get_force_factors() -> Thrust<ForceFactors> {
 		_stage: PhantomData,
 	}
 }
+
+// TODO add general angle velocity curb system, limiting final force length or something
 
 /// Combines the normal and relative thrusts into the final thrust vectors,
 /// and saves the necessary information to various places including in the [MainPlayer] component
