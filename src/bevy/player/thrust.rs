@@ -236,6 +236,8 @@ pub const fn get_max_velocity_vectors() -> Thrust<MaxVelocityMagnitudes> {
 	impl MainPlayer {
 		const MAX_LINEAR_VELOCITY: f32 = 10.;
 		const MAX_ANGULAR_VELOCITY: f32 = 0.2;
+
+		const MAX_TOTAL_ANGULAR_VELOCITY: f32 = 0.4;
 	}
 
 	Thrust::<MaxVelocityMagnitudes> {
@@ -249,8 +251,8 @@ pub const fn get_max_velocity_vectors() -> Thrust<MaxVelocityMagnitudes> {
 
 pub const fn get_force_factors() -> Thrust<ForceFactors> {
 	impl MainPlayer {
-		const MOVE_FACTOR: f32 = 50_000.;
-		const TURN_FACTOR: f32 = 500_000.;
+		const MOVE_FACTOR: f32 = 5_000_000.;
+		const TURN_FACTOR: f32 = 5_000_000.;
 	}
 	Thrust::<ForceFactors> {
 		turn_left: MainPlayer::TURN_FACTOR,
@@ -260,8 +262,6 @@ pub const fn get_force_factors() -> Thrust<ForceFactors> {
 		_stage: PhantomData,
 	}
 }
-
-// TODO add general angle velocity curb system, limiting final force length or something
 
 /// Combines the normal and relative thrusts into the final thrust vectors,
 /// and saves the necessary information to various places including in the [MainPlayer] component
@@ -319,8 +319,9 @@ pub fn apply_thrust(
 	let delta = time.delta_seconds_f64() as f32;
 
 	player.force = thrust.forward;
+	player.force *= delta;
 
-	player.torque = thrust.turn_left + thrust.tilt_up + thrust.roll_left;
+	player.torque = (thrust.turn_left + thrust.tilt_up + thrust.roll_left).clamp_length(0., MainPlayer::MAX_TOTAL_ANGULAR_VELOCITY);
 	player.torque *= delta;
 
 	thrust
