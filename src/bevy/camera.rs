@@ -1,6 +1,6 @@
 //! Handle main camera
 
-use bevy::{prelude::*, core_pipeline::clear_color::ClearColorConfig};
+use bevy::{core_pipeline::clear_color::ClearColorConfig, prelude::*};
 use bevy_dolly::prelude::*;
 use bevy_mod_picking::prelude::RaycastPickCamera;
 
@@ -18,7 +18,7 @@ impl Plugin for CameraPlugin {
 pub struct MainCamera;
 
 lazy_static::lazy_static! {
-	static ref INITIAL_ROT: Quat = Quat::from_rotation_x(-90f32.to_radians());
+	static ref INITIAL_ROT: Quat = Quat::from_rotation_x(-45f32.to_radians());
 }
 
 impl CameraPlugin {
@@ -38,17 +38,33 @@ impl CameraPlugin {
 			Rig::builder()
 				.with(Position::new(Vec3::ZERO))
 				.with(Rotation::new(*INITIAL_ROT))
-				.with(Arm::new(Vec3::new(0., CAMERA_HEIGHT, CAMERA_HEIGHT)))
-				.with(
-					LookAt::new(Vec3::ZERO)
-						.tracking_predictive(false)
-						.tracking_smoothness(0.),
-				)
+				.with(Arm::new(Vec3::new(0., 50., 50.,)))
+				// .with(
+				// 	LookAt::new(Vec3::ZERO)
+				// 		.tracking_predictive(false)
+				// 		.tracking_smoothness(0.),
+				// )
+				.with(RotationArm::new(*INITIAL_ROT))
 				// .with(Smooth::new_position(0.75).predictive(true))
 				.build(),
 			RaycastPickCamera::default(),
 			MainCamera,
 		)
+	}
+}
+
+#[derive(Debug, Constructor)]
+struct RotationArm {
+	offset: Quat,
+}
+
+impl RigDriver for RotationArm {
+	fn update(&mut self, params: bevy_dolly::dolly::rig::RigUpdateParams) -> Transform {
+		Transform {
+			rotation: params.parent.rotation.mul_quat(self.offset),
+			translation: params.parent.translation,
+			scale: Vec3::ONE,
+		}
 	}
 }
 
@@ -62,5 +78,5 @@ pub fn handle_camera_movement(
 
 	rig.driver_mut::<Position>().position = player.translation;
 	rig.driver_mut::<Rotation>().rotation = player.rotation;
-	rig.driver_mut::<LookAt>().target = player.translation;
+	// rig.driver_mut::<LookAt>().target = player.translation;
 }

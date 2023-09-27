@@ -30,7 +30,7 @@ fn world_width_is_even() {
 	assert_eq!(WORLD_WIDTH % 2, 0);
 }
 
-pub const CAMERA_HEIGHT: f32 = 200.;
+pub const CAMERA_HEIGHT: f32 = 100.;
 pub const LIGHT_HEIGHT: f32 = CAMERA_HEIGHT * 1.5;
 
 #[extension(pub trait ColoursExt)]
