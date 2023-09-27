@@ -1,8 +1,7 @@
 use crate::core::PlayerInventory;
 
-use super::camera::{handle_camera_movement, MainCamera};
+use super::camera::handle_camera_movement;
 use crate::utils::*;
-use bevy::prelude::*;
 use std::ops::{Add, Deref, Div};
 
 pub struct PlayerPlugin;
