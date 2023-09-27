@@ -27,7 +27,7 @@ impl CameraPlugin {
 		let initial_pos = Vec3::new(0., CAMERA_HEIGHT, 0.);
 		(
 			Camera3dBundle {
-				transform: Transform::from_translation(initial_pos).with_rotation(*INITIAL_ROT),
+				transform: Transform::from_translation(initial_pos),
 				camera_3d: Camera3d {
 					clear_color: ClearColorConfig::Custom(Color::BLACK),
 					..default()
@@ -40,15 +40,14 @@ impl CameraPlugin {
 			// 	.build(),
 			Rig::builder()
 				.with(Position::new(Vec3::ZERO))
-				// .with(Rotation::new(*INITIAL_ROT))
-				.with(Smooth::new_position(0.75).predictive(true))
-				.with(Arm::new(Vec3::new(0., CAMERA_HEIGHT, 0.)))
-				// .with(
-				// 	LookAt::new(Vec3::ZERO)
-				// 		.tracking_predictive(true)
-				// 		.tracking_smoothness(1.25),
-				// )
 				.with(Rotation::new(*INITIAL_ROT))
+				.with(Arm::new(Vec3::new(0., CAMERA_HEIGHT, CAMERA_HEIGHT)))
+				.with(
+					LookAt::new(Vec3::ZERO)
+						.tracking_predictive(false)
+						// .tracking_smoothness(1.25),
+				)
+				// .with(Smooth::new_position(0.75).predictive(true))
 				.build(),
 			RaycastPickCamera::default(),
 			MainCamera,
@@ -69,5 +68,6 @@ pub fn handle_camera_movement(
 	// 	.set_position_target(player.translation, *INITIAL_ROT);
 
 	rig.driver_mut::<Position>().position = player.translation + Vec3::Y;
-	// rig.driver_mut::<LookAt>().target = player.translation;
+	rig.driver_mut::<Rotation>().rotation = player.rotation;
+	rig.driver_mut::<LookAt>().target = player.translation;
 }
