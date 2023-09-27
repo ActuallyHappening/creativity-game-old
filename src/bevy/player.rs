@@ -47,7 +47,8 @@ fn initial_spawn_player(mut commands: Commands, (mut meshs, mut mats, _): MMA) {
 			.physics_dynamic()
 			.physics_collider_ball(10.)
 			.physics_zero_force()
-			.physics_zero_velocity(),
+			.physics_zero_velocity()
+			.physics_zero_damping(),
 	);
 }
 
@@ -78,7 +79,7 @@ fn handle_player_movement(
 	}
 	if keyboard_input.pressed(KeyCode::S) {
 		// backwards
-		movement_force -= forward;
+		movement_force -= forward / 2.;
 	}
 	if keyboard_input.pressed(KeyCode::A) {
 		// left
@@ -129,6 +130,7 @@ fn handle_player_movement(
 	} else {
 		player.torque = torque.normalize() * MainPlayer::TURN_FACTOR * time.delta_seconds_f64() as f32;
 
+		// TODO: fix bug with zero velocity stopping angvel after a while
 		// limit angular velocity
 		let current_angular_velocity = velocity.angvel;
 

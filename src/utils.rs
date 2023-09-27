@@ -82,6 +82,9 @@ impl<T: Bundle> T {
 			angvel: Vec3::ZERO,
 		})
 	}
+	fn physics_zero_damping(self) -> (Damping, Self) {
+		self.insert(Damping { linear_damping: 0., angular_damping: 0. })
+	}
 }
 
 #[derive(derive_more::Constructor, Debug, Clone, Copy, PartialEq, Eq, Hash)]
