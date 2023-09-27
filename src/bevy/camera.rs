@@ -7,14 +7,14 @@ use bevy_mod_picking::prelude::RaycastPickCamera;
 use super::player::MainPlayer;
 use crate::utils::*;
 
-mod orbit;
+// mod orbit;
 
 pub struct CameraPlugin;
 impl Plugin for CameraPlugin {
 	fn build(&self, app: &mut App) {
 		app.add_systems(
 			Update,
-			(Dolly::<MainCamera>::update_active, orbit::orbit_camera),
+			Dolly::<MainCamera>::update_active,
 		);
 	}
 }
@@ -49,15 +49,15 @@ impl CameraPlugin {
 				// 		.tracking_smoothness(0.),
 				// )
 				.with(RotationArm::<1>::new(*INITIAL_ROT))
-				.with(RotationAccumulator::new(Quat::IDENTITY))
+				// .with(RotationAccumulator::new(Quat::IDENTITY))
 				// .with(Smooth::new_position(0.75).predictive(true))
 				.build(),
 			RaycastPickCamera::default(),
 			MainCamera,
-			orbit::PanOrbitCamera {
-				radius: ARM.length(),
-				..default()
-			},
+			// orbit::PanOrbitCamera {
+			// 	radius: ARM.length(),
+			// 	..default()
+			// },
 		)
 	}
 }
@@ -74,25 +74,6 @@ impl<const N: usize> RigDriver for RotationArm<N> {
 			translation: params.parent.translation,
 			scale: Vec3::ONE,
 		}
-	}
-}
-
-#[derive(Debug, Constructor)]
-struct RotationAccumulator {
-	rot: Quat,
-}
-impl RigDriver for RotationAccumulator {
-	fn update(&mut self, params: bevy_dolly::dolly::rig::RigUpdateParams) -> Transform {
-		Transform {
-			rotation: params.parent.rotation.mul_quat(self.rot),
-			translation: params.parent.translation,
-			scale: Vec3::ONE,
-		}
-	}
-}
-impl RotationAccumulator {
-	fn add_rot(&mut self, rot: Quat) {
-		self.rot = self.rot.mul_quat(rot);
 	}
 }
 
