@@ -23,7 +23,7 @@ impl Plugin for PlayerPlugin {
 					handle_camera_movement,
 					handle_player_mined_px,
 					// gather_player_movement.pipe(vectorise_input_flags).pipe(info)
-					manual_get_final_thrust.pipe(apply_thrust).pipe(info),
+					manual_get_final_thrust.pipe(apply_thrust),
 				),
 			);
 	}

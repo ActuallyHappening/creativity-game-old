@@ -236,8 +236,6 @@ pub const fn get_max_velocity_vectors() -> Thrust<MaxVelocityMagnitudes> {
 	impl MainPlayer {
 		const MAX_LINEAR_VELOCITY: f32 = 10.;
 		const MAX_ANGULAR_VELOCITY: f32 = 0.2;
-
-		const MAX_TOTAL_ANGULAR_VELOCITY: f32 = 0.4;
 	}
 
 	Thrust::<MaxVelocityMagnitudes> {
@@ -251,8 +249,10 @@ pub const fn get_max_velocity_vectors() -> Thrust<MaxVelocityMagnitudes> {
 
 pub const fn get_force_factors() -> Thrust<ForceFactors> {
 	impl MainPlayer {
-		const MOVE_FACTOR: f32 = 5_000_000.;
+		const MOVE_FACTOR: f32 = 5_000_000_000.;
 		const TURN_FACTOR: f32 = 5_000_000.;
+
+		const MAX_TOTAL_ANGULAR_FORCE: f32 = 10_000_000.;
 	}
 	Thrust::<ForceFactors> {
 		turn_left: MainPlayer::TURN_FACTOR,
@@ -323,6 +323,8 @@ pub fn apply_thrust(
 
 	player.torque = (thrust.turn_left + thrust.tilt_up + thrust.roll_left).clamp_length(0., MainPlayer::MAX_TOTAL_ANGULAR_VELOCITY);
 	player.torque *= delta;
+
+	info!("Thrust: (ang len = {})");
 
 	thrust
 }
