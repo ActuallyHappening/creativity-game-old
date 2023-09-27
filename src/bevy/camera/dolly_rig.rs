@@ -40,23 +40,19 @@ impl RotationAccumulator {
 pub struct OrbitArm {
 	offset: Vec3,
 
-	local_up: Option<Vec3>,
+	local_up_forward: Option<(Vec3, Vec3)>,
 
 	total_sideways_rot: f32,
-	// rot_vertically: f32,
+	total_vertical_rot: f32,
 }
 
 impl OrbitArm {
-	fn get_radius(&self) -> f32 {
-		self.offset.length()
-	}
-
 	pub fn new_from_arm(offset: Vec3) -> Self {
 		Self {
 			offset,
-			local_up: None,
+			local_up_forward: None,
 			total_sideways_rot: 0.,
-			// rot_vertically: 0.,
+			total_vertical_rot: 0.,
 		}
 	}
 
@@ -65,32 +61,45 @@ impl OrbitArm {
 	}
 
 	fn orbit_vertical(&mut self, angle: f32) {
-		// self.rot_vertically += angle;
+		self.total_vertical_rot += angle;
 	}
 
-	pub fn orbit(&mut self, local_up: Vec3, horizontal_rot: f32, vertical_rot: f32) {
-		self.local_up = Some(local_up);
+	pub fn orbit(&mut self, local_up: Vec3, local_forward: Vec3, delta_horizontal_rot: f32, delta_vertical_rot: f32) -> &mut Self {
+		self.local_up_forward = Some((local_up, local_forward));
 
-		self.orbit_horizontal(horizontal_rot);
-		self.orbit_vertical(vertical_rot);
+		self.orbit_horizontal(delta_horizontal_rot);
+		self.orbit_vertical(delta_vertical_rot);
+
+		self
+	}
+
+	pub fn reset(&mut self) {
+		self.total_sideways_rot = 0.;
+		self.total_vertical_rot = 0.;
+	}
+	pub fn reset_percentage(&mut self, percentage: f32) {
+		let percent = 1. - percentage;
+		self.total_sideways_rot *= percent;
+		self.total_vertical_rot *= percent;
 	}
 }
 
 impl RigDriver for OrbitArm {
-	fn update(&mut self, mut params: bevy_dolly::dolly::rig::RigUpdateParams) -> Transform {
-		match self.local_up {
+	fn update(&mut self, params: bevy_dolly::dolly::rig::RigUpdateParams) -> Transform {
+		match self.local_up_forward {
 			None => {
 				tracing::error!("You must call `.orbit()` on [OrbitalArm] before using it every frame!");
 				params.parent.with_translation(self.offset)
 			}
-			Some(local_up) => {
+			Some((up, forward)) => {
 				let mut transform = *params.parent;
 
 				// let rot = Quat::from_rotation_y();
-				transform.rotate_axis(local_up, self.total_sideways_rot);
+				transform.rotate_axis(up, self.total_sideways_rot);
+				transform.rotate_axis(up.cross(forward), self.total_vertical_rot);
 
 				transform.translation += transform.rotation * self.offset; // arm
-				self.local_up = None;
+				self.local_up_forward = None;
 				transform
 			}
 		}

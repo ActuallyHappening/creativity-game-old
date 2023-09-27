@@ -78,16 +78,32 @@ pub fn handle_camera_movement(
 
 	let mut scroll_x = 0.;
 	let mut scroll_y = 0.;
+	let reset_percent;
 	if mouse.pressed(MouseButton::Right) {
 		for ev in scroll.iter() {
 			scroll_x += ev.delta.x / -100.;
-			scroll_y += ev.delta.y;
+			scroll_y += ev.delta.y / 100.;
 		}
+
+		if scroll_x != 0. || scroll_y != 0. {
+			info!("Scroll x: {} y: {}", scroll_x, scroll_y);
+		}
+
+		if scroll_y.abs() < scroll_x.abs() {
+			scroll_y = 0.;
+		} else if scroll_x.abs() < scroll_y.abs() {
+			scroll_x = 0.;
+		}
+
+		reset_percent = 0.;
+	} else {
+		reset_percent = 0.1;
 	}
 
 	rig
 		.driver_mut::<OrbitArm>()
-		.orbit(player.up(), scroll_x, scroll_y);
+		.orbit(player.up(), player.forward(), scroll_x, scroll_y)
+		.reset_percentage(reset_percent);
 
 	scroll.clear();
 }
