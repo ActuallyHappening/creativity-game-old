@@ -20,7 +20,7 @@ impl Plugin for UiPlugin {
 	}
 }
 
-fn ui(mut commands: Commands, mut mma: MMA) {
+fn ui(mut commands: Commands, mma: MMA) {
 	commands
 		.spawn(
 			NodeBundle {

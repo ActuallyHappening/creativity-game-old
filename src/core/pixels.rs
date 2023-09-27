@@ -97,7 +97,7 @@ impl Pixel {
 			pixel
 				.collectable
 				.as_ref()
-				.is_some_and(|p| p.player_mineable.clone())
+				.is_some_and(|p| p.player_mineable)
 		})
 	}
 }

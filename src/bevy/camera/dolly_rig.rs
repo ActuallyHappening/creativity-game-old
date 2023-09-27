@@ -1,5 +1,3 @@
-use bevy_dolly::dolly::rig::RigUpdateParams;
-
 use crate::utils::*;
 
 #[derive(Debug, Constructor)]
@@ -64,7 +62,13 @@ impl OrbitArm {
 		self.total_vertical_rot += angle;
 	}
 
-	pub fn orbit(&mut self, local_up: Vec3, local_forward: Vec3, delta_horizontal_rot: f32, delta_vertical_rot: f32) -> &mut Self {
+	pub fn orbit(
+		&mut self,
+		local_up: Vec3,
+		local_forward: Vec3,
+		delta_horizontal_rot: f32,
+		delta_vertical_rot: f32,
+	) -> &mut Self {
 		self.local_up_forward = Some((local_up, local_forward));
 
 		self.orbit_horizontal(delta_horizontal_rot);

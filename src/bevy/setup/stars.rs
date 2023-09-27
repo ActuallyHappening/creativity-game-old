@@ -1,4 +1,4 @@
-use bevy::prelude::{PbrBundle, PointLight, PointLightBundle};
+use bevy::prelude::PbrBundle;
 
 use crate::utils::*;
 
@@ -16,17 +16,25 @@ pub fn spawn_random_star(commands: &mut Commands, MMA { meshs, mats, .. }: &mut 
 	// 		..default()
 	// 	})
 	// 	.with_children(|commands| {
-			commands.spawn(PbrBundle { 
-				material: mats.add(StandardMaterial {
-					base_color: Color::WHITE,
-					emissive: Color::WHITE,
-					unlit: true,
-					..default()
-				}),
-				mesh: meshs.add(shape::Icosphere { radius: 150.0, subdivisions: 4 }.try_into().unwrap()),
-				transform: Transform::from_translation(random_pos()),
-				..default() });
-		// });
+	commands.spawn(PbrBundle {
+		material: mats.add(StandardMaterial {
+			base_color: Color::WHITE,
+			emissive: Color::WHITE,
+			unlit: true,
+			..default()
+		}),
+		mesh: meshs.add(
+			shape::Icosphere {
+				radius: 150.0,
+				subdivisions: 4,
+			}
+			.try_into()
+			.unwrap(),
+		),
+		transform: Transform::from_translation(random_pos()),
+		..default()
+	});
+	// });
 }
 
 fn random_pos() -> Vec3 {

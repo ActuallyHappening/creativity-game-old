@@ -42,7 +42,7 @@ impl PixelVariant {
 }
 
 impl Pixel {
-	fn into_bundle(self, point: WorldPoint, MMA { meshs, mats, ..}: &mut MMA) -> impl Bundle {
+	fn into_bundle(self, point: WorldPoint, MMA { meshs, mats, .. }: &mut MMA) -> impl Bundle {
 		(
 			PbrBundle {
 				material: mats.add(self.colour.into()),
