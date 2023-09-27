@@ -146,14 +146,60 @@ pub fn vectorise_input_flags(
 
 /// Takes into account the maximum power of each thruster and the current velocity
 pub fn get_relative_strengths(
-	In(max_thrust): In<Thrust<MaxVelocityMagnitudes>>,
+	In((max, aimed_direction)): In<(Thrust<MaxVelocityMagnitudes>, Thrust<NormalVectors>)>,
 	player: Query<(&Velocity, &Transform), With<MainPlayer>>,
 ) -> Thrust<RelativeStrength> {
+	let (velocity, player) = player.single();
+
+	// forward - backwards restrictions
+	// 0 = no force allowed, 1 = full force allowed
+	assert!(!velocity.linvel.is_nan());
+	let forward = if aimed_direction.forward.length() == 0. {
+		0.
+	} else if velocity.linvel.length() == 0. { 1. } else {
+		// 0 if speeding up, 1 if slowing down
+		let factor_slowing_down = 1.
+			- aimed_direction
+				.forward
+				.normalize()
+				.dot(velocity.linvel.normalize())
+				.add(1.)
+				.div(2.);
+		
+		#[cfg(feature = "debugging")]
+		assert!(!factor_slowing_down.is_nan(), "Factor slowing down is NaN, aimed normalized: {:?}, velocity normalized: {:?} (unnormalized: {:?})", aimed_direction.forward.normalize(), velocity.linvel.normalize(), velocity.linvel);
+
+		// 1 if max, 0 if min
+		let percentage_of_max_allowed_velocity = (velocity.linvel.length() / max.forward).clamp(0., 1.);
+
+		#[cfg(feature = "debugging")]
+		assert!(
+			(0. ..=1.).contains(&percentage_of_max_allowed_velocity),
+			"Current linvel len {} is greater than the max of {}",
+			velocity.linvel.length(),
+			max.forward
+		);
+
+		// max=1 & factor=0 -> 0
+		// max=1 & factor=1 -> 1
+		
+		// max=0.5 & factor=x -> 
+
+		// max=0 -> 1
+
+		if percentage_of_max_allowed_velocity > 0.9 {
+			factor_slowing_down
+		} else {
+			1.
+		}
+	};
+	assert!(!forward.is_nan());
+
 	Thrust::<RelativeStrength> {
 		turn_left: 1.,
 		tilt_up: 1.,
 		roll_left: 1.,
-		forward: 1.,
+		forward,
 		_stage: PhantomData,
 	}
 }
@@ -175,8 +221,8 @@ pub const fn get_max_velocity_vectors() -> Thrust<MaxVelocityMagnitudes> {
 
 pub const fn get_force_factors() -> Thrust<ForceFactors> {
 	impl MainPlayer {
-		const MOVE_FACTOR: f32 = 5_000_000.;
-		const TURN_FACTOR: f32 = 25_000_000.;
+		const MOVE_FACTOR: f32 = 50_000.;
+		const TURN_FACTOR: f32 = 500_000.;
 	}
 	Thrust::<ForceFactors> {
 		turn_left: MainPlayer::TURN_FACTOR,
@@ -257,7 +303,10 @@ pub fn manual_get_final_thrust(
 	player_save: Query<&mut MainPlayer, With<MainPlayer>>,
 ) -> Thrust<FinalVectors> {
 	let normals = vectorise_input_flags(In(gather_player_movement(keyboard_input)), player_pos);
-	let relative = get_relative_strengths(In(get_max_velocity_vectors()), player_current);
+	let relative = get_relative_strengths(
+		In((get_max_velocity_vectors(), normals.clone())),
+		player_current,
+	);
 
 	save_thrust_stages(In((normals, relative, get_force_factors())), player_save)
 }
