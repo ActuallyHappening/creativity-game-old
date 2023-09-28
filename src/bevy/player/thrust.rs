@@ -23,16 +23,6 @@ pub struct Thrust<S: ThrustStage> {
 	_stage: PhantomData<S>,
 }
 
-pub struct ThrustFlags {
-	forward_back: Option<bool>,
-	up_down: Option<bool>,
-	left_right: Option<bool>,
-
-	tilt_forward: Option<bool>,
-	turn_left: Option<bool>,
-	roll_left: Option<bool>,
-}
-
 pub trait ThrustStage {
 	type DimensionType: std::fmt::Debug + Clone;
 }
@@ -40,7 +30,7 @@ macro_rules! thrust_stage {
 	($(#[$($attrss:tt)*])* $(pub)? struct $name:ident; type = $type:ty) => {
 		$(#[$($attrss)*])*
 
-		#[derive(Debug, Clone)]
+		#[derive(Debug, Clone,)]
 		pub struct $name;
 		impl ThrustStage for $name {
 			type DimensionType = $type;
@@ -48,7 +38,7 @@ macro_rules! thrust_stage {
 	};
 }
 
-#[derive(Debug, Clone, Copy, Default,)]
+#[derive(Debug, Clone, Copy, Default)]
 pub enum Signed<T>
 where
 	T: Default + Clone + Copy + Default,
@@ -291,7 +281,12 @@ pub fn get_relative_strengths(
 			aimed.into_unit()
 		} else {
 			let aimed_vec: Vec3 = aimed.factor_in();
-			let factor_slowing_down = 1. - aimed_vec.normalize().dot(current.normalize()).add(1.).div(2.);
+			let factor_slowing_down = 1.
+				- aimed_vec
+					.normalize()
+					.dot(current.normalize())
+					.add(1.)
+					.div(2.);
 
 			let percentage_of_max_allowed_velocity = (current.length() / max).clamp(0., 1.);
 

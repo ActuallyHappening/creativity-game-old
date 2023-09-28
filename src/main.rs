@@ -1,4 +1,4 @@
-use bevy::{prelude::*, log::LogPlugin};
+use bevy::{log::LogPlugin, prelude::*};
 use creativity_game::*;
 
 fn main() {
@@ -16,7 +16,8 @@ fn main() {
 						..default()
 					}),
 					..default()
-				}).set(LogPlugin {
+				})
+				.set(LogPlugin {
 					level: bevy::log::Level::WARN,
 					filter: "creativity_game=trace,bevy_ecs=info".into(),
 				})

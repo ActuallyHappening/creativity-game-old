@@ -45,9 +45,9 @@ fn random_pos() -> Vec3 {
 	p
 }
 
-fn random_color() -> Color {
-	Color::rgb(random(), random(), random())
-}
+// fn random_color() -> Color {
+// 	Color::rgb(random(), random(), random())
+// }
 
 #[extension(trait VecExt)]
 impl Vec3 {

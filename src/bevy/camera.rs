@@ -1,6 +1,10 @@
 //! Handle main camera
 
-use bevy::{core_pipeline::{clear_color::ClearColorConfig, tonemapping::Tonemapping}, input::mouse::MouseMotion, prelude::*};
+use bevy::{
+	core_pipeline::{clear_color::ClearColorConfig, tonemapping::Tonemapping},
+	input::mouse::MouseMotion,
+	prelude::*,
+};
 use bevy_dolly::prelude::*;
 use bevy_mod_picking::prelude::RaycastPickCamera;
 
@@ -43,7 +47,7 @@ impl CameraPlugin {
 
 				#[cfg(feature = "hanabi_particles")]
 				tonemapping: Tonemapping::SomewhatBoringDisplayTransform,
-				
+
 				..default()
 			},
 			Rig::builder()

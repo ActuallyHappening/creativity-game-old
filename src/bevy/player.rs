@@ -18,6 +18,7 @@ impl Plugin for PlayerPlugin {
 					commands.insert_resource(PlayerInventory::default());
 				}),
 			)
+			// .register_type::<MainPlayer>()
 			.add_systems(
 				Update,
 				(
@@ -26,23 +27,25 @@ impl Plugin for PlayerPlugin {
 					// gather_player_movement.pipe(info),
 					// gather_player_movement.pipe(vectorise_input_flags).pipe(info),
 					// manual_get_final_thrust.pipe(apply_thrust).pipe(ignore),
-					pipe(
+					sequence(
 						join3(
-							pipe(
+							sequence(
 								join2(
-									pipe(
+									sequence(
 										join2(gather_input_flags, get_base_normal_vectors),
 										flag_normal_vectors,
-									),//.pipe(info),
+									), //.pipe(info),
 									max_velocity_magnitudes,
-								),//.pipe(info),
+								), //.pipe(info),
 								get_relative_strengths,
-							),//.pipe(info),
+							), //.pipe(info),
 							get_base_normal_vectors,
 							force_factors,
-						),//.pipe(info),
+						), //.pipe(info),
 						save_thrust_stages,
-					).pipe(apply_thrust).pipe(info),
+					)
+					.pipe(apply_thrust)
+					.pipe(ignore),
 				),
 			);
 	}
@@ -66,11 +69,11 @@ lazy_static! {
 		(PixelVariant::PlayerSteel, (0, -1, 1)),
 	])
 	.with([
-		(Thruster::new(Direction::Backward), (0, 0, 2)),
-		(Thruster::new(Direction::Left), (-2, 0, 1)),
-		(Thruster::new(Direction::Right), (2, 0, 1)),
-		(Thruster::new(Direction::Up), (0, 2, 1)),
-		(Thruster::new(Direction::Down), (0, -2, 1)),
+		(Thruster::new(Direction::Backward, ThrustFlags::builder().forward_back(false).build().unwrap()), (0, 0, 2)),
+		// (Thruster::new(Direction::Left), (-2, 0, 1)),
+		// (Thruster::new(Direction::Right), (2, 0, 1)),
+		// (Thruster::new(Direction::Up), (0, 2, 1)),
+		// (Thruster::new(Direction::Down), (0, -2, 1)),
 	]);
 }
 

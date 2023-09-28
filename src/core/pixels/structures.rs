@@ -4,6 +4,7 @@ use crate::utils::*;
 #[derive(Debug, Clone)]
 pub struct Structure {
 	parts: Vec<StructurePart>,
+
 	collider_size: f32,
 }
 
@@ -19,9 +20,51 @@ pub enum StructurePart {
 	},
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Component)]
 pub struct Thruster {
 	facing: Direction,
+	flags: ThrustFlags,
+}
+
+#[derive(Debug, Clone, Component, Default, Builder, PartialEq)]
+#[builder(setter(into, strip_option,))]
+pub struct ThrustFlags {
+	#[builder(default)]
+	forward_back: Option<bool>,
+	#[builder(default)]
+	up_down: Option<bool>,
+	#[builder(default)]
+	left_right: Option<bool>,
+
+	#[builder(default)]
+	tilt_forward: Option<bool>,
+	#[builder(default)]
+	turn_left: Option<bool>,
+	#[builder(default)]
+	roll_left: Option<bool>,
+}
+
+#[test]
+fn thrust_flags() {
+	let expexted = ThrustFlags {
+		up_down: Some(false),
+		roll_left: Some(true),
+		..default()
+	};
+
+	let actual = ThrustFlagsBuilder::default()
+		.up_down(false)
+		.roll_left(true)
+		.build()
+		.unwrap();
+
+	assert_eq!(expexted, actual);
+}
+
+impl ThrustFlags {
+	pub fn builder() -> ThrustFlagsBuilder {
+		ThrustFlagsBuilder::default()
+	}
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -41,25 +84,29 @@ pub struct RelativePixelPoint {
 	z: i8,
 }
 
-impl RelativePixelPoint {
-	pub const fn new(x: i8, y: i8, z: i8) -> RelativePixelPoint {
-		RelativePixelPoint { x, y, z }
+mod relative_pixel_point_impls {
+	use super::*;
+
+	impl RelativePixelPoint {
+		pub const fn new(x: i8, y: i8, z: i8) -> RelativePixelPoint {
+			RelativePixelPoint { x, y, z }
+		}
+
+		pub fn into_world_vector(self) -> Vec3 {
+			Vec3::from(self) * PIXEL_SIZE
+		}
 	}
 
-	pub fn into_world_vector(self) -> Vec3 {
-		Vec3::from(self) * PIXEL_SIZE
+	impl From<RelativePixelPoint> for Vec3 {
+		fn from(value: RelativePixelPoint) -> Self {
+			Vec3::new(value.x as f32, value.y as f32, value.z as f32)
+		}
 	}
-}
 
-impl From<RelativePixelPoint> for Vec3 {
-	fn from(value: RelativePixelPoint) -> Self {
-		Vec3::new(value.x as f32, value.y as f32, value.z as f32)
-	}
-}
-
-impl From<(i8, i8, i8)> for RelativePixelPoint {
-	fn from((x, y, z): (i8, i8, i8)) -> Self {
-		Self::new(x, y, z)
+	impl From<(i8, i8, i8)> for RelativePixelPoint {
+		fn from((x, y, z): (i8, i8, i8)) -> Self {
+			Self::new(x, y, z)
+		}
 	}
 }
 
@@ -101,8 +148,8 @@ impl Direction {
 }
 
 impl Thruster {
-	pub const fn new(facing: Direction) -> Thruster {
-		Thruster { facing }
+	pub const fn new(facing: Direction, flags: ThrustFlags) -> Thruster {
+		Thruster { facing, flags }
 	}
 }
 
@@ -112,7 +159,7 @@ where
 {
 	fn from((thrust, relative_location): (Thruster, L)) -> Self {
 		Self::Thruster {
-			thrust: thrust,
+			thrust,
 			relative_location: relative_location.into(),
 		}
 	}
@@ -133,7 +180,11 @@ where
 
 pub enum StructureBundle {
 	Pixel(PbrBundle),
-	Thruster(PbrBundle, ParticleEffectBundle),
+	Thruster {
+		visual: PbrBundle,
+		data: Thruster,
+		particles: ParticleEffectBundle,
+	},
 }
 
 impl Structure {
@@ -163,8 +214,8 @@ impl Structure {
 				StructurePart::Thruster {
 					thrust,
 					relative_location,
-				} => StructureBundle::Thruster(
-					PbrBundle {
+				} => StructureBundle::Thruster {
+					visual: PbrBundle {
 						material: mma.mats.add(Color::ORANGE_RED.into()),
 						transform: Transform::from_translation(
 							relative_location.into_world_vector()
@@ -173,12 +224,13 @@ impl Structure {
 						mesh: mma.meshs.add(shape::Cube::new(PIXEL_SIZE / 2.).into()),
 						..default()
 					},
-					{
+					particles: {
 						let mut particles = gen_particles(effects);
 						particles.transform = Transform::from_rotation(thrust.facing.into_rotation());
 						particles
 					},
-				),
+					data: thrust,
+				},
 				StructurePart::Pixel {
 					px,
 					relative_location,
@@ -199,9 +251,13 @@ impl StructureBundle {
 			StructureBundle::Pixel(bundle) => {
 				parent.spawn(bundle);
 			}
-			StructureBundle::Thruster(bundle, effect) => {
-				parent.spawn(bundle).with_children(|parent| {
-					parent.spawn(effect);
+			StructureBundle::Thruster {
+				visual,
+				particles,
+				data,
+			} => {
+				parent.spawn(visual.insert(data)).with_children(|parent| {
+					parent.spawn(particles);
 				});
 			}
 		};

@@ -13,6 +13,7 @@ pub use bevy_dolly::prelude::*;
 pub use bevy_mod_picking::prelude::*;
 pub use bevy_rapier3d::prelude::*;
 pub use contracts::*;
+pub use derive_builder::Builder;
 pub use derive_more::Deref;
 pub use derive_more::*;
 pub use extension_traits::extension;
@@ -191,7 +192,7 @@ where
 	}
 }
 
-pub fn pipe<A, B, AMarker, BMarker>(
+pub fn sequence<A, B, AMarker, BMarker>(
 	mut a_in: A,
 	mut b_out: B,
 ) -> impl FnMut(In<A::In>, ParamSet<(A::Param, B::Param)>) -> B::Out
@@ -205,23 +206,18 @@ where
 	}
 }
 
-pub fn info_inspect<T: std::fmt::Debug>(In(data): In<T>) -> T {
-	tracing::info!("{:?}", data);
-	data
-}
+// pub fn init_debug_tools() {
+// 	#[cfg(not(target_arch = "wasm32"))]
+// 	tracing_subscriber::fmt::init();
 
-pub fn init_debug_tools() {
-	#[cfg(not(target_arch = "wasm32"))]
-	tracing_subscriber::fmt::init();
-
-	#[cfg(target_arch = "wasm32")]
-	{
-		use tracing_subscriber::prelude::*;
-		console_error_panic_hook::set_once();
-		tracing_subscriber::registry::Registry::default()
-			.with(tracing_wasm::WASMLayer::new(
-				tracing_wasm::WASMLayerConfig::default(),
-			))
-			.init();
-	}
-}
+// 	#[cfg(target_arch = "wasm32")]
+// 	{
+// 		use tracing_subscriber::prelude::*;
+// 		console_error_panic_hook::set_once();
+// 		tracing_subscriber::registry::Registry::default()
+// 			.with(tracing_wasm::WASMLayer::new(
+// 				tracing_wasm::WASMLayerConfig::default(),
+// 			))
+// 			.init();
+// 	}
+// }

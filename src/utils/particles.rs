@@ -67,21 +67,21 @@ pub fn gen_particles(effects: &mut Assets<EffectAsset>) -> ParticleEffectBundle 
 	}
 }
 
-pub fn test_activate_particles(
-	mut q_spawner: Query<&mut EffectSpawner>,
-	keyboard: Res<Input<KeyCode>>,
-) {
-	// Note: On first frame where the effect spawns, EffectSpawner is spawned during
-	// CoreSet::PostUpdate, so will not be available yet. Ignore for a frame
-	// if so.
-	debug!("Checking for spawnertest start");
-	for mut spawner in q_spawner.iter_mut() {
-		if keyboard.pressed(KeyCode::P) {
-			debug!("Setting spawner to true");
-			spawner.set_active(true);
-		} else {
-			debug!("Setting spawner to false");
-			spawner.set_active(false);
-		}
-	}
-}
+// pub fn test_activate_particles(
+// 	mut q_spawner: Query<&mut EffectSpawner>,
+// 	keyboard: Res<Input<KeyCode>>,
+// ) {
+// 	// Note: On first frame where the effect spawns, EffectSpawner is spawned during
+// 	// CoreSet::PostUpdate, so will not be available yet. Ignore for a frame
+// 	// if so.
+// 	debug!("Checking for spawnertest start");
+// 	for mut spawner in q_spawner.iter_mut() {
+// 		if keyboard.pressed(KeyCode::P) {
+// 			debug!("Setting spawner to true");
+// 			spawner.set_active(true);
+// 		} else {
+// 			debug!("Setting spawner to false");
+// 			spawner.set_active(false);
+// 		}
+// 	}
+// }
