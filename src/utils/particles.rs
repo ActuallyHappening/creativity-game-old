@@ -38,22 +38,26 @@ pub fn gen_particles(mut effects: &mut Assets<EffectAsset>) -> ParticleEffectBun
 	};
 
 	let effect1 = effects.add(
-		EffectAsset::new(32768, Spawner::rate(500.0.into()), writer1.finish())
-			.with_name("emit:rate")
-			// .with_property("my_accel", Vec3::new(0., -3., 0.).into())
-			.init(init_pos1)
-			// Make spawned particles move away from the emitter origin
-			.init(init_vel1)
-			.init(init_age1)
-			.init(init_lifetime1)
-			// .update(update_accel1)
-			.render(ColorOverLifetimeModifier {
-				gradient: color_gradient1,
-			})
-			.render(SizeOverLifetimeModifier {
-				gradient: size_gradient1,
-				screen_space_size: false,
-			}),
+		EffectAsset::new(
+			32768,
+			Spawner::rate(500.0.into()).with_starts_active(false),
+			writer1.finish(),
+		)
+		.with_name("emit:rate")
+		// .with_property("my_accel", Vec3::new(0., -3., 0.).into())
+		.init(init_pos1)
+		// Make spawned particles move away from the emitter origin
+		.init(init_vel1)
+		.init(init_age1)
+		.init(init_lifetime1)
+		// .update(update_accel1)
+		.render(ColorOverLifetimeModifier {
+			gradient: color_gradient1,
+		})
+		.render(SizeOverLifetimeModifier {
+			gradient: size_gradient1,
+			screen_space_size: false,
+		}),
 	);
 
 	ParticleEffectBundle {
@@ -61,5 +65,24 @@ pub fn gen_particles(mut effects: &mut Assets<EffectAsset>) -> ParticleEffectBun
 		transform: Transform::from_translation(Vec3::ZERO)
 			.with_rotation(Quat::from_rotation_z(0f32.to_radians())),
 		..Default::default()
+	}
+}
+
+pub fn test_activate_particles(
+	mut q_spawner: Query<&mut EffectSpawner>,
+	keyboard: Res<Input<KeyCode>>,
+) {
+	// Note: On first frame where the effect spawns, EffectSpawner is spawned during
+	// CoreSet::PostUpdate, so will not be available yet. Ignore for a frame
+	// if so.
+	debug!("Checking for spawnertest start");
+	for mut spawner in q_spawner.iter_mut() {
+		if keyboard.pressed(KeyCode::P) {
+			debug!("Setting spawner to true");
+			spawner.set_active(true);
+		} else {
+			debug!("Setting spawner to false");
+			spawner.set_active(false);
+		}
 	}
 }

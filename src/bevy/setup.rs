@@ -18,17 +18,22 @@ impl Plugin for SetupPlugin {
 	fn build(&self, app: &mut App) {
 		app
 			.insert_resource(Msaa::default())
-			.add_systems(Startup, (
-				setup,
-				// spawn_random_world
-				// testparticles::test.pipe(ignore),
-			))
+			.add_systems(
+				Startup,
+				(
+					setup,
+					// spawn_random_world
+					// testparticles::test.pipe(ignore),
+				),
+			)
 			.add_plugins(
 				DefaultPickingPlugins
 					.build()
 					.disable::<DefaultHighlightingPlugin>()
 					.disable::<DebugPickingPlugin>(),
 			);
+
+		app.add_systems(Update, test_activate_particles);
 
 		#[cfg(feature = "dev")]
 		app.add_plugins((
