@@ -30,7 +30,7 @@ pub trait ThrustStage {
 }
 macro_rules! thrust_stage {
 	($(#[$($attrss:tt)*])* $(pub)? struct $name:ident; type = $type:ty) => {
-		#[doc = concat!("Dimension type = ", stringify!($type), "\n")]	
+		#[doc = concat!("Dimension type = ", stringify!($type), "\n")]
 		$(#[$($attrss)*])*
 
 		#[derive(Debug, Clone,)]
@@ -67,7 +67,10 @@ impl<T: Default + Clone + Copy + Default> Signed<T> {
 		match self {
 			Signed::Positive(v) => v,
 			Signed::Negative(v) => v,
-			Signed::Zero => panic!("Unwrapped a Signed<{:?}> which was Signed::Zero", any::type_name::<T>()),
+			Signed::Zero => panic!(
+				"Unwrapped a Signed<{:?}> which was Signed::Zero",
+				any::type_name::<T>()
+			),
 		}
 	}
 
@@ -110,7 +113,7 @@ thrust_stage!(
 
 thrust_stage!(
 	/// type = [Vec3]
-	/// 
+	///
 	/// UN FLAGGED
 	/// Vectors of length 1, used to give information about whereabouts and
 	/// rotation of the player
@@ -133,7 +136,7 @@ thrust_stage!(
 
 thrust_stage!(
 	/// type = [f32]
-	/// 
+	///
 	/// FLAGGED
 	/// Shows how much of the maximum power can be used
 	/// Used for animating the player and for relative readings
@@ -456,11 +459,20 @@ pub fn apply_thrust(
 	thrust
 }
 
+pub fn manually_threading_player_movement() {}
+
 pub fn trigger_player_thruster_particles(
 	player: Query<(&MainPlayer, &Children)>,
 	mut particles: Query<(&mut EffectSpawner, &Thruster)>,
 ) {
-	let (MainPlayer { relative_thrust: thrust }, children) = player.single();
+	let (
+		MainPlayer {
+			relative_thrust: thrust,
+		},
+		children,
+	) = player.single();
+
+	info!("system running");
 
 	impl ThrustFlags {
 		/// If flags match, add relative strength, else add nothing
@@ -468,7 +480,10 @@ pub fn trigger_player_thruster_particles(
 			let mut counter = 0.;
 
 			let forward = Signed::from(thrust.forward);
-			if self.forward_back.is_some_and(|f| f == forward.is_positive()) {
+			if self
+				.forward_back
+				.is_some_and(|f| f == forward.is_positive())
+			{
 				counter += forward.unwrap();
 			}
 
@@ -502,12 +517,20 @@ pub fn trigger_player_thruster_particles(
 	}
 
 	for child in children.iter() {
-		let (mut spawner, Thruster { flags, ..}) = particles.get_mut(*child).unwrap();
-		// todo: show gradient of particles, change acceleration / lifetime?
-		if flags.degree_of_match(thrust) > 0. {
-			spawner.set_active(true);
-		} else {
-			spawner.set_active(false);
+		match particles.get_mut(*child) {
+			Ok((mut spawner, Thruster { flags, .. })) => {
+				// todo: show gradient of particles, change acceleration / lifetime?
+				let degree = flags.degree_of_match(thrust);
+				debug!("Degree of match: {}", degree);
+				if degree > 0. {
+					spawner.set_active(true);
+				} else {
+					spawner.set_active(false);
+				}
+			},
+			Err(_e) => {
+
+			}
 		}
 	}
 }
