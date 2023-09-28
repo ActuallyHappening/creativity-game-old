@@ -49,7 +49,7 @@ impl Plugin for PlayerPlugin {
 					// .pipe(apply_thrust)
 					// .pipe(ignore).after(trigger_player_thruster_particles),
 					manually_threading_player_movement.in_set(PlayerMove),
-					trigger_player_thruster_particles.after(PlayerMove)
+					trigger_player_thruster_particles.after(PlayerMove),
 				),
 			);
 	}
@@ -73,11 +73,57 @@ lazy_static! {
 		(PixelVariant::PlayerSteel, (0, -1, 1)),
 	])
 	.with([
-		(Thruster::new(Direction::Backward, ThrustFlags::builder().forward_back(false).build().unwrap()), (0, 0, 2)),
-		// (Thruster::new(Direction::Left), (-2, 0, 1)),
-		// (Thruster::new(Direction::Right), (2, 0, 1)),
-		// (Thruster::new(Direction::Up), (0, 2, 1)),
-		// (Thruster::new(Direction::Down), (0, -2, 1)),
+		(
+			Thruster::new(
+				Direction::Backward,
+				ThrustFlags::builder().forward_back(true).build().unwrap()
+			),
+			(0, 0, 2)
+		),
+		(
+			Thruster::new(
+				Direction::Left,
+				ThrustFlags::builder()
+					.right_left(true)
+					.turn_left(true)
+					.build()
+					.unwrap()
+			),
+			(-2, 0, 1)
+		),
+		(
+			Thruster::new(
+				Direction::Right,
+				ThrustFlags::builder()
+					.right_left(false)
+					.turn_left(false)
+					.build()
+					.unwrap()
+			),
+			(2, 0, 1)
+		),
+		(
+			Thruster::new(
+				Direction::Up,
+				ThrustFlags::builder()
+					.up_down(false)
+					.tilt_up(true)
+					.build()
+					.unwrap()
+			),
+			(0, 2, 1)
+		),
+		(
+			Thruster::new(
+				Direction::Down,
+				ThrustFlags::builder()
+					.up_down(true)
+					.tilt_up(false)
+					.build()
+					.unwrap()
+			),
+			(0, -2, 1)
+		),
 	]);
 }
 
