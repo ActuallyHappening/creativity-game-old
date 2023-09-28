@@ -8,7 +8,7 @@ use bevy_mod_picking::{
 use bevy_screen_diagnostics::{ScreenDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin};
 
 mod stars;
-mod testparticles;
+// mod testparticles;
 
 use super::{camera::CameraPlugin, world_gen::spawn_random_world};
 use crate::utils::*;
@@ -21,7 +21,7 @@ impl Plugin for SetupPlugin {
 			.add_systems(Startup, (
 				setup,
 				// spawn_random_world
-				testparticles::test.pipe(ignore),
+				// testparticles::test.pipe(ignore),
 			))
 			.add_plugins(
 				DefaultPickingPlugins

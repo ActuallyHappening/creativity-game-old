@@ -35,24 +35,27 @@ pub struct MainPlayer {
 	thrust: Thrust<RelativeStrength>,
 }
 
-lazy_static!(
+lazy_static! {
 	static ref PLAYER_STRUCTURE: Structure = Structure::new([
 		(PixelVariant::PlayerSteel, (0, 0, 0)),
 		(PixelVariant::PlayerSteel, (0, 0, -1)),
 		(PixelVariant::PlayerLargeEngineDecoration, (0, 0, 1)),
-
 		(PixelVariant::PlayerSteel, (-1, 0, 0)),
 		(PixelVariant::PlayerSteel, (1, 0, 0)),
 		(PixelVariant::PlayerSteel, (-1, 0, 1)),
 		(PixelVariant::PlayerSteel, (1, 0, 1)),
 		(PixelVariant::PlayerSteel, (0, 1, 1)),
 		(PixelVariant::PlayerSteel, (0, -1, 1)),
+	])
+	.with([
+		(Thruster::new(Direction::Backward), (0, 0, 2)),
 	]);
-);
+}
 
 fn initial_spawn_player(
 	mut commands: Commands,
 	mut mma: MMA,
+	effects: ResMut<Assets<EffectAsset>>,
 ) {
 	info!("Spawning player");
 	commands
@@ -62,7 +65,6 @@ fn initial_spawn_player(
 					transform: Transform::from_xyz(0., PIXEL_SIZE * 7., 0.),
 					..default()
 				},
-				
 				MainPlayer::default(),
 			)
 				.named("Main Player")
@@ -80,8 +82,8 @@ fn initial_spawn_player(
 			// 	..default()
 			// });
 
-			for part in PLAYER_STRUCTURE.get_bevy_bundles(&mut mma) {
-				parent.spawn(part);
+			for part in PLAYER_STRUCTURE.spawn_bevy_bundles(&mut mma, effects) {
+				part.spawn_to_parent(parent);
 			}
 		});
 }

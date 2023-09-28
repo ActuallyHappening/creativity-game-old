@@ -7,6 +7,7 @@ use bevy_mod_picking::{
 };
 
 pub use crate::core::*;
+pub use crate::core::Direction;
 pub use bevy::prelude::*;
 pub use bevy_dolly::prelude::*;
 pub use bevy_mod_picking::prelude::*;
@@ -22,10 +23,10 @@ pub use std::{
 };
 pub use strum::*;
 
-// #[cfg(feature = "hanabi_particles")]
-// mod particles;
-// #[cfg(feature = "hanabi_particles")]
-// pub use particles::*;
+#[cfg(feature = "hanabi_particles")]
+mod particles;
+#[cfg(feature = "hanabi_particles")]
+pub use particles::*;
 #[cfg(feature = "hanabi_particles")]
 pub use bevy_hanabi::*;
 

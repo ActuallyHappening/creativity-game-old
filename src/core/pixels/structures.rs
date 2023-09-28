@@ -13,7 +13,10 @@ pub enum StructurePart {
 		px: Pixel,
 		relative_location: RelativePixelPoint,
 	},
-	Thruster(Thruster),
+	Thruster {
+		thrust: Thruster,
+		relative_location: RelativePixelPoint,
+	},
 }
 
 #[derive(Debug, Clone)]
@@ -54,14 +57,11 @@ impl From<RelativePixelPoint> for Vec3 {
 	}
 }
 
-
 impl From<(i8, i8, i8)> for RelativePixelPoint {
 	fn from((x, y, z): (i8, i8, i8)) -> Self {
 		Self::new(x, y, z)
 	}
 }
-
-
 
 impl Thruster {
 	pub const fn new(facing: Direction) -> Thruster {
@@ -69,9 +69,15 @@ impl Thruster {
 	}
 }
 
-impl From<Thruster> for StructurePart {
-	fn from(thruster: Thruster) -> Self {
-		Self::Thruster(thruster)
+impl<L> From<(Thruster, L)> for StructurePart
+where
+	L: Into<RelativePixelPoint>,
+{
+	fn from((thrust, relative_location): (Thruster, L)) -> Self {
+		Self::Thruster {
+			thrust: thrust.into(),
+			relative_location: relative_location.into(),
+		}
 	}
 }
 
@@ -88,31 +94,73 @@ where
 	}
 }
 
+pub enum StructureBundle {
+	Pixel(PbrBundle),
+	Thruster(PbrBundle, ParticleEffectBundle),
+}
+
 impl Structure {
-	pub fn new(parts: impl IntoIterator<Item = impl Into<StructurePart>>) -> Structure {
+	pub fn new(parts: impl IntoIterator<Item = impl Into<StructurePart>>) -> Self {
 		Self {
 			parts: parts.into_iter().map(|p| p.into()).collect(),
 			..default()
 		}
 	}
 
-	pub fn get_bevy_bundles(
+	pub fn with(mut self, part: impl IntoIterator<Item = impl Into<StructurePart>>) -> Self {
+		self.parts.extend(part.into_iter().map(|p| p.into()));
+		self
+	}
+
+	pub fn spawn_bevy_bundles(
 		&self,
-		MMA { meshs, mats, .. }: &mut MMA,
-	) -> Vec<PbrBundle> {
-		self.parts.clone().into_iter().map(|p| match p {
-			StructurePart::Thruster(dir) => unimplemented!(),
-			StructurePart::Pixel {
-				px,
-				relative_location,
-			} => PbrBundle {
-				material: mats.add(px.clone().into()),
-				transform: Transform::from_translation(relative_location.into_world_vector()),
-				mesh: meshs
-						.add(shape::Cube::new(PIXEL_SIZE).into()),
-				..default()
-			},
-		}).collect()
+		mma: &mut MMA,
+		effects: ResMut<Assets<EffectAsset>>,
+	) -> Vec<StructureBundle> {
+		let effects = effects.into_inner();
+		self
+			.parts
+			.clone()
+			.into_iter()
+			.map(move |p| match p {
+				StructurePart::Thruster {
+					thrust,
+					relative_location,
+				} => StructureBundle::Thruster(
+					PbrBundle {
+						material: mma.mats.add(Color::ORANGE_RED.into()),
+						transform: Transform::from_translation(relative_location.into_world_vector()),
+						mesh: mma.meshs.add(shape::Cube::new(PIXEL_SIZE / 2.).into()),
+						..default()
+					},
+					gen_particles(effects),
+				),
+				StructurePart::Pixel {
+					px,
+					relative_location,
+				} => StructureBundle::Pixel(PbrBundle {
+					material: mma.mats.add(px.clone().into()),
+					transform: Transform::from_translation(relative_location.into_world_vector()),
+					mesh: mma.meshs.add(shape::Cube::new(PIXEL_SIZE).into()),
+					..default()
+				}),
+			})
+			.collect()
+	}
+}
+
+impl StructureBundle {
+	pub fn spawn_to_parent(self, parent: &mut ChildBuilder) {
+		match self {
+			StructureBundle::Pixel(bundle) => {
+				parent.spawn(bundle);
+			}
+			StructureBundle::Thruster(bundle, effect) => {
+				parent.spawn(bundle).with_children(|parent| {
+					parent.spawn(effect);
+				});
+			}
+		};
 	}
 }
 
