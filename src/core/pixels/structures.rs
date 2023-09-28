@@ -20,140 +20,22 @@ pub enum StructurePart {
 	},
 }
 
-#[derive(Debug, Clone, Component)]
-pub struct Thruster {
-	pub facing: Direction,
-	pub flags: ThrustFlags,
+trait Reflection {
+	fn reflect_horizontally(self) -> Self;
+	fn reflect_vertically(self) -> Self;
 }
 
-/// Used on the thruster to show when it should be displaying particles
-/// relative to player movement inputs
-#[derive(Debug, Clone, Component, Default, Builder, PartialEq)]
-#[builder(setter(into, strip_option,))]
-pub struct ThrustFlags {
-	#[builder(default)]
-	pub forward_back: Option<bool>,
-	#[builder(default)]
-	pub up_down: Option<bool>,
-	#[builder(default)]
-	pub right_left: Option<bool>,
+mod thruster;
+use thruster::*;
 
-	#[builder(default)]
-	pub turn_left: Option<bool>,
-	#[builder(default)]
-	pub tilt_up: Option<bool>,
-	#[builder(default)]
-	pub roll_left: Option<bool>,
-}
+mod thruster_flags;
+use thruster_flags::*;
 
-#[test]
-fn thrust_flags() {
-	let expexted = ThrustFlags {
-		up_down: Some(false),
-		roll_left: Some(true),
-		..default()
-	};
+mod direction;
+pub use direction::Direction;
 
-	let actual = ThrustFlagsBuilder::default()
-		.up_down(false)
-		.roll_left(true)
-		.build()
-		.unwrap();
-
-	assert_eq!(expexted, actual);
-}
-
-impl ThrustFlags {
-	pub fn builder() -> ThrustFlagsBuilder {
-		ThrustFlagsBuilder::default()
-	}
-}
-
-#[derive(Debug, Clone, Copy)]
-pub enum Direction {
-	Forward,
-	Backward,
-	Left,
-	Right,
-	Up,
-	Down,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Default, Mul)]
-pub struct RelativePixelPoint {
-	x: i8,
-	y: i8,
-	z: i8,
-}
-
-mod relative_pixel_point_impls {
-	use super::*;
-
-	impl RelativePixelPoint {
-		pub const fn new(x: i8, y: i8, z: i8) -> RelativePixelPoint {
-			RelativePixelPoint { x, y, z }
-		}
-
-		pub fn into_world_vector(self) -> Vec3 {
-			Vec3::from(self) * PIXEL_SIZE
-		}
-	}
-
-	impl From<RelativePixelPoint> for Vec3 {
-		fn from(value: RelativePixelPoint) -> Self {
-			Vec3::new(value.x as f32, value.y as f32, value.z as f32)
-		}
-	}
-
-	impl From<(i8, i8, i8)> for RelativePixelPoint {
-		fn from((x, y, z): (i8, i8, i8)) -> Self {
-			Self::new(x, y, z)
-		}
-	}
-}
-
-impl Direction {
-	/// From/Into impl, but use explicit method where possible
-	pub fn into_rotation(self) -> Quat {
-		impl From<Direction> for Quat {
-			fn from(value: Direction) -> Self {
-				value.into_rotation()
-			}
-		}
-
-		match self {
-			Self::Backward => Quat::from_rotation_x(90f32.to_radians()),
-			Self::Forward => Quat::from_rotation_x(-90f32.to_radians()),
-			Self::Left => Quat::from_rotation_z(90f32.to_radians()),
-			Self::Right => Quat::from_rotation_z(-90f32.to_radians()),
-			Self::Up => Quat::IDENTITY,
-			Self::Down => Quat::from_rotation_z(180f32.to_radians()),
-		}
-	}
-
-	pub fn into_direction_vector(self) -> Vec3 {
-		impl From<Direction> for Vec3 {
-			fn from(value: Direction) -> Self {
-				value.into_direction_vector()
-			}
-		}
-
-		match self {
-			Self::Backward => Vec3::new(0., 0., 1.),
-			Self::Forward => Vec3::new(0., 0., -1.),
-			Self::Left => Vec3::new(-1., 0., 0.),
-			Self::Right => Vec3::new(1., 0., 0.),
-			Self::Up => Vec3::new(0., 1., 0.),
-			Self::Down => Vec3::new(0., -1., 0.),
-		}
-	}
-}
-
-impl Thruster {
-	pub const fn new(facing: Direction, flags: ThrustFlags) -> Thruster {
-		Thruster { facing, flags }
-	}
-}
+mod relative_pixel_point;
+use relative_pixel_point::*;
 
 impl<L> From<(Thruster, L)> for StructurePart
 where
@@ -199,6 +81,51 @@ impl Structure {
 
 	pub fn with(mut self, part: impl IntoIterator<Item = impl Into<StructurePart>>) -> Self {
 		self.parts.extend(part.into_iter().map(|p| p.into()));
+		self
+	}
+
+	pub fn reflect_horizontally(mut self) -> Self {
+		self.parts = self
+			.parts
+			.into_iter()
+			.map(|p| match p {
+				StructurePart::Pixel {
+					px,
+					relative_location,
+				} => [
+					StructurePart::Pixel {
+						px: px.clone(),
+						relative_location: relative_location.clone(),
+					},
+					StructurePart::Pixel {
+						px: px.clone(),
+						relative_location: RelativePixelPoint::new(
+							-relative_location.x,
+							relative_location.y,
+							relative_location.z,
+						),
+					},
+				],
+				StructurePart::Thruster {
+					thrust,
+					relative_location,
+				} => [
+					StructurePart::Thruster {
+						thrust: thrust.clone(),
+						relative_location: relative_location.clone(),
+					},
+					StructurePart::Thruster {
+						thrust: thrust.reflect_horizontally(),
+						relative_location: RelativePixelPoint::new(
+							-relative_location.x,
+							relative_location.y,
+							relative_location.z,
+						),
+					},
+				],
+			})
+			.flatten()
+			.collect();
 		self
 	}
 
