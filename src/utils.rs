@@ -22,6 +22,13 @@ pub use std::{
 };
 pub use strum::*;
 
+// #[cfg(feature = "hanabi_particles")]
+// mod particles;
+// #[cfg(feature = "hanabi_particles")]
+// pub use particles::*;
+#[cfg(feature = "hanabi_particles")]
+pub use bevy_hanabi::*;
+
 // todo convert into system param
 #[allow(clippy::upper_case_acronyms)]
 #[derive(SystemParam)]
