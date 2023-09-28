@@ -26,6 +26,8 @@ pub struct Thruster {
 	pub flags: ThrustFlags,
 }
 
+/// Used on the thruster to show when it should be displaying particles
+/// relative to player movement inputs
 #[derive(Debug, Clone, Component, Default, Builder, PartialEq)]
 #[builder(setter(into, strip_option,))]
 pub struct ThrustFlags {

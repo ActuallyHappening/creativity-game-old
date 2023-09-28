@@ -9,6 +9,8 @@ use lazy_static::lazy_static;
 use thrust::*;
 
 pub struct PlayerPlugin;
+#[derive(Hash, Debug, PartialEq, Eq, Clone, SystemSet)]
+pub struct PlayerMove;
 impl Plugin for PlayerPlugin {
 	fn build(&self, app: &mut App) {
 		app
@@ -46,8 +48,8 @@ impl Plugin for PlayerPlugin {
 					// )
 					// .pipe(apply_thrust)
 					// .pipe(ignore).after(trigger_player_thruster_particles),
-					manually_threading_player_movement,
-					trigger_player_thruster_particles,
+					manually_threading_player_movement.in_set(PlayerMove),
+					trigger_player_thruster_particles.after(PlayerMove)
 				),
 			);
 	}

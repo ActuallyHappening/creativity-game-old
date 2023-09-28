@@ -241,9 +241,9 @@ pub fn gather_input_flags(keyboard_input: Res<Input<KeyCode>>) -> Thrust<InputFl
 }
 
 pub fn get_base_normal_vectors(
-	player: Query<&Transform, With<MainPlayer>>,
+	player_transform: Query<&Transform, With<MainPlayer>>,
 ) -> Thrust<BaseNormalVectors> {
-	let player = match player.get_single() {
+	let player = match player_transform.get_single() {
 		Ok(player) => player,
 		Err(e) => panic!("No player found: {:?}", e),
 	};
@@ -304,9 +304,9 @@ pub fn flag_normal_vectors(
 /// Takes into account the maximum power of each thruster and the current velocity
 pub fn get_relative_strengths(
 	In((aimed, max)): In<(Thrust<FlaggedNormalVectors>, Thrust<MaxVelocityMagnitudes>)>,
-	player: Query<&Velocity, With<MainPlayer>>,
+	player_velocity: Query<&Velocity, With<MainPlayer>>,
 ) -> Thrust<RelativeStrength> {
-	let Velocity { linvel, angvel } = player.single();
+	let Velocity { linvel, angvel } = player_velocity.single();
 
 	fn factor_allowed_forwards(aimed: Signed<Vec3>, max: f32, current: &Vec3) -> f32 {
 		if aimed.is_zero() {
@@ -388,7 +388,7 @@ pub fn save_thrust_stages(
 		Thrust<BaseNormalVectors>,
 		Thrust<ForceFactors>,
 	)>,
-	mut player: Query<&mut MainPlayer, With<MainPlayer>>,
+	mut player_data: Query<&mut MainPlayer, With<MainPlayer>>,
 ) -> Thrust<FinalVectors> {
 	// relative (F) * normals (U) = almost final (FLAGGED)
 	impl std::ops::Mul<Thrust<RelativeStrength>> for Thrust<BaseNormalVectors> {
@@ -428,17 +428,17 @@ pub fn save_thrust_stages(
 
 	let final_vectors = normal_vectors * relative_strength.clone() * max;
 
-	player.single_mut().relative_thrust = relative_strength;
+	player_data.single_mut().relative_thrust = relative_strength;
 
 	final_vectors
 }
 
 pub fn apply_thrust(
 	In(thrust): In<Thrust<FinalVectors>>,
-	mut player: Query<&mut ExternalForce, With<MainPlayer>>,
+	mut player_physics: Query<&mut ExternalForce, With<MainPlayer>>,
 	time: Res<Time>,
 ) -> Thrust<FinalVectors> {
-	let mut player = player.single_mut();
+	let mut player = player_physics.single_mut();
 	let delta = time.delta_seconds_f64() as f32;
 
 	impl MainPlayer {
@@ -459,78 +459,91 @@ pub fn apply_thrust(
 	thrust
 }
 
-pub fn manually_threading_player_movement() {}
+pub fn manually_threading_player_movement(
+	keyboard_input: Res<Input<KeyCode>>,
+	player_transform: Query<&Transform, With<MainPlayer>>,
+	player_velocity: Query<&Velocity, With<MainPlayer>>,
+	player_data: Query<&mut MainPlayer, With<MainPlayer>>,
+	time: Res<Time>,
+	player_physics: Query<&mut ExternalForce, With<MainPlayer>>,
+) {
+	let base_normal = get_base_normal_vectors(player_transform);
+	let flagged_inputs = flag_normal_vectors(In((
+		gather_input_flags(keyboard_input),
+		base_normal.clone(),
+	)));
+	let relative_strengths = get_relative_strengths(
+		In((flagged_inputs, max_velocity_magnitudes())),
+		player_velocity,
+	);
+	let final_vectors = save_thrust_stages(
+		In((relative_strengths, base_normal, force_factors())),
+		player_data,
+	);
+
+	apply_thrust(In(final_vectors), player_physics, time);
+}
 
 pub fn trigger_player_thruster_particles(
-	player: Query<(&MainPlayer, &Children)>,
+	player: Query<&MainPlayer>,
 	mut particles: Query<(&mut EffectSpawner, &Thruster)>,
 ) {
-	let (
-		MainPlayer {
-			relative_thrust: thrust,
-		},
-		children,
-	) = player.single();
-
-	info!("system running");
+	let MainPlayer {
+		relative_thrust: thrust,
+	} = player.single();
 
 	impl ThrustFlags {
 		/// If flags match, add relative strength, else add nothing
-		fn degree_of_match(&self, thrust: &Thrust<RelativeStrength>) -> f32 {
+		fn degree_of_match(&self, actual: &Thrust<RelativeStrength>) -> f32 {
+			let flags = self;
 			let mut counter = 0.;
 
-			let forward = Signed::from(thrust.forward);
-			if self
+			let forward = Signed::from(actual.forward);
+			if flags
 				.forward_back
 				.is_some_and(|f| f == forward.is_positive())
 			{
-				counter += forward.unwrap();
+				counter += forward.into_unit().abs();
 			}
 
-			let up = Signed::from(thrust.up);
-			if self.up_down.is_some_and(|f| f == up.is_positive()) {
-				counter += up.unwrap();
+			let up = Signed::from(actual.up);
+			if flags.up_down.is_some_and(|f| f == up.is_positive()) {
+				counter += up.into_unit().abs();
 			}
 
-			let right = Signed::from(thrust.right);
-			if self.right_left.is_some_and(|f| f == right.is_positive()) {
-				counter += right.unwrap();
+			let right = Signed::from(actual.right);
+			if flags.right_left.is_some_and(|f| f == right.is_positive()) {
+				counter += right.into_unit().abs();
 			}
 
-			let turn_left = Signed::from(thrust.turn_left);
-			if self.turn_left.is_some_and(|f| f == turn_left.is_positive()) {
-				counter += turn_left.unwrap();
+			let turn_left = Signed::from(actual.turn_left);
+			if flags.turn_left.is_some_and(|f| f == turn_left.is_positive()) {
+				counter += turn_left.into_unit().abs();
 			}
 
-			let tilt_up = Signed::from(thrust.tilt_up);
-			if self.tilt_up.is_some_and(|f| f == tilt_up.is_positive()) {
-				counter += tilt_up.unwrap();
+			let tilt_up = Signed::from(actual.tilt_up);
+			if flags.tilt_up.is_some_and(|f| f == tilt_up.is_positive()) {
+				counter += tilt_up.into_unit().abs();
 			}
 
-			let roll_left = Signed::from(thrust.roll_left);
-			if self.roll_left.is_some_and(|f| f == roll_left.is_positive()) {
-				counter += roll_left.unwrap();
+			let roll_left = Signed::from(actual.roll_left);
+			if flags.roll_left.is_some_and(|f| f == roll_left.is_positive()) {
+				counter += roll_left.into_unit().abs();
 			}
 
 			counter
 		}
 	}
 
-	for child in children.iter() {
-		match particles.get_mut(*child) {
-			Ok((mut spawner, Thruster { flags, .. })) => {
-				// todo: show gradient of particles, change acceleration / lifetime?
-				let degree = flags.degree_of_match(thrust);
-				debug!("Degree of match: {}", degree);
-				if degree > 0. {
-					spawner.set_active(true);
-				} else {
-					spawner.set_active(false);
-				}
-			},
-			Err(_e) => {
+	for (mut spawner, Thruster { flags, .. }) in particles.iter_mut() {
+		// todo: show gradient of particles, change acceleration / lifetime?
 
-			}
+		let degree = flags.degree_of_match(thrust);
+		debug!("Degree of match: {}", degree);
+		if degree > 0. {
+			spawner.set_active(true);
+		} else {
+			spawner.set_active(false);
 		}
 	}
 }
