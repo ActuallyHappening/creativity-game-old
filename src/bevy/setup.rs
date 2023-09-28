@@ -21,7 +21,7 @@ impl Plugin for SetupPlugin {
 			.add_systems(Startup, (
 				setup,
 				// spawn_random_world
-				testparticles::test,
+				testparticles::test.pipe(ignore),
 			))
 			.add_plugins(
 				DefaultPickingPlugins
