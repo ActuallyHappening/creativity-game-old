@@ -173,7 +173,7 @@ pub fn vectorise_input_flags(
 	Thrust::<NormalVectors> {
 		forward: forward * input_flags.forward.into_f32(),
 		up: up * input_flags.up.into_f32(),
-		right: -forward.cross(up) * input_flags.right.into_f32(),
+		right: forward.cross(up) * input_flags.right.into_f32(),
 
 		turn_left: up * input_flags.turn_left.into_f32(),
 		tilt_up: forward.cross(up) * input_flags.tilt_up.into_f32(),
@@ -354,9 +354,10 @@ pub fn apply_thrust(
 
 	impl MainPlayer {
 		const MAX_TOTAL_ANGULAR_FORCE: f32 = 10_000_000.;
+		const MAX_TOTAL_LINEAR_FORCE: f32 = 10_000_000.;
 	}
 
-	player.force = thrust.forward;
+	player.force = (thrust.forward + thrust.up + thrust.right).clamp_length(0., MainPlayer::MAX_TOTAL_LINEAR_FORCE);
 	player.force *= delta;
 
 	player.torque = (thrust.turn_left + thrust.tilt_up + thrust.roll_left)
