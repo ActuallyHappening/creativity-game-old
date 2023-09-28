@@ -63,6 +63,26 @@ impl From<(i8, i8, i8)> for RelativePixelPoint {
 	}
 }
 
+impl Direction {
+	/// From/Into impl, but use explicit method where possible
+	pub fn into_rotation(self) -> Quat {
+		impl From<Direction> for Quat {
+			fn from(value: Direction) -> Self {
+				value.into_rotation()
+			}
+		}
+
+		match self {
+			Self::Backward => Quat::from_rotation_x(90f32.to_radians()),
+			Self::Forward => Quat::from_rotation_x(-90f32.to_radians()),
+			Self::Left => Quat::from_rotation_z(90f32.to_radians()),
+			Self::Right => Quat::from_rotation_z(-90f32.to_radians()),
+			Self::Up => Quat::IDENTITY,
+			Self::Down => Quat::from_rotation_z(180f32.to_radians()),
+		}
+	}
+}
+
 impl Thruster {
 	pub const fn new(facing: Direction) -> Thruster {
 		Thruster { facing }
@@ -133,7 +153,11 @@ impl Structure {
 						mesh: mma.meshs.add(shape::Cube::new(PIXEL_SIZE / 2.).into()),
 						..default()
 					},
-					gen_particles(effects),
+					{
+						let mut particles = gen_particles(effects);
+						particles.transform = Transform::from_rotation(thrust.facing.into_rotation());
+						particles
+					},
 				),
 				StructurePart::Pixel {
 					px,

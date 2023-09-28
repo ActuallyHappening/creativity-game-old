@@ -49,6 +49,10 @@ lazy_static! {
 	])
 	.with([
 		(Thruster::new(Direction::Backward), (0, 0, 2)),
+		(Thruster::new(Direction::Left), (-2, 0, 1)),
+		(Thruster::new(Direction::Right), (2, 0, 1)),
+		(Thruster::new(Direction::Up), (0, 2, 1)),
+		(Thruster::new(Direction::Down), (0, -2, 1)),
 	]);
 }
 
