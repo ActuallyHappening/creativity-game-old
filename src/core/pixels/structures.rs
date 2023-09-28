@@ -24,7 +24,7 @@ pub struct Thruster {
 	facing: Direction,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum Direction {
 	Forward,
 	Backward,
@@ -81,6 +81,23 @@ impl Direction {
 			Self::Down => Quat::from_rotation_z(180f32.to_radians()),
 		}
 	}
+
+	pub fn into_direction_vector(self) -> Vec3 {
+		impl From<Direction> for Vec3 {
+			fn from(value: Direction) -> Self {
+				value.into_direction_vector()
+			}
+		}
+
+		match self {
+			Self::Backward => Vec3::new(0., 0., 1.),
+			Self::Forward => Vec3::new(0., 0., -1.),
+			Self::Left => Vec3::new(-1., 0., 0.),
+			Self::Right => Vec3::new(1., 0., 0.),
+			Self::Up => Vec3::new(0., 1., 0.),
+			Self::Down => Vec3::new(0., -1., 0.),
+		}
+	}
 }
 
 impl Thruster {
@@ -95,7 +112,7 @@ where
 {
 	fn from((thrust, relative_location): (Thruster, L)) -> Self {
 		Self::Thruster {
-			thrust: thrust.into(),
+			thrust: thrust,
 			relative_location: relative_location.into(),
 		}
 	}
@@ -149,7 +166,10 @@ impl Structure {
 				} => StructureBundle::Thruster(
 					PbrBundle {
 						material: mma.mats.add(Color::ORANGE_RED.into()),
-						transform: Transform::from_translation(relative_location.into_world_vector()),
+						transform: Transform::from_translation(
+							relative_location.into_world_vector()
+								- (PIXEL_SIZE / 3.) * thrust.facing.into_direction_vector(),
+						),
 						mesh: mma.meshs.add(shape::Cube::new(PIXEL_SIZE / 2.).into()),
 						..default()
 					},
