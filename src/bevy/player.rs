@@ -124,6 +124,8 @@ lazy_static! {
 			),
 			(0, -2, 1)
 		),
+		(Thruster::new(Direction::Up, ThrustFlags::builder().up_down(false).tilt_up(true).build().unwrap()), (1, 1, 1)),
+		(Thruster::new(Direction::Up, ThrustFlags::builder().up_down(false).tilt_up(true).build().unwrap()), (-1, 1, 1)),
 	]);
 }
 
