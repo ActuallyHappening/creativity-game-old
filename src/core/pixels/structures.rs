@@ -22,26 +22,26 @@ pub enum StructurePart {
 
 #[derive(Debug, Clone, Component)]
 pub struct Thruster {
-	facing: Direction,
-	flags: ThrustFlags,
+	pub facing: Direction,
+	pub flags: ThrustFlags,
 }
 
 #[derive(Debug, Clone, Component, Default, Builder, PartialEq)]
 #[builder(setter(into, strip_option,))]
 pub struct ThrustFlags {
 	#[builder(default)]
-	forward_back: Option<bool>,
+	pub forward_back: Option<bool>,
 	#[builder(default)]
-	up_down: Option<bool>,
+	pub up_down: Option<bool>,
 	#[builder(default)]
-	left_right: Option<bool>,
+	pub right_left: Option<bool>,
 
 	#[builder(default)]
-	tilt_forward: Option<bool>,
+	pub turn_left: Option<bool>,
 	#[builder(default)]
-	turn_left: Option<bool>,
+	pub tilt_up: Option<bool>,
 	#[builder(default)]
-	roll_left: Option<bool>,
+	pub roll_left: Option<bool>,
 }
 
 #[test]
@@ -256,8 +256,8 @@ impl StructureBundle {
 				particles,
 				data,
 			} => {
-				parent.spawn(visual.insert(data)).with_children(|parent| {
-					parent.spawn(particles);
+				parent.spawn(visual).with_children(|parent| {
+					parent.spawn(particles.insert(data));
 				});
 			}
 		};

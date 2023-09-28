@@ -1,9 +1,18 @@
+use std::any;
+
 use crate::utils::*;
 
 use super::MainPlayer;
 
 #[derive(Debug, Clone)]
 pub struct Thrust<S: ThrustStage> {
+	/// Positive is forward obviously
+	forward: <S as self::ThrustStage>::DimensionType,
+
+	up: <S as self::ThrustStage>::DimensionType,
+
+	right: <S as self::ThrustStage>::DimensionType,
+
 	/// Left is positive
 	turn_left: <S as self::ThrustStage>::DimensionType,
 
@@ -13,13 +22,6 @@ pub struct Thrust<S: ThrustStage> {
 	/// Right is positive
 	roll_left: <S as self::ThrustStage>::DimensionType,
 
-	/// Positive is forward obviously
-	forward: <S as self::ThrustStage>::DimensionType,
-
-	up: <S as self::ThrustStage>::DimensionType,
-
-	right: <S as self::ThrustStage>::DimensionType,
-
 	_stage: PhantomData<S>,
 }
 
@@ -28,6 +30,7 @@ pub trait ThrustStage {
 }
 macro_rules! thrust_stage {
 	($(#[$($attrss:tt)*])* $(pub)? struct $name:ident; type = $type:ty) => {
+		#[doc = concat!("Dimension type = ", stringify!($type), "\n")]	
 		$(#[$($attrss)*])*
 
 		#[derive(Debug, Clone,)]
@@ -55,6 +58,19 @@ impl<T: Default + Clone + Copy + Default> Signed<T> {
 		matches!(self, Signed::Zero)
 	}
 
+	fn is_positive(&self) -> bool {
+		matches!(self, Signed::Positive(_))
+	}
+
+	/// Access the underlying `T`, panic-ing of [Signed::Zero]
+	fn unwrap(self) -> T {
+		match self {
+			Signed::Positive(v) => v,
+			Signed::Negative(v) => v,
+			Signed::Zero => panic!("Unwrapped a Signed<{:?}> which was Signed::Zero", any::type_name::<T>()),
+		}
+	}
+
 	fn into_unit(self) -> f32 {
 		match self {
 			Signed::Positive(_) => 1.,
@@ -73,6 +89,17 @@ impl Signed<Vec3> {
 		}
 	}
 }
+impl From<f32> for Signed<f32> {
+	fn from(value: f32) -> Self {
+		if value > 0. {
+			Signed::Positive(value)
+		} else if value < 0. {
+			Signed::Negative(value)
+		} else {
+			Signed::Zero
+		}
+	}
+}
 
 thrust_stage!(
 	/// FLAGGED
@@ -82,6 +109,8 @@ thrust_stage!(
 );
 
 thrust_stage!(
+	/// type = [Vec3]
+	/// 
 	/// UN FLAGGED
 	/// Vectors of length 1, used to give information about whereabouts and
 	/// rotation of the player
@@ -103,6 +132,8 @@ thrust_stage!(
 );
 
 thrust_stage!(
+	/// type = [f32]
+	/// 
 	/// FLAGGED
 	/// Shows how much of the maximum power can be used
 	/// Used for animating the player and for relative readings
@@ -423,6 +454,62 @@ pub fn apply_thrust(
 	// info!("Thrust: (ang len = {})");
 
 	thrust
+}
+
+pub fn trigger_player_thruster_particles(
+	player: Query<(&MainPlayer, &Children)>,
+	mut particles: Query<(&mut EffectSpawner, &Thruster)>,
+) {
+	let (MainPlayer { relative_thrust: thrust }, children) = player.single();
+
+	impl ThrustFlags {
+		/// If flags match, add relative strength, else add nothing
+		fn degree_of_match(&self, thrust: &Thrust<RelativeStrength>) -> f32 {
+			let mut counter = 0.;
+
+			let forward = Signed::from(thrust.forward);
+			if self.forward_back.is_some_and(|f| f == forward.is_positive()) {
+				counter += forward.unwrap();
+			}
+
+			let up = Signed::from(thrust.up);
+			if self.up_down.is_some_and(|f| f == up.is_positive()) {
+				counter += up.unwrap();
+			}
+
+			let right = Signed::from(thrust.right);
+			if self.right_left.is_some_and(|f| f == right.is_positive()) {
+				counter += right.unwrap();
+			}
+
+			let turn_left = Signed::from(thrust.turn_left);
+			if self.turn_left.is_some_and(|f| f == turn_left.is_positive()) {
+				counter += turn_left.unwrap();
+			}
+
+			let tilt_up = Signed::from(thrust.tilt_up);
+			if self.tilt_up.is_some_and(|f| f == tilt_up.is_positive()) {
+				counter += tilt_up.unwrap();
+			}
+
+			let roll_left = Signed::from(thrust.roll_left);
+			if self.roll_left.is_some_and(|f| f == roll_left.is_positive()) {
+				counter += roll_left.unwrap();
+			}
+
+			counter
+		}
+	}
+
+	for child in children.iter() {
+		let (mut spawner, Thruster { flags, ..}) = particles.get_mut(*child).unwrap();
+		// todo: show gradient of particles, change acceleration / lifetime?
+		if flags.degree_of_match(thrust) > 0. {
+			spawner.set_active(true);
+		} else {
+			spawner.set_active(false);
+		}
+	}
 }
 
 // #[bevycheck::system]

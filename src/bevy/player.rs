@@ -45,7 +45,7 @@ impl Plugin for PlayerPlugin {
 						save_thrust_stages,
 					)
 					.pipe(apply_thrust)
-					.pipe(ignore),
+					.pipe(ignore).after(trigger_player_thruster_particles),
 				),
 			);
 	}

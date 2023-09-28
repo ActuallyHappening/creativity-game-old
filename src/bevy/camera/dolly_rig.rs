@@ -29,6 +29,7 @@ impl RigDriver for RotationAccumulator {
 	}
 }
 impl RotationAccumulator {
+	#[allow(dead_code)]
 	pub fn add_rot(&mut self, rot: Quat) {
 		self.rot = self.rot.mul_quat(rot);
 	}
@@ -77,6 +78,7 @@ impl OrbitArm {
 		self
 	}
 
+	#[allow(dead_code)]
 	pub fn reset(&mut self) {
 		self.total_sideways_rot = 0.;
 		self.total_vertical_rot = 0.;
