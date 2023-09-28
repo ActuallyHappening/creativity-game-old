@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_hanabi::HanabiPlugin;
 use bevy_mod_picking::{
 	prelude::{DebugPickingPlugin, DefaultHighlightingPlugin},
 	DefaultPickingPlugins,
@@ -37,6 +38,9 @@ impl Plugin for SetupPlugin {
 				physics_config.gravity = Vec3::ZERO;
 			},
 		);
+
+		#[cfg(feature = "hanabi_particles")]
+		app.add_plugins(HanabiPlugin);
 
 		#[cfg(feature = "debugging")]
 		app.add_plugins(RapierDebugRenderPlugin::default());

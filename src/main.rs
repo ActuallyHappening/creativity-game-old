@@ -12,6 +12,7 @@ fn main() {
 						fit_canvas_to_parent: true,
 						prevent_default_event_handling: false,
 						canvas: Some("#canvas".to_string()),
+						title: "Creativity Game".to_string(),
 						..default()
 					}),
 					..default()
