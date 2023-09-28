@@ -30,8 +30,6 @@ impl Plugin for PlayerPlugin {
 	}
 }
 
-const PLAYER_HEIGHT: f32 = 25.;
-
 #[derive(Component, Default)]
 pub struct MainPlayer {
 	thrust: Thrust<RelativeStrength>,
@@ -39,29 +37,32 @@ pub struct MainPlayer {
 
 lazy_static!(
 	static ref PLAYER_STRUCTURE: Structure = Structure::new([
-		(PixelVariant::PlayerSteel.get_default_pixel(), (0, 0, 0))
+		(PixelVariant::PlayerSteel, (0, 0, 0)),
+		(PixelVariant::PlayerSteel, (0, 0, -1)),
+		(PixelVariant::PlayerLargeEngineDecoration, (0, 0, 1)),
+
+		(PixelVariant::PlayerSteel, (-1, 0, 0)),
+		(PixelVariant::PlayerSteel, (1, 0, 0)),
+		(PixelVariant::PlayerSteel, (-1, 0, 1)),
+		(PixelVariant::PlayerSteel, (1, 0, 1)),
+		(PixelVariant::PlayerSteel, (0, 1, 1)),
+		(PixelVariant::PlayerSteel, (0, -1, 1)),
 	]);
 );
 
 fn initial_spawn_player(
 	mut commands: Commands,
-	MMA {
-		mut meshs,
-		mut mats,
-		..
-	}: MMA,
+	mut mma: MMA,
 ) {
 	info!("Spawning player");
 	commands
 		.spawn(
 			(
 				PbrBundle {
-					material: mats.add(Color::SILVER.into()),
-					transform: Transform::from_xyz(0., PLAYER_HEIGHT, 0.),
-					mesh: meshs
-						.add(shape::Box::new(2. * PIXEL_SIZE, 2. * PIXEL_SIZE, 2. * PIXEL_SIZE).into()),
+					transform: Transform::from_xyz(0., PIXEL_SIZE * 7., 0.),
 					..default()
 				},
+				
 				MainPlayer::default(),
 			)
 				.named("Main Player")
@@ -72,12 +73,16 @@ fn initial_spawn_player(
 				.physics_zero_damping(),
 		)
 		.with_children(|parent| {
-			parent.spawn(PbrBundle {
-				material: mats.add(Color::GREEN.into()),
-				transform: Transform::from_xyz(0., 0., -15.),
-				mesh: meshs.add(shape::Box::new(PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE).into()),
-				..default()
-			});
+			// parent.spawn(PbrBundle {
+			// 	material: mma.mats.add(Color::GREEN.into()),
+			// 	transform: Transform::from_xyz(0., 0., -15.),
+			// 	mesh: mma.meshs.add(shape::Box::new(PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE).into()),
+			// 	..default()
+			// });
+
+			for part in PLAYER_STRUCTURE.get_bevy_bundles(&mut mma) {
+				parent.spawn(part);
+			}
 		});
 }
 

@@ -2,6 +2,8 @@ use crate::utils::*;
 
 mod structures;
 pub use structures::*;
+mod macros;
+use macros::*;
 
 /// Data about a class of pixels
 /// Does not implement [PartialEq] because the identity of a pixel is only in its variant,
@@ -33,8 +35,11 @@ pub enum PixelVariant {
 	Dirt,
 	Copper,
 	Lead,
+
 	/// Used to create player
 	PlayerSteel,
+	/// Used for player engine
+	PlayerLargeEngineDecoration,
 }
 
 pub struct PixelVariantInfo {
@@ -47,68 +52,69 @@ impl PixelVariant {
 	const fn default_hardcoded(self) -> (Pixel, PixelVariantInfo) {
 		type PV = PixelVariant;
 		match self {
-			PV::Dirt => (
-				Pixel {
-					name: "Dirt",
-					description: "A block of dirt",
-					colour: Color::rgb(0.3, 0.25, 0.0),
-					variant: self,
-				},
-				PixelVariantInfo {
-					collectable: None,
-					naturally_spawning: Some(Natural { frequency: 1000 }),
-				},
-			),
-			PV::Copper => (
-				Pixel {
-					name: "Copper",
-					description: "A block of copper",
-					colour: Color::rgb(0.6, 0.25, 0.05),
-					variant: self,
-				},
-				PixelVariantInfo {
-					collectable: Some(Collect {
-						amount_multiplier: 5,
-						player_mineable: true,
-					}),
-					naturally_spawning: Some(Natural { frequency: 150 }),
-				},
-			),
-			PV::Lead => (
-				Pixel {
-					name: "Lead",
-					description: "A block of lead",
-					colour: Color::SILVER,
-					variant: self,
-				},
-				PixelVariantInfo {
-					collectable: Some(Collect {
-						amount_multiplier: 1,
-						player_mineable: true,
-					}),
-					naturally_spawning: Some(Natural { frequency: 3 }),
-				},
-			),
-			PV::PlayerSteel => (
-				Pixel {
-					name: "Player Steel",
-					description: "Steel used in the construction of the MainPlayer",
-					colour: Color::SILVER,
-					variant: self,
-				},
-				PixelVariantInfo {
-					collectable: None,
-					naturally_spawning: None,
-				},
-			),
+			PV::Dirt => pixel_type!{self,
+				name: "Dirt",
+				description: "Some dirt with no life in it",
+				colour: Color::rgb(0.3, 0.25, 0.),
+				collectable: None,
+				naturally_spawning: Some(Natural { frequency: 1000 }),
+			},
+			PV::Copper => pixel_type!{self,
+				name: "Copper",
+				description: "A block of copper",
+				colour: Color::rgb(0.6, 0.25, 0.05),
+				collectable: Some(Collect {
+					amount_multiplier: 5,
+					player_mineable: true,
+				}),
+				naturally_spawning: Some(Natural { frequency: 150 }),
+			},
+			PV::Lead => pixel_type!{self,
+				name: "Lead",
+				description: "A block of lead",
+				colour: Color::SILVER,
+				collectable: Some(Collect {
+					amount_multiplier: 1,
+					player_mineable: true,
+				}),
+				naturally_spawning: Some(Natural { frequency: 3 }),
+			},
+			PV::PlayerSteel => pixel_type!{self,
+				name: "Player Steel",
+				description: "Steel used in the construction of the MainPlayer",
+				colour: Color::SILVER,
+				collectable: None,
+				naturally_spawning: None,
+			},
+			PV::PlayerLargeEngineDecoration => pixel_type!(self,
+				name: "Player Engine",
+				description: "A decoration block",
+				colour: Color::RED,
+				collectable: None,
+				naturally_spawning: None,
+			)
 		}
 	}
 
+	/// From/Into also implemented, but prefer explicit methods
 	pub const fn get_default_pixel(self) -> Pixel {
+		impl From<PixelVariant> for Pixel {
+			fn from(variant: PixelVariant) -> Self {
+				variant.get_default_pixel()
+			}
+		}
+
 		self.default_hardcoded().0
 	}
 
+	/// From/Into also implemented, but prefer explicit methods
 	pub const fn get_variant_info(self) -> PixelVariantInfo {
+		impl From<PixelVariant> for PixelVariantInfo {
+			fn from(variant: PixelVariant) -> Self {
+				variant.get_variant_info()
+			}
+		}
+
 		self.default_hardcoded().1
 	}
 

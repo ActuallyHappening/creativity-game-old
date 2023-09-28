@@ -16,22 +16,22 @@ pub enum StructurePart {
 	Thruster(Thruster),
 }
 
-#[derive(Debug, Clone,)]
+#[derive(Debug, Clone)]
 pub struct Thruster {
 	facing: Direction,
 }
 
-#[derive(Debug, Clone,)]
+#[derive(Debug, Clone)]
 pub enum Direction {
 	Forward,
 	Backward,
 	Left,
 	Right,
 	Up,
-	Down
+	Down,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Default,)]
+#[derive(Debug, Clone, PartialEq, Eq, Default, Mul)]
 pub struct RelativePixelPoint {
 	x: i8,
 	y: i8,
@@ -42,7 +42,18 @@ impl RelativePixelPoint {
 	pub const fn new(x: i8, y: i8, z: i8) -> RelativePixelPoint {
 		RelativePixelPoint { x, y, z }
 	}
+
+	pub fn into_world_vector(self) -> Vec3 {
+		Vec3::from(self) * PIXEL_SIZE
+	}
 }
+
+impl From<RelativePixelPoint> for Vec3 {
+	fn from(value: RelativePixelPoint) -> Self {
+		Vec3::new(value.x as f32, value.y as f32, value.z as f32)
+	}
+}
+
 
 impl From<(i8, i8, i8)> for RelativePixelPoint {
 	fn from((x, y, z): (i8, i8, i8)) -> Self {
@@ -62,9 +73,16 @@ impl From<Thruster> for StructurePart {
 	}
 }
 
-impl<T> From<(Pixel, T)> for StructurePart where T: Into<RelativePixelPoint> {
-	fn from((px, relative_location): (Pixel, T)) -> Self {
-		Self::Pixel { px, relative_location: relative_location.into() }
+impl<P, L> From<(P, L)> for StructurePart
+where
+	P: Into<Pixel>,
+	L: Into<RelativePixelPoint>,
+{
+	fn from((px, relative_location): (P, L)) -> Self {
+		Self::Pixel {
+			px: px.into(),
+			relative_location: relative_location.into(),
+		}
 	}
 }
 
@@ -75,6 +93,25 @@ impl Structure {
 			..default()
 		}
 	}
+
+	pub fn get_bevy_bundles(
+		&self,
+		MMA { meshs, mats, .. }: &mut MMA,
+	) -> Vec<PbrBundle> {
+		self.parts.clone().into_iter().map(|p| match p {
+			StructurePart::Thruster(dir) => unimplemented!(),
+			StructurePart::Pixel {
+				px,
+				relative_location,
+			} => PbrBundle {
+				material: mats.add(px.clone().into()),
+				transform: Transform::from_translation(relative_location.into_world_vector()),
+				mesh: meshs
+						.add(shape::Box::new(PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE).into()),
+				..default()
+			},
+		}).collect()
+	}
 }
 
 impl Default for Structure {
@@ -83,5 +120,11 @@ impl Default for Structure {
 			parts: vec![],
 			collider_size: 10.,
 		}
+	}
+}
+
+impl From<Pixel> for StandardMaterial {
+	fn from(px: Pixel) -> Self {
+		px.colour.into()
 	}
 }
