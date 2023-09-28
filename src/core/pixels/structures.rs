@@ -8,17 +8,8 @@ pub struct Structure {
 	collider_size: f32,
 }
 
-#[derive(Debug, Clone)]
-pub enum StructurePart {
-	Pixel {
-		px: Pixel,
-		relative_location: RelativePixelPoint,
-	},
-	Thruster {
-		thrust: Thruster,
-		relative_location: RelativePixelPoint,
-	},
-}
+mod structure_part;
+use structure_part::StructurePart;
 
 trait Reflection {
 	fn reflect_horizontally(self) -> Self;
@@ -26,41 +17,17 @@ trait Reflection {
 }
 
 mod thruster;
-use thruster::*;
+pub use thruster::Thruster;
 
 mod thruster_flags;
-use thruster_flags::*;
+pub use thruster_flags::ThrustFlags;
 
 mod direction;
 pub use direction::Direction;
 
 mod relative_pixel_point;
-use relative_pixel_point::*;
+use relative_pixel_point::RelativePixelPoint;
 
-impl<L> From<(Thruster, L)> for StructurePart
-where
-	L: Into<RelativePixelPoint>,
-{
-	fn from((thrust, relative_location): (Thruster, L)) -> Self {
-		Self::Thruster {
-			thrust,
-			relative_location: relative_location.into(),
-		}
-	}
-}
-
-impl<P, L> From<(P, L)> for StructurePart
-where
-	P: Into<Pixel>,
-	L: Into<RelativePixelPoint>,
-{
-	fn from((px, relative_location): (P, L)) -> Self {
-		Self::Pixel {
-			px: px.into(),
-			relative_location: relative_location.into(),
-		}
-	}
-}
 
 pub enum StructureBundle {
 	Pixel(PbrBundle),
@@ -81,51 +48,6 @@ impl Structure {
 
 	pub fn with(mut self, part: impl IntoIterator<Item = impl Into<StructurePart>>) -> Self {
 		self.parts.extend(part.into_iter().map(|p| p.into()));
-		self
-	}
-
-	pub fn reflect_horizontally(mut self) -> Self {
-		self.parts = self
-			.parts
-			.into_iter()
-			.map(|p| match p {
-				StructurePart::Pixel {
-					px,
-					relative_location,
-				} => [
-					StructurePart::Pixel {
-						px: px.clone(),
-						relative_location: relative_location.clone(),
-					},
-					StructurePart::Pixel {
-						px: px.clone(),
-						relative_location: RelativePixelPoint::new(
-							-relative_location.x,
-							relative_location.y,
-							relative_location.z,
-						),
-					},
-				],
-				StructurePart::Thruster {
-					thrust,
-					relative_location,
-				} => [
-					StructurePart::Thruster {
-						thrust: thrust.clone(),
-						relative_location: relative_location.clone(),
-					},
-					StructurePart::Thruster {
-						thrust: thrust.reflect_horizontally(),
-						relative_location: RelativePixelPoint::new(
-							-relative_location.x,
-							relative_location.y,
-							relative_location.z,
-						),
-					},
-				],
-			})
-			.flatten()
-			.collect();
 		self
 	}
 
@@ -171,6 +93,80 @@ impl Structure {
 				}),
 			})
 			.collect()
+	}
+}
+
+impl Reflection for Structure {
+	fn reflect_horizontally(mut self) -> Self {
+		self.parts = self
+			.parts
+			.into_iter()
+			.flat_map(|p| match p {
+				StructurePart::Pixel {
+					px,
+					relative_location,
+				} => [
+					StructurePart::Pixel {
+						px: px.clone(),
+						relative_location: relative_location.clone(),
+					},
+					StructurePart::Pixel {
+						px,
+						relative_location: relative_location.reflect_horizontally(),
+					},
+				],
+				StructurePart::Thruster {
+					thrust,
+					relative_location,
+				} => [
+					StructurePart::Thruster {
+						thrust: thrust.clone(),
+						relative_location: relative_location.clone(),
+					},
+					StructurePart::Thruster {
+						thrust: thrust.reflect_horizontally(),
+						relative_location: relative_location.reflect_horizontally(),
+					},
+				],
+			})
+			.collect();
+		self
+	}
+
+	fn reflect_vertically(mut self) -> Self {
+		self.parts = self
+			.parts
+			.into_iter()
+			.flat_map(|p| match p {
+				StructurePart::Pixel {
+					px,
+					relative_location,
+				} => [
+					StructurePart::Pixel {
+						px: px.clone(),
+						relative_location: relative_location.clone(),
+					},
+					StructurePart::Pixel {
+						px,
+						relative_location: relative_location.reflect_vertically(),
+					},
+				],
+				StructurePart::Thruster {
+					thrust,
+					relative_location,
+				} => [
+					StructurePart::Thruster {
+						thrust: thrust.clone(),
+						relative_location: relative_location.clone(),
+					},
+					StructurePart::Thruster {
+						thrust: thrust.reflect_vertically(),
+						relative_location: relative_location.reflect_vertically(),
+					},
+				],
+			})
+			.collect();
+		self
 	}
 }
 

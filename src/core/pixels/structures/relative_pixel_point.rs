@@ -29,3 +29,13 @@ impl From<(i8, i8, i8)> for RelativePixelPoint {
 		Self::new(x, y, z)
 	}
 }
+
+impl Reflection for RelativePixelPoint {
+	fn reflect_horizontally(self) -> Self {
+		Self::new(-self.x, self.y, self.z)
+	}
+
+	fn reflect_vertically(self) -> Self {
+		Self::new(self.x, -self.y, self.z)
+	}
+}
