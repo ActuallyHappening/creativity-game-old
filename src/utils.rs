@@ -6,8 +6,8 @@ use bevy_mod_picking::{
 	PickableBundle,
 };
 
-pub use crate::core::*;
 pub use crate::core::Direction;
+pub use crate::core::*;
 pub use bevy::prelude::*;
 pub use bevy_dolly::prelude::*;
 pub use bevy_mod_picking::prelude::*;
@@ -26,9 +26,9 @@ pub use strum::*;
 #[cfg(feature = "hanabi_particles")]
 mod particles;
 #[cfg(feature = "hanabi_particles")]
-pub use particles::*;
-#[cfg(feature = "hanabi_particles")]
 pub use bevy_hanabi::*;
+#[cfg(feature = "hanabi_particles")]
+pub use particles::*;
 
 // todo convert into system param
 #[allow(clippy::upper_case_acronyms)]
@@ -156,9 +156,9 @@ impl Style {
 	}
 }
 
-pub fn join<A, B, AMarker, BMarker>(
-	mut system_a: A,
-	mut system_b: B,
+pub fn join2<A, B, AMarker, BMarker>(
+	mut a: A,
+	mut b: B,
 ) -> impl FnMut(In<A::In>, ParamSet<(A::Param, B::Param)>) -> (A::Out, B::Out)
 where
 	A: SystemParamFunction<AMarker>,
@@ -166,10 +166,48 @@ where
 	A::In: Copy,
 {
 	move |In(input), mut params| {
-		let out_a = system_a.run(input, params.p0());
-		let out_b = system_b.run(input, params.p1());
+		let out_a = a.run(input, params.p0());
+		let out_b = b.run(input, params.p1());
 		(out_a, out_b)
 	}
+}
+
+pub fn join3<A, B, C, AMarker, BMarker, CMarker>(
+	mut a: A,
+	mut b: B,
+	mut c: C,
+) -> impl FnMut(In<A::In>, ParamSet<(A::Param, B::Param, C::Param)>) -> (A::Out, B::Out, C::Out)
+where
+	A: SystemParamFunction<AMarker>,
+	B: SystemParamFunction<BMarker, In = A::In>,
+	C: SystemParamFunction<CMarker, In = A::In>,
+	A::In: Copy,
+{
+	move |In(input), mut params| {
+		let out_a = a.run(input, params.p0());
+		let out_b = b.run(input, params.p1());
+		let out_c = c.run(input, params.p2());
+		(out_a, out_b, out_c)
+	}
+}
+
+pub fn pipe<A, B, AMarker, BMarker>(
+	mut a_in: A,
+	mut b_out: B,
+) -> impl FnMut(In<A::In>, ParamSet<(A::Param, B::Param)>) -> B::Out
+where
+	A: SystemParamFunction<AMarker>,
+	B: SystemParamFunction<BMarker, In = A::Out>,
+{
+	move |In(input), mut params| {
+		let value = a_in.run(input, params.p0());
+		b_out.run(value, params.p1())
+	}
+}
+
+pub fn info_inspect<T: std::fmt::Debug>(In(data): In<T>) -> T {
+	tracing::info!("{:?}", data);
+	data
 }
 
 pub fn init_debug_tools() {

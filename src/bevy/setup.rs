@@ -22,8 +22,7 @@ impl Plugin for SetupPlugin {
 				Startup,
 				(
 					setup,
-					// spawn_random_world
-					// testparticles::test.pipe(ignore),
+					spawn_random_world
 				),
 			)
 			.add_plugins(

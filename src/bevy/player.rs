@@ -25,7 +25,24 @@ impl Plugin for PlayerPlugin {
 					handle_player_mined_px,
 					// gather_player_movement.pipe(info),
 					// gather_player_movement.pipe(vectorise_input_flags).pipe(info),
-					manual_get_final_thrust.pipe(apply_thrust).pipe(info),
+					// manual_get_final_thrust.pipe(apply_thrust).pipe(ignore),
+					pipe(
+						join3(
+							pipe(
+								join2(
+									pipe(
+										join2(gather_input_flags, get_base_normal_vectors),
+										flag_normal_vectors,
+									),//.pipe(info),
+									max_velocity_magnitudes,
+								),//.pipe(info),
+								get_relative_strengths,
+							),//.pipe(info),
+							get_base_normal_vectors,
+							force_factors,
+						),//.pipe(info),
+						save_thrust_stages,
+					).pipe(apply_thrust).pipe(info),
 				),
 			);
 	}
@@ -33,7 +50,7 @@ impl Plugin for PlayerPlugin {
 
 #[derive(Component, Default)]
 pub struct MainPlayer {
-	thrust: Thrust<RelativeStrength>,
+	relative_thrust: Thrust<RelativeStrength>,
 }
 
 lazy_static! {
