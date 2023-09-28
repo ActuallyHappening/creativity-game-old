@@ -61,6 +61,8 @@ impl From<(i8, i8, i8)> for RelativePixelPoint {
 	}
 }
 
+
+
 impl Thruster {
 	pub const fn new(facing: Direction) -> Thruster {
 		Thruster { facing }
@@ -107,7 +109,7 @@ impl Structure {
 				material: mats.add(px.clone().into()),
 				transform: Transform::from_translation(relative_location.into_world_vector()),
 				mesh: meshs
-						.add(shape::Box::new(PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE).into()),
+						.add(shape::Cube::new(PIXEL_SIZE).into()),
 				..default()
 			},
 		}).collect()
