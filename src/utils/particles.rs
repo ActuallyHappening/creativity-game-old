@@ -1,6 +1,6 @@
 use crate::utils::*;
 
-pub fn gen_particles(mut effects: &mut Assets<EffectAsset>) -> ParticleEffectBundle {
+pub fn gen_particles(effects: &mut Assets<EffectAsset>) -> ParticleEffectBundle {
 	let mut color_gradient1 = Gradient::new();
 	color_gradient1.add_key(0.0, Vec4::splat(1.0));
 	color_gradient1.add_key(0.1, Vec4::new(1.0, 1.0, 0.0, 1.0));
@@ -62,8 +62,7 @@ pub fn gen_particles(mut effects: &mut Assets<EffectAsset>) -> ParticleEffectBun
 
 	ParticleEffectBundle {
 		effect: ParticleEffect::new(effect1),
-		transform: Transform::from_translation(Vec3::ZERO)
-			.with_rotation(Quat::from_rotation_z(0f32.to_radians())),
+		transform: Transform::from_translation(Vec3::ZERO),
 		..Default::default()
 	}
 }

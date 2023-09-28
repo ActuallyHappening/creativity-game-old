@@ -16,7 +16,21 @@ pub struct Thrust<S: ThrustStage> {
 	/// Positive is forward obviously
 	forward: <S as self::ThrustStage>::DimensionType,
 
+	up: <S as self::ThrustStage>::DimensionType,
+
+	right: <S as self::ThrustStage>::DimensionType,
+
 	_stage: PhantomData<S>,
+}
+
+pub struct ThrustFlags {
+	forward_back: Option<bool>,
+	up_down: Option<bool>,
+	left_right: Option<bool>,
+
+	tilt_forward: Option<bool>,
+	turn_left: Option<bool>,
+	roll_left: Option<bool>,
 }
 
 pub trait ThrustStage {
@@ -73,40 +87,61 @@ thrust_stage!(
 
 // #[bevycheck::system]
 pub fn gather_player_movement(keyboard_input: Res<Input<KeyCode>>) -> Thrust<InputFlags> {
-	Thrust::<InputFlags> {
-		forward: match (
-			keyboard_input.pressed(KeyCode::W),
-			keyboard_input.pressed(KeyCode::S),
-		) {
-			(true, true) | (false, false) => None,
-			(true, false) => Some(true),
-			(false, true) => Some(false),
+	match keyboard_input.pressed(KeyCode::Space) {
+		false => Thrust::<InputFlags> {
+			forward: match (
+				keyboard_input.pressed(KeyCode::W),
+				keyboard_input.pressed(KeyCode::S),
+			) {
+				(true, true) | (false, false) => None,
+				(true, false) => Some(true),
+				(false, true) => Some(false),
+			},
+			up: match (
+				keyboard_input.pressed(KeyCode::Q),
+				keyboard_input.pressed(KeyCode::E),
+			) {
+				(true, true) | (false, false) => None,
+				(true, false) => Some(true),
+				(false, true) => Some(false),
+			},
+			right: match (
+				keyboard_input.pressed(KeyCode::D),
+				keyboard_input.pressed(KeyCode::A),
+			) {
+				(true, true) | (false, false) => None,
+				(true, false) => Some(true),
+				(false, true) => Some(false),
+			},
+			..default()
 		},
-		turn_left: match (
-			keyboard_input.pressed(KeyCode::A),
-			keyboard_input.pressed(KeyCode::D),
-		) {
-			(true, true) | (false, false) => None,
-			(true, false) => Some(true),
-			(false, true) => Some(false),
-		},
-		tilt_up: match (
-			keyboard_input.pressed(KeyCode::Space),
-			keyboard_input.pressed(KeyCode::ShiftLeft),
-		) {
-			(true, true) | (false, false) => None,
-			(true, false) => Some(true),
-			(false, true) => Some(false),
-		},
-		roll_left: match (
-			keyboard_input.pressed(KeyCode::E),
-			keyboard_input.pressed(KeyCode::Q),
-		) {
-			(true, true) | (false, false) => None,
-			(true, false) => Some(true),
-			(false, true) => Some(false),
-		},
-		_stage: PhantomData,
+		true => Thrust {
+			turn_left: match (
+				keyboard_input.pressed(KeyCode::A),
+				keyboard_input.pressed(KeyCode::D),
+			) {
+				(true, true) | (false, false) => None,
+				(true, false) => Some(true),
+				(false, true) => Some(false),
+			},
+			tilt_up: match (
+				keyboard_input.pressed(KeyCode::S),
+				keyboard_input.pressed(KeyCode::W),
+			) {
+				(true, true) | (false, false) => None,
+				(true, false) => Some(true),
+				(false, true) => Some(false),
+			},
+			roll_left: match (
+				keyboard_input.pressed(KeyCode::Q),
+				keyboard_input.pressed(KeyCode::E),
+			) {
+				(true, true) | (false, false) => None,
+				(true, false) => Some(true),
+				(false, true) => Some(false),
+			},
+			..default()
+		}
 	}
 }
 
@@ -137,6 +172,9 @@ pub fn vectorise_input_flags(
 	// the meat of the system
 	Thrust::<NormalVectors> {
 		forward: forward * input_flags.forward.into_f32(),
+		up: up * input_flags.up.into_f32(),
+		right: -forward.cross(up) * input_flags.right.into_f32(),
+
 		turn_left: up * input_flags.turn_left.into_f32(),
 		tilt_up: forward.cross(up) * input_flags.tilt_up.into_f32(),
 		roll_left: forward * input_flags.roll_left.into_f32(),
@@ -152,51 +190,33 @@ pub fn get_relative_strengths(
 	let (velocity, player) = player.single();
 
 	// forward - backwards restrictions
-	// 0 = no force allowed, 1 = full force allowed
-	assert!(!velocity.linvel.is_nan());
-	let forward = if aimed_direction.forward.length() == 0. {
-		0.
-	} else if velocity.linvel.length() == 0. {
+	let forward = if velocity.angvel.length() == 0. {
 		1.
 	} else {
-		// 0 if speeding up, 1 if slowing down
-		let factor_slowing_down = 1.
-			- aimed_direction
-				.forward
-				.normalize()
-				.dot(velocity.linvel.normalize())
-				.add(1.)
-				.div(2.);
+		let aimed = aimed_direction.forward + aimed_direction.up + aimed_direction.right;
+		let max = max.forward + max.up + max.right;
 
-		#[cfg(feature = "debugging")]
-		assert!(!factor_slowing_down.is_nan(), "Factor slowing down is NaN, aimed normalized: {:?}, velocity normalized: {:?} (unnormalized: {:?})", aimed_direction.forward.normalize(), velocity.linvel.normalize(), velocity.linvel);
-
-		// 1 if max, 0 if min
-		let percentage_of_max_allowed_velocity = (velocity.linvel.length() / max.forward).clamp(0., 1.);
-
-		#[cfg(feature = "debugging")]
-		assert!(
-			(0. ..=1.).contains(&percentage_of_max_allowed_velocity),
-			"Current linvel len {} is greater than the max of {}",
-			velocity.linvel.length(),
-			max.forward
-		);
-
-		// max=1 & factor=0 -> 0
-		// max=1 & factor=1 -> 1
-
-		// max=0.5 & factor=x ->
-
-		// max=0 -> 1
-
-		if percentage_of_max_allowed_velocity > 0.9 {
-			factor_slowing_down
+		if aimed.length() == 0. {
+			0.
 		} else {
-			1.
+			let factor_slowing_down = 1.
+				- aimed
+					.normalize()
+					.dot(velocity.linvel.normalize())
+					.add(1.)
+					.div(2.);
+
+			let percentage_of_max_allowed_velocity = (velocity.linvel.length() / max).clamp(0., 1.);
+
+			if percentage_of_max_allowed_velocity > 0.9 {
+				factor_slowing_down
+			} else {
+				1.
+			}
 		}
 	};
-	assert!(!forward.is_nan());
 
+	// turning
 	let turn = if velocity.angvel.length() == 0. {
 		1.
 	} else {
@@ -224,10 +244,13 @@ pub fn get_relative_strengths(
 	};
 
 	Thrust::<RelativeStrength> {
+		forward,
+		up: forward,
+		right: forward,
+
 		turn_left: turn,
 		tilt_up: turn,
 		roll_left: turn,
-		forward,
 		_stage: PhantomData,
 	}
 }
@@ -239,10 +262,13 @@ pub const fn get_max_velocity_vectors() -> Thrust<MaxVelocityMagnitudes> {
 	}
 
 	Thrust::<MaxVelocityMagnitudes> {
+		forward: MainPlayer::MAX_LINEAR_VELOCITY,
+		up: MainPlayer::MAX_LINEAR_VELOCITY,
+		right: MainPlayer::MAX_LINEAR_VELOCITY,
+
 		turn_left: MainPlayer::MAX_ANGULAR_VELOCITY,
 		tilt_up: MainPlayer::MAX_ANGULAR_VELOCITY,
 		roll_left: MainPlayer::MAX_ANGULAR_VELOCITY,
-		forward: MainPlayer::MAX_LINEAR_VELOCITY,
 		_stage: PhantomData,
 	}
 }
@@ -254,10 +280,13 @@ pub const fn get_force_factors() -> Thrust<ForceFactors> {
 	}
 
 	Thrust::<ForceFactors> {
+		forward: MainPlayer::MOVE_FACTOR,
+		up: MainPlayer::MOVE_FACTOR,
+		right: MainPlayer::MOVE_FACTOR,
+
 		turn_left: MainPlayer::TURN_FACTOR,
 		tilt_up: MainPlayer::TURN_FACTOR,
 		roll_left: MainPlayer::TURN_FACTOR,
-		forward: MainPlayer::MOVE_FACTOR,
 		_stage: PhantomData,
 	}
 }
@@ -278,10 +307,13 @@ pub fn save_thrust_stages(
 
 		fn mul(self, rhs: Thrust<RelativeStrength>) -> Self::Output {
 			Thrust::<AlmostFinalVectors> {
+				forward: self.forward * rhs.forward,
+				up: self.up * rhs.up,
+				right: self.right * rhs.right,
+
 				turn_left: self.turn_left * rhs.turn_left,
 				tilt_up: self.tilt_up * rhs.tilt_up,
 				roll_left: self.roll_left * rhs.roll_left,
-				forward: self.forward * rhs.forward,
 				_stage: PhantomData,
 			}
 		}
@@ -293,10 +325,13 @@ pub fn save_thrust_stages(
 
 		fn mul(self, rhs: Thrust<ForceFactors>) -> Self::Output {
 			Thrust::<FinalVectors> {
+				forward: self.forward * rhs.forward,
+				up: self.up * rhs.up,
+				right: self.right * rhs.right,
+
 				turn_left: self.turn_left * rhs.turn_left,
 				tilt_up: self.tilt_up * rhs.tilt_up,
 				roll_left: self.roll_left * rhs.roll_left,
-				forward: self.forward * rhs.forward,
 				_stage: PhantomData,
 			}
 		}

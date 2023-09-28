@@ -33,7 +33,7 @@ impl Plugin for SetupPlugin {
 					.disable::<DebugPickingPlugin>(),
 			);
 
-		app.add_systems(Update, test_activate_particles);
+		// app.add_systems(Update, test_activate_particles);
 
 		#[cfg(feature = "dev")]
 		app.add_plugins((

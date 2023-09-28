@@ -18,7 +18,7 @@ fn main() {
 					..default()
 				}).set(LogPlugin {
 					level: bevy::log::Level::WARN,
-					filter: "creativity_game=trace".into(),
+					filter: "creativity_game=trace,bevy_ecs=info".into(),
 				})
 				.build(),
 		)
