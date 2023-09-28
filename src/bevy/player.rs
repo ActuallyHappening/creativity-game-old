@@ -5,6 +5,7 @@ use crate::utils::*;
 use std::ops::Deref;
 
 mod thrust;
+use lazy_static::lazy_static;
 use thrust::*;
 
 pub struct PlayerPlugin;
@@ -35,6 +36,12 @@ const PLAYER_HEIGHT: f32 = 25.;
 pub struct MainPlayer {
 	thrust: Thrust<RelativeStrength>,
 }
+
+lazy_static!(
+	static ref PLAYER_STRUCTURE: Structure = Structure::new([
+		(PixelVariant::PlayerSteel.get_default_pixel(), (0, 0, 0))
+	]);
+);
 
 fn initial_spawn_player(
 	mut commands: Commands,

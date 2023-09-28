@@ -4,6 +4,10 @@ mod structures;
 pub use structures::*;
 
 /// Data about a class of pixels
+/// Does not implement [PartialEq] because the identity of a pixel is only in its variant,
+/// spawning default pixels does not imply that all default pixels are the same,
+/// even though all of the information contained within this struct would imply that
+/// [PartialEq] they are equal.
 #[derive(Component, Debug, Clone)]
 pub struct Pixel {
 	pub name: &'static str,
@@ -29,6 +33,8 @@ pub enum PixelVariant {
 	Dirt,
 	Copper,
 	Lead,
+	/// Used to create player
+	PlayerSteel,
 }
 
 pub struct PixelVariantInfo {
@@ -81,6 +87,18 @@ impl PixelVariant {
 						player_mineable: true,
 					}),
 					naturally_spawning: Some(Natural { frequency: 3 }),
+				},
+			),
+			PV::PlayerSteel => (
+				Pixel {
+					name: "Player Steel",
+					description: "Steel used in the construction of the MainPlayer",
+					colour: Color::SILVER,
+					variant: self,
+				},
+				PixelVariantInfo {
+					collectable: None,
+					naturally_spawning: None,
 				},
 			),
 		}
