@@ -16,14 +16,13 @@ mod thruster;
 pub use thruster::Thruster;
 
 mod thruster_flags;
-pub use thruster_flags::ThrustFlags;
+pub use thruster_flags::ThrusterFlags;
 
 mod direction;
 pub use direction::Direction;
 
 mod relative_pixel_point;
 use relative_pixel_point::RelativePixelPoint;
-
 
 impl From<Pixel> for StandardMaterial {
 	fn from(px: Pixel) -> Self {
