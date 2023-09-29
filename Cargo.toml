@@ -7,7 +7,7 @@ publish = false
 
 [workspace]
 members = ["xtask"]
-exclude = ["surrealdb", "noise-rs", "bevy_editor_pls", "bevy_hanabi", "bevy_transform_gizmo"]
+exclude = ["surrealdb", "noise-rs", "bevy_editor_pls", "bevy_hanabi", "bevy_transform_gizmo", "bevy_text_mesh"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -51,6 +51,7 @@ derive_more = "0.99.17"
 extension-traits = "1.0.1"
 inventory = "0.3.12"
 lazy_static = "1.4.0"
+meshtext = "0.3.0"
 noise = { version = "0.8.2", features = ["std", "images"] }
 once_cell = "1.18.0"
 rand = "0.8.5"

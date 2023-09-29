@@ -31,6 +31,7 @@ pub use bevy::{
 pub use static_assertions::*;
 pub use std::any;
 pub use std::f32::consts::{TAU, PI};
+pub use std::borrow::Cow;
 
 #[cfg(feature = "hanabi_particles")]
 mod particles;
@@ -41,6 +42,9 @@ pub use particles::*;
 
 mod triangle;
 pub use triangle::*;
+
+mod text;
+pub use text::*;
 
 
 #[allow(clippy::upper_case_acronyms)]

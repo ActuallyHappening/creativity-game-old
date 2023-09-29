@@ -58,4 +58,8 @@ impl ThrustType {
 	pub fn iter() -> impl Iterator<Item = Self> {
 		<Self as IntoEnumIterator>::iter()
 	}
+
+	pub const fn ah_circle_name(&self) -> &'static str {
+		"hjkl"
+	}
 }
