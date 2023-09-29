@@ -31,7 +31,8 @@ pub fn trigger_player_thruster_particles(
 	mut particles: Query<(&mut EffectSpawner, &Thruster)>,
 ) {
 	let MainPlayer {
-		relative_thrust: thrust,
+		relative_strength: thrust,
+		..
 	} = player.single();
 
 	impl ThrusterFlags {

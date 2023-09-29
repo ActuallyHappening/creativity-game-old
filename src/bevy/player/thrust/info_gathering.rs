@@ -122,3 +122,12 @@ pub const fn force_factors() -> Thrust<ForceFactors> {
 		_stage: PhantomData,
 	}
 }
+
+/// Should be ran after [PlayerMovement] system set
+// pub fn get_current_final_vectors(player: Query<&MainPlayer>) -> Thrust<FinalVectors> {
+// 	player.single().final_vectors.clone()
+// }
+
+pub fn get_current_relative_strengths(player: Query<&MainPlayer>) -> Thrust<RelativeStrength> {
+	player.single().relative_strength.clone()
+}

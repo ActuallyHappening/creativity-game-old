@@ -1,6 +1,6 @@
 use super::*;
 use crate::{
-	bevy::player::{MainPlayer, RelativeVelocityMagnitudes, Thrust},
+	bevy::player::{MainPlayer, RelativeStrength, RelativeVelocityMagnitudes, Thrust},
 	utils::*,
 };
 
@@ -9,6 +9,9 @@ const SMALLER_CIRCLE_RADIUS: f32 = FULL_CIRCLE_RADIUS - 2.;
 
 #[derive(Component, Debug)]
 pub struct NeedleVelocity(ThrustTypes);
+
+#[derive(Component, Debug)]
+pub struct NeedleForce(ThrustTypes);
 
 pub fn setup_bottom_left_cam(mut commands: Commands, mut mma: MM2) {
 	commands
@@ -71,17 +74,34 @@ fn init_ah_circle(parent: &mut ChildBuilder, thrust_tye: ThrustTypes, index: usi
 			material: mma.mats.add(Color::BLUE.into()),
 			..default()
 		}
-		.insert(NeedleVelocity(thrust_tye)),
+		.insert(NeedleForce(thrust_tye)),
 	);
 }
 
 pub fn update_bottom_left_camera(
-	In(data): In<Thrust<RelativeVelocityMagnitudes>>,
-	mut needle: Query<(&NeedleVelocity, &mut Transform)>,
+	In((velocity, relative_strength)): In<(
+		Thrust<RelativeVelocityMagnitudes>,
+		Thrust<RelativeStrength>,
+	)>,
+	mut needle_velocity: Query<(&NeedleVelocity, &mut Transform), Without<NeedleForce>>,
+	mut needle_force: Query<(&NeedleForce, &mut Transform), Without<NeedleVelocity>>,
 ) {
-	for (NeedleVelocity(thrust_type), mut transform) in needle.iter_mut() {
-		let data = data.get_from_type(*thrust_type).clamp(-0.9, 0.9);
-		let angle = data * TAU;
+	fn update(transform: &mut Transform, data: f32) {
+		let angle = data * PI;
 		transform.rotation = Quat::from_rotation_z(angle);
+	}
+	for (NeedleVelocity(thrust_type), mut transform) in needle_velocity.iter_mut() {
+		update(
+			&mut transform,
+			velocity.get_from_type(*thrust_type).clamp(-1.1, 1.1),
+		);
+	}
+	for (NeedleForce(thrust_type), mut transform) in needle_force.iter_mut() {
+		update(
+			&mut transform,
+			relative_strength
+				.get_from_type(*thrust_type)
+				.clamp(-1.1, 1.1),
+		);
 	}
 }

@@ -30,7 +30,7 @@ pub use bevy::{
 };
 pub use static_assertions::*;
 pub use std::any;
-pub use std::f32::consts::TAU;
+pub use std::f32::consts::{TAU, PI};
 
 #[cfg(feature = "hanabi_particles")]
 mod particles;

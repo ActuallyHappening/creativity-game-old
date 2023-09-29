@@ -46,7 +46,11 @@ thrust_stage!(
 
 thrust_stage!(
 	/// type = [f32]
+	/// 
 	/// Semi flagged, because taking actual player velocity into account.
+	/// 
+	/// Used for **UI** only
+	/// 
 	/// Is public, and used for the HUD
 	pub struct RelativeVelocityMagnitudes; type = f32
 );
@@ -55,6 +59,9 @@ thrust_stage!(
 	/// type = [f32]
 	///
 	/// FLAGGED
+	/// 
+	/// UI and processing
+	/// 
 	/// Shows how much of the maximum power can be used
 	/// Used for animating the player and for relative readings
 	#[derive(Default)]
@@ -70,6 +77,7 @@ thrust_stage!(
 thrust_stage!(
 	/// Final result which is applied to physics engine
 	/// Also used for absolute readings
+	#[derive(Default)]
 	pub struct FinalVectors; type = Vec3
 );
 

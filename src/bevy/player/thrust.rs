@@ -111,7 +111,10 @@ pub fn save_thrust_stages(
 
 	let final_vectors = normal_vectors * relative_strength.clone() * max;
 
-	player_data.single_mut().relative_thrust = relative_strength;
+	*player_data.single_mut() = MainPlayer {
+		relative_strength,
+		// final_vectors: final_vectors.clone(),
+	};
 
 	final_vectors
 }

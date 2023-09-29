@@ -21,10 +21,15 @@ impl Plugin for UiPlugin {
 				Update,
 				(
 					update_camera::<BottomLeft>.in_set(BottomLeft),
-					get_base_normal_vectors
-						.pipe(calculate_relative_velocity_magnitudes)
-						.pipe(update_bottom_left_camera)
-						.after(PlayerMove),
+					join2(
+						sequence(
+							get_base_normal_vectors,
+							calculate_relative_velocity_magnitudes,
+						),
+						get_current_relative_strengths,
+					)
+					.pipe(update_bottom_left_camera)
+					.after(PlayerMove),
 					update_camera::<TopLeft>,
 					update_camera::<TopRight>,
 					update_camera::<BottomRight>,
@@ -38,7 +43,10 @@ pub use camtype::*;
 mod bottom_left;
 use bottom_left::*;
 
-use super::player::{calculate_relative_velocity_magnitudes, get_base_normal_vectors, PlayerMove};
+use super::player::{
+	calculate_relative_velocity_magnitudes, get_base_normal_vectors, get_current_relative_strengths,
+	PlayerMove,
+};
 
 fn setup_camera<T: CamType>(mut commands: Commands) {
 	commands.spawn(UiCamera::<T>::get_camera_bundle());
