@@ -132,7 +132,7 @@ pub fn manually_threading_player_movement(
 		}
 	};
 
-	const BRAKING_FORCE_PENALTY: f32 = 0.2;
+	const BRAKING_FORCE_PENALTY: f32 = 0.15;
 	let force_factors = force_factors() * if is_braking {
 		BRAKING_FORCE_PENALTY
 	} else {
