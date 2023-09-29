@@ -36,6 +36,9 @@ pub use bevy_hanabi::*;
 #[cfg(feature = "hanabi_particles")]
 pub use particles::*;
 
+mod triangle;
+pub use triangle::*;
+
 
 #[allow(clippy::upper_case_acronyms)]
 #[derive(SystemParam)]
