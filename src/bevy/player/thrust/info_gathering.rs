@@ -132,3 +132,7 @@ pub const fn force_factors() -> Thrust<ForceFactors> {
 pub fn get_current_relative_strengths(player: Query<&MainPlayer>) -> Thrust<RelativeStrength> {
 	player.single().relative_strength.clone()
 }
+
+pub fn get_current_braking_info(player: Query<&MainPlayer>) -> BrakingInfo {
+	player.single().inputs.clone()
+}

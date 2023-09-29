@@ -108,7 +108,7 @@ pub fn manually_threading_player_movement(
 			const CUTOFF: f32 = 0.02;
 			let mut flagged_inputs = Thrust::<NonBrakingInputFlags>::default();
 
-			for thrust_type in ThrustTypes::iter() {
+			for thrust_type in ThrustType::iter() {
 				let current = current_velocity.get_from_type(thrust_type);
 				if current > &CUTOFF {
 					flagged_inputs.set_from_type(thrust_type, Some(false));

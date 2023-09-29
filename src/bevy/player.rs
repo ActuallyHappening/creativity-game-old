@@ -8,8 +8,9 @@ mod thrust;
 use lazy_static::lazy_static;
 use thrust::*;
 pub use thrust::{
-	calculate_relative_velocity_magnitudes, get_base_normal_vectors, get_current_relative_strengths,
-	types, NonBrakingInputFlags, RelativeStrength, RelativeVelocityMagnitudes, Thrust,
+	calculate_relative_velocity_magnitudes, get_base_normal_vectors, get_current_braking_info,
+	get_current_relative_strengths, types, BrakingInfo, NonBrakingInputFlags, RelativeStrength,
+	RelativeVelocityMagnitudes, Thrust,
 };
 
 pub struct PlayerPlugin;

@@ -141,6 +141,16 @@ impl<T: Bundle> T {
 
 #[extension(pub trait TransformExt)]
 impl Transform {
+	fn translate_x(mut self, delta_x: f32) -> Self {
+		self.translation.x += delta_x;
+		self
+	}
+
+	fn translate_y(mut self, delta_y: f32) -> Self {
+		self.translation.y += delta_y;
+		self
+	}
+
 	fn translate_z(mut self, delta_z: f32) -> Self {
 		self.translation.z += delta_z;
 		self

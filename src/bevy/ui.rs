@@ -21,12 +21,13 @@ impl Plugin for UiPlugin {
 				Update,
 				(
 					update_camera::<BottomLeft>.in_set(BottomLeft),
-					join2(
+					join3(
 						sequence(
 							get_base_normal_vectors,
 							calculate_relative_velocity_magnitudes,
 						),
 						get_current_relative_strengths,
+						get_current_braking_info,
 					)
 					.pipe(update_bottom_left_camera)
 					.after(PlayerMove),
@@ -45,7 +46,7 @@ use bottom_left::*;
 
 use super::player::{
 	calculate_relative_velocity_magnitudes, get_base_normal_vectors, get_current_relative_strengths,
-	PlayerMove,
+	PlayerMove, get_current_braking_info,
 };
 
 fn setup_camera<T: CamType>(mut commands: Commands) {

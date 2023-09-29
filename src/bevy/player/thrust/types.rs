@@ -18,7 +18,7 @@ use super::*;
 // );
 
 #[derive(Debug, EnumIter, Clone, Copy)]
-pub enum ThrustTypes {
+pub enum ThrustType {
 	Forward,
 	Right,
 	Up,
@@ -29,32 +29,32 @@ pub enum ThrustTypes {
 }
 
 impl<T: ThrustStage> Thrust<T> {
-	pub fn get_from_type(&self, thrust_type: ThrustTypes) -> &T::DimensionType {
+	pub fn get_from_type(&self, thrust_type: ThrustType) -> &T::DimensionType {
 		match thrust_type {
-			ThrustTypes::Forward => &self.forward,
-			ThrustTypes::Right => &self.right,
-			ThrustTypes::Up => &self.up,
+			ThrustType::Forward => &self.forward,
+			ThrustType::Right => &self.right,
+			ThrustType::Up => &self.up,
 
-			ThrustTypes::TurnLeft => &self.turn_left,
-			ThrustTypes::TiltUp => &self.tilt_up,
-			ThrustTypes::RollLeft => &self.roll_left,
+			ThrustType::TurnLeft => &self.turn_left,
+			ThrustType::TiltUp => &self.tilt_up,
+			ThrustType::RollLeft => &self.roll_left,
 		}
 	}
 
-	pub fn set_from_type(&mut self, thrust_type: ThrustTypes, value: T::DimensionType) {
+	pub fn set_from_type(&mut self, thrust_type: ThrustType, value: T::DimensionType) {
 		match thrust_type {
-			ThrustTypes::Forward => self.forward = value,
-			ThrustTypes::Right => self.right = value,
-			ThrustTypes::Up => self.up = value,
+			ThrustType::Forward => self.forward = value,
+			ThrustType::Right => self.right = value,
+			ThrustType::Up => self.up = value,
 
-			ThrustTypes::TurnLeft => self.turn_left = value,
-			ThrustTypes::TiltUp => self.tilt_up = value,
-			ThrustTypes::RollLeft => self.roll_left = value,
+			ThrustType::TurnLeft => self.turn_left = value,
+			ThrustType::TiltUp => self.tilt_up = value,
+			ThrustType::RollLeft => self.roll_left = value,
 		}
 	}
 }
 
-impl ThrustTypes {
+impl ThrustType {
 	pub fn iter() -> impl Iterator<Item = Self> {
 		<Self as IntoEnumIterator>::iter()
 	}
