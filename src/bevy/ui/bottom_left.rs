@@ -11,7 +11,7 @@ const SMALLER_CIRCLE_RADIUS: f32 = FULL_CIRCLE_RADIUS - 2.;
 pub struct NeedleVelocity(ThrustTypes);
 
 #[derive(Component, Debug)]
-pub struct NeedleForce(ThrustTypes);
+pub struct NeedleStrength(ThrustTypes);
 
 pub fn setup_bottom_left_cam(mut commands: Commands, mut mma: MM2) {
 	commands
@@ -74,7 +74,7 @@ fn init_ah_circle(parent: &mut ChildBuilder, thrust_tye: ThrustTypes, index: usi
 			material: mma.mats.add(Color::BLUE.into()),
 			..default()
 		}
-		.insert(NeedleForce(thrust_tye)),
+		.insert(NeedleStrength(thrust_tye)),
 	);
 }
 
@@ -83,8 +83,8 @@ pub fn update_bottom_left_camera(
 		Thrust<RelativeVelocityMagnitudes>,
 		Thrust<RelativeStrength>,
 	)>,
-	mut needle_velocity: Query<(&NeedleVelocity, &mut Transform), Without<NeedleForce>>,
-	mut needle_force: Query<(&NeedleForce, &mut Transform), Without<NeedleVelocity>>,
+	mut needle_velocity: Query<(&NeedleVelocity, &mut Transform), Without<NeedleStrength>>,
+	mut needle_force: Query<(&NeedleStrength, &mut Transform), Without<NeedleVelocity>>,
 ) {
 	fn update(transform: &mut Transform, data: f32) {
 		let angle = data * PI;
@@ -96,12 +96,12 @@ pub fn update_bottom_left_camera(
 			velocity.get_from_type(*thrust_type).clamp(-1.1, 1.1),
 		);
 	}
-	for (NeedleForce(thrust_type), mut transform) in needle_force.iter_mut() {
+	for (NeedleStrength(thrust_type), mut transform) in needle_force.iter_mut() {
 		update(
 			&mut transform,
 			relative_strength
 				.get_from_type(*thrust_type)
-				.clamp(-1.1, 1.1),
+				.clamp(-0.9, 0.9),
 		);
 	}
 }
