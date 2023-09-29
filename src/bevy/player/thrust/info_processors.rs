@@ -1,44 +1,5 @@
 use super::*;
 
-/// Makes normal vectors which were not selected by user to be [Vec3::ZERO].
-pub fn flag_normal_vectors(
-	In((input_flags, base)): In<(
-		Thrust<NonBrakingInputFlags>,
-		Thrust<BasePositionNormalVectors>,
-	)>,
-) -> Thrust<FlaggedPositionNormalVectors> {
-	#[extension(trait OptionExt)]
-	impl Option<bool> {
-		fn wrap_signed(self, wrapped: Vec3) -> Signed<Vec3> {
-			match self {
-				Some(true) => Signed::Positive(wrapped),
-				Some(false) => Signed::Negative(wrapped),
-				None => Signed::Zero,
-			}
-		}
-	}
-
-	impl std::ops::Mul<Thrust<BasePositionNormalVectors>> for Thrust<NonBrakingInputFlags> {
-		type Output = Thrust<FlaggedPositionNormalVectors>;
-
-		fn mul(self, base: Thrust<BasePositionNormalVectors>) -> Self::Output {
-			Thrust::<FlaggedPositionNormalVectors> {
-				forward: self.forward.wrap_signed(base.forward),
-				right: self.right.wrap_signed(base.right),
-				up: self.up.wrap_signed(base.up),
-
-				roll_left: self.roll_left.wrap_signed(base.roll_left),
-				turn_left: self.turn_left.wrap_signed(base.turn_left),
-				tilt_up: self.tilt_up.wrap_signed(base.tilt_up),
-
-				_stage: PhantomData,
-			}
-		}
-	}
-
-	input_flags * base
-}
-
 /// Takes into account the maximum power of each thruster and the current velocity
 pub fn get_relative_strengths(
 	In((aimed, max)): In<(

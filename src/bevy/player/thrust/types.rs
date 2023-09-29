@@ -40,6 +40,18 @@ impl<T: ThrustStage> Thrust<T> {
 			ThrustTypes::RollLeft => &self.roll_left,
 		}
 	}
+
+	pub fn set_from_type(&mut self, thrust_type: ThrustTypes, value: T::DimensionType) {
+		match thrust_type {
+			ThrustTypes::Forward => self.forward = value,
+			ThrustTypes::Right => self.right = value,
+			ThrustTypes::Up => self.up = value,
+
+			ThrustTypes::TurnLeft => self.turn_left = value,
+			ThrustTypes::TiltUp => self.tilt_up = value,
+			ThrustTypes::RollLeft => self.roll_left = value,
+		}
+	}
 }
 
 impl ThrustTypes {

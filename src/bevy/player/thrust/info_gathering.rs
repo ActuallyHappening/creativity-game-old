@@ -1,5 +1,6 @@
 use super::*;
 
+/// [Option::None] when braking
 pub fn gather_input_flags(keyboard_input: Res<Input<KeyCode>>) -> Option<Thrust<NonBrakingInputFlags>> {
 	if keyboard_input.pressed(KeyCode::ShiftLeft) {
 		None

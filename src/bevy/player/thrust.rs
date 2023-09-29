@@ -77,41 +77,7 @@ pub fn save_thrust_stages(
 	)>,
 	mut player_data: Query<&mut MainPlayer, With<MainPlayer>>,
 ) -> Thrust<FinalVectors> {
-	// relative (F) * normals (U) = almost final (FLAGGED)
-	impl std::ops::Mul<Thrust<RelativeStrength>> for Thrust<BasePositionNormalVectors> {
-		type Output = Thrust<AlmostFinalVectors>;
-
-		fn mul(self, rhs: Thrust<RelativeStrength>) -> Self::Output {
-			Thrust::<AlmostFinalVectors> {
-				forward: self.forward * rhs.forward,
-				up: self.up * rhs.up,
-				right: self.right * rhs.right,
-
-				turn_left: self.turn_left * rhs.turn_left,
-				tilt_up: self.tilt_up * rhs.tilt_up,
-				roll_left: self.roll_left * rhs.roll_left,
-				_stage: PhantomData,
-			}
-		}
-	}
-
-	// Almost final * force factor
-	impl std::ops::Mul<Thrust<ForceFactors>> for Thrust<AlmostFinalVectors> {
-		type Output = Thrust<FinalVectors>;
-
-		fn mul(self, rhs: Thrust<ForceFactors>) -> Self::Output {
-			Thrust::<FinalVectors> {
-				forward: self.forward * rhs.forward,
-				up: self.up * rhs.up,
-				right: self.right * rhs.right,
-
-				turn_left: self.turn_left * rhs.turn_left,
-				tilt_up: self.tilt_up * rhs.tilt_up,
-				roll_left: self.roll_left * rhs.roll_left,
-				_stage: PhantomData,
-			}
-		}
-	}
+	
 
 	let final_vectors = normal_vectors * relative_strength.clone() * max;
 
@@ -131,26 +97,59 @@ pub fn manually_threading_player_movement(
 ) {
 	let base_normal = get_base_normal_vectors(player_transform);
 
-	match gather_input_flags(keyboard_input) {
+	let (is_braking, input_flags) = match gather_input_flags(keyboard_input) {
 		None => {
-			// breaking
-			todo!()
+			// breaking, must do opposite of current velocity to counteract / brake
+			const CUTOFF: f32 = 0.02;
+			let mut flagged_inputs = Thrust::<NonBrakingInputFlags>::default();
+
+			for thrust_type in ThrustTypes::iter() {
+				let current = current_velocity.get_from_type(thrust_type);
+				if current > &CUTOFF {
+					flagged_inputs.set_from_type(thrust_type, Some(false));
+				} else if current < &-CUTOFF {
+					flagged_inputs.set_from_type(thrust_type, Some(true));
+				} else {
+					// cheating-ly stop velocity because it is small enough
+					flagged_inputs.set_from_type(thrust_type, None);
+				}
+			}
+
+			if current_velocity.forward > CUTOFF {
+				flagged_inputs.forward = Some(false)
+			} else if current_velocity.forward < -CUTOFF {
+				flagged_inputs.forward = Some(true)
+			} else {
+				// cheating-ly stop velocity because it is small enough
+				flagged_inputs.forward = None;
+			}
+
+			(true, flagged_inputs)
 		}
 		Some(input_flags) => {
-			// not breaking
-			let flagged_inputs = flag_normal_vectors(In((input_flags, base_normal.clone())));
-			let relative_strengths = get_relative_strengths(
-				In((flagged_inputs, max_velocity_magnitudes())),
-				player_velocity,
-			);
-			let final_vectors = save_thrust_stages(
-				In((relative_strengths, base_normal, force_factors())),
-				player_data,
-			);
-
-			apply_thrust(In(final_vectors), player_physics, time);
+			// not breaking, can use what player provides
+			(false, input_flags)
 		}
-	}
+	};
+
+	const BRAKING_FORCE_PENALTY: f32 = 0.2;
+	let force_factors = force_factors() * if is_braking {
+		BRAKING_FORCE_PENALTY
+	} else {
+		1.0
+	};
+
+	let flagged_inputs = input_flags * base_normal.clone();
+	let relative_strengths = get_relative_strengths(
+		In((flagged_inputs, max_velocity_magnitudes())),
+		player_velocity,
+	);
+	let final_vectors = save_thrust_stages(
+		In((relative_strengths, base_normal, force_factors)),
+		player_data,
+	);
+
+	apply_thrust(In(final_vectors), player_physics, time);
 }
 
 // #[bevycheck::system]

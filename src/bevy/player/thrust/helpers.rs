@@ -19,6 +19,17 @@ impl Vec3 {
 	}
 }
 
+#[extension(pub trait OptionExt)]
+impl Option<bool> {
+	fn wrap_signed(self, wrapped: Vec3) -> Signed<Vec3> {
+		match self {
+			Some(true) => Signed::Positive(wrapped),
+			Some(false) => Signed::Negative(wrapped),
+			None => Signed::Zero,
+		}
+	}
+}
+
 #[derive(Debug, Clone, Copy, Default)]
 pub enum Signed<T>
 where
