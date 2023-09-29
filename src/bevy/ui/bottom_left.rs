@@ -6,7 +6,7 @@ use crate::{
 
 const FULL_CIRCLE_RADIUS: f32 = 25.;
 const SMALLER_CIRCLE_RADIUS: f32 = FULL_CIRCLE_RADIUS - 2.;
-const TINY_CIRCLE_RADIUS: f32 = 4.;
+const TINY_CIRCLE_RADIUS: f32 = 5.;
 
 const DISABLED_INPUT_COL: Color = Color::GRAY;
 const USER_ENABLED_COL: Color = Color::GREEN;
@@ -90,13 +90,14 @@ fn init_ah_circle(parent: &mut ChildBuilder, thrust_tye: ThrustType, index: usiz
 
 	// Input flags
 	let mesh = mma.meshs.add(shape::Circle::new(TINY_CIRCLE_RADIUS).into());
+	const RADIUS_OFFSET: f32 = SMALLER_CIRCLE_RADIUS / 2.;
 	// left
 	parent.spawn(
 		MaterialMesh2dBundle {
 			mesh: mesh.clone().into(),
 			transform: Transform::from_translation(circle_center)
 				.translate_z(1.)
-				.translate_x(-TINY_CIRCLE_RADIUS),
+				.translate_x(-RADIUS_OFFSET),
 			material: mma.mats.add(DISABLED_INPUT_COL.into()),
 			..default()
 		}
@@ -108,7 +109,7 @@ fn init_ah_circle(parent: &mut ChildBuilder, thrust_tye: ThrustType, index: usiz
 			mesh: mesh.into(),
 			transform: Transform::from_translation(circle_center)
 				.translate_z(1.)
-				.translate_x(TINY_CIRCLE_RADIUS),
+				.translate_x(RADIUS_OFFSET),
 			material: mma.mats.add(DISABLED_INPUT_COL.into()),
 			..default()
 		}
