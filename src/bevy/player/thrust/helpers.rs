@@ -52,16 +52,16 @@ impl<T: Default + Clone + Copy + Default> Signed<T> {
 	}
 
 	/// Access the underlying `T`, panic-ing of [Signed::Zero]
-	pub fn unwrap(self) -> T {
-		match self {
-			Signed::Positive(v) => v,
-			Signed::Negative(v) => v,
-			Signed::Zero => panic!(
-				"Unwrapped a Signed<{:?}> which was Signed::Zero",
-				any::type_name::<T>()
-			),
-		}
-	}
+	// pub fn unwrap(self) -> T {
+	// 	match self {
+	// 		Signed::Positive(v) => v,
+	// 		Signed::Negative(v) => v,
+	// 		Signed::Zero => panic!(
+	// 			"Unwrapped a Signed<{:?}> which was Signed::Zero",
+	// 			any::type_name::<T>()
+	// 		),
+	// 	}
+	// }
 
 	pub fn into_unit(self) -> f32 {
 		match self {

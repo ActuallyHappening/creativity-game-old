@@ -60,6 +60,14 @@ impl ThrustType {
 	}
 
 	pub const fn ah_circle_name(&self) -> &'static str {
-		"hjkl"
+		match self {
+			Self::Forward => "forward",
+			Self::Right => "right",
+			Self::Up => "up",
+
+			Self::TurnLeft => "turn",
+			Self::TiltUp => "tilt",
+			Self::RollLeft => "roll",
+		}
 	}
 }

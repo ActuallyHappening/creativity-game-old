@@ -1,5 +1,7 @@
 //! Various constants and utility types
 
+#![allow(dead_code)]
+
 use bevy::ecs::system::SystemParam;
 use bevy_mod_picking::{
 	prelude::{Pickable, RaycastPickTarget},

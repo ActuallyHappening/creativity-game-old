@@ -1,10 +1,8 @@
 use super::*;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Structure {
 	parts: Vec<StructurePart>,
-
-	collider_size: f32,
 }
 
 pub enum StructureBundle {
@@ -20,7 +18,6 @@ impl Structure {
 	pub fn new(parts: impl IntoIterator<Item = impl Into<StructurePart>>) -> Self {
 		Self {
 			parts: parts.into_iter().map(|p| p.into()).collect(),
-			..default()
 		}
 	}
 
@@ -164,14 +161,5 @@ impl StructureBundle {
 				});
 			}
 		};
-	}
-}
-
-impl Default for Structure {
-	fn default() -> Self {
-		Structure {
-			parts: vec![],
-			collider_size: 10.,
-		}
 	}
 }
