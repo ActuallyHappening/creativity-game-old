@@ -28,6 +28,7 @@ pub use bevy::{
 	core_pipeline::clear_color::ClearColorConfig, render::camera::Viewport, window::WindowResized,
 };
 pub use static_assertions::*;
+pub use std::any;
 
 #[cfg(feature = "hanabi_particles")]
 mod particles;

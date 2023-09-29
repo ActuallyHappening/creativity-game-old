@@ -94,7 +94,7 @@ impl RigDriver for OrbitArm {
 	fn update(&mut self, params: bevy_dolly::dolly::rig::RigUpdateParams) -> Transform {
 		match self.local_up_forward {
 			None => {
-				tracing::error!("You must call `.orbit()` on [OrbitalArm] before using it every frame!");
+				warn!("You must call `.orbit()` on [OrbitalArm] before using it every frame!");
 				params.parent.with_translation(self.offset)
 			}
 			Some((up, forward)) => {
