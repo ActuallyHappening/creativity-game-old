@@ -62,71 +62,18 @@ pub struct MainPlayer {
 
 lazy_static! {
 	static ref PLAYER_STRUCTURE: Structure = Structure::new([
-		(PixelVariant::PlayerSteel, (0, 0, 0)),
-		(PixelVariant::PlayerSteel, (0, 0, -1)),
-		(PixelVariant::PlayerLargeEngineDecoration, (0, 0, 1)),
-		(PixelVariant::PlayerSteel, (-1, 0, 0)),
-		(PixelVariant::PlayerSteel, (1, 0, 0)),
-		(PixelVariant::PlayerSteel, (-1, 0, 1)),
-		(PixelVariant::PlayerSteel, (1, 0, 1)),
-		(PixelVariant::PlayerSteel, (0, 1, 1)),
-		(PixelVariant::PlayerSteel, (0, -1, 1)),
+		(PixelVariant::PlayerSteel, (0, 0, 0)), // center
+		(PixelVariant::PlayerSteel, (0, 0, -1)), // front 1
+		(PixelVariant::PlayerSteel, (0, 0, -2)), // front 2
+		(PixelVariant::PlayerLargeEngineDecoration, (0, 0, 1)), // back 1
+		(PixelVariant::PlayerSteel, (-1, 0, 0)), // left 1
+		(PixelVariant::PlayerSteel, (-2, 0, 0)), // left 2
+		(PixelVariant::PlayerSteel, (-2, 0, -1)), // left 2, front 1
+		(PixelVariant::PlayerSteel, (-1, 0, 1)), // surrounding engine left
+		(PixelVariant::PlayerSteel, (0, 1, 1)), // surrounding engine above
 	])
-	.with([
-		(
-			Thruster::new(
-				Direction::Backward,
-				ThrustFlags::builder().forward_back(true).build().unwrap()
-			),
-			(0, 0, 2)
-		),
-		(
-			Thruster::new(
-				Direction::Left,
-				ThrustFlags::builder()
-					.right_left(true)
-					.turn_left(true)
-					.build()
-					.unwrap()
-			),
-			(-2, 0, 1)
-		),
-		(
-			Thruster::new(
-				Direction::Right,
-				ThrustFlags::builder()
-					.right_left(false)
-					.turn_left(false)
-					.build()
-					.unwrap()
-			),
-			(2, 0, 1)
-		),
-		(
-			Thruster::new(
-				Direction::Up,
-				ThrustFlags::builder()
-					.up_down(false)
-					.tilt_up(true)
-					.build()
-					.unwrap()
-			),
-			(0, 2, 1)
-		),
-		(
-			Thruster::new(
-				Direction::Down,
-				ThrustFlags::builder()
-					.up_down(true)
-					.tilt_up(false)
-					.build()
-					.unwrap()
-			),
-			(0, -2, 1)
-		),
-		(Thruster::new(Direction::Up, ThrustFlags::builder().up_down(false).tilt_up(true).build().unwrap()), (1, 1, 1)),
-		(Thruster::new(Direction::Up, ThrustFlags::builder().up_down(false).tilt_up(true).build().unwrap()), (-1, 1, 1)),
-	]);
+	.reflect_horizontally()
+	.reflect_vertically();
 }
 
 fn initial_spawn_player(

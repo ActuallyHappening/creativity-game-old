@@ -259,7 +259,7 @@ pub fn get_base_normal_vectors(
 
 		turn_left: up,
 		tilt_up: forward.cross(up),
-		roll_left: forward,
+		roll_left: -forward,
 		_stage: PhantomData,
 	}
 }
@@ -517,10 +517,7 @@ pub fn trigger_player_thruster_particles(
 			}
 
 			let turn_left = Signed::from(actual.turn_left);
-			if flags
-				.turn_left
-				.is_some_and(|f| f == turn_left.is_positive())
-			{
+			if flags.turn_left.is_some_and(|f| f == turn_left.is_positive()) {
 				counter += turn_left.into_unit().abs();
 			}
 
@@ -530,10 +527,7 @@ pub fn trigger_player_thruster_particles(
 			}
 
 			let roll_left = Signed::from(actual.roll_left);
-			if flags
-				.roll_left
-				.is_some_and(|f| f == roll_left.is_positive())
-			{
+			if flags.roll_left.is_some_and(|f| f == roll_left.is_positive()) {
 				counter += roll_left.into_unit().abs();
 			}
 
@@ -545,7 +539,7 @@ pub fn trigger_player_thruster_particles(
 		// todo: show gradient of particles, change acceleration / lifetime?
 
 		let degree = flags.degree_of_match(thrust);
-
+		
 		if degree > 0. {
 			spawner.set_active(true);
 		} else {
