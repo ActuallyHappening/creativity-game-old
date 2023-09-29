@@ -46,7 +46,7 @@ impl CameraPlugin {
 				}),
 
 				#[cfg(feature = "hanabi_particles")]
-				tonemapping: Tonemapping::SomewhatBoringDisplayTransform,
+				tonemapping: Tonemapping::None,
 
 				..default()
 			},

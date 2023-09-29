@@ -1,73 +1,71 @@
-use bevy::prelude::*;
-
-use crate::utils::*;
-
-mod macros;
-use macros::*;
-mod inventory;
-mod item_preview;
-use inventory::*;
-
-use self::item_preview::ItemPreview;
+use crate::{bevy::camera::MainCamera, utils::*};
 
 pub struct UiPlugin;
 impl Plugin for UiPlugin {
 	fn build(&self, app: &mut App) {
 		app
-			.add_plugins(ItemPreview)
-			.add_systems(Startup, ui)
-			.add_systems(Update, update_inventory_ui);
+			.add_systems(Startup, setup_ui)
+			.add_systems(Update, update_ui);
 	}
 }
 
-fn ui(mut commands: Commands, mma: MMA) {
-	commands
-		.spawn(
-			NodeBundle {
-				// style: Style {
-				// 	width: Val::Percent(100.0),
-				// 	height: Val::Percent(100.0),
-				// 	justify_content: JustifyContent::FlexEnd,
-				// 	align_items: AlignItems::Center,
-				// 	..default()
-				// },
-				style: style! { Style
-					width: 100%,
-					height: 100%,
-					justify_content: center,
-					align_items: end,
-					// margin: 10 px,
-					flex_direction: column,
-					// flex_grow: 1,
-				},
-				// background_color: Color::GREEN.into(),
+mod camtype;
+pub use camtype::*;
+
+fn setup_ui(mut commands: Commands, mut mma: MM2) {
+	commands.spawn(
+		Camera2dBundle {
+			camera: Camera {
+				order: 1,
 				..default()
-			}
-			.named("UI Root")
-			.not_pickable(),
-		)
-		.with_children(|parent| {
-			ItemPreview::ui(parent);
+			},
+			camera_2d: Camera2d {
+				clear_color: ClearColorConfig::None,
+			},
+			..default()
+		}
+		.insert(UiCamera::<BottomLeft>::default())
+		.not_pickable(),
+	);
 
-			parent
-				.spawn(
-					NodeBundle {
-						style: style! {Style
-							flex_grow: 1,
-							flex_direction: column,
-							justify_content: space_evenly,
-							align_items: center,
-
-							width: 100%,
-							max_width: 20 vw,
-						},
-						// background_color: Color::DARK_GREEN.into(),
-						..default()
-					}
-					.named("Inventory Root"),
-				)
-				.with_children(|parent| {
-					PlayerInventory::ui(parent, &mma.ass);
-				});
-		});
+	// Circle
+	commands.spawn(MaterialMesh2dBundle {
+		mesh: mma.meshs.add(shape::Circle::new(50.).into()).into(),
+		material: mma.mats.add(ColorMaterial::from(Color::PURPLE)),
+		transform: Transform::from_translation(Vec3::new(50., 0., 0.)),
+		..default()
+	});
 }
+
+fn update_ui() {}
+
+// struct ItemPreview;
+// impl ItemPreview {
+// 	const WIDTH_PERCENT: u32 = 20;
+// 	const MARGIN: u32 = 20;
+// 	const EDGE_OFFSET: u32 = 0;
+// }
+
+// fn update_ui(
+// 	windows: Query<&Window>,
+// 	mut resize_events: EventReader<WindowResized>,
+// 	mut cam: Query<&mut Camera, (With<UiCamera>, Without<MainCamera>)>,
+// ) {
+// 	for resize_event in resize_events.iter() {
+// 		let window = windows.get(resize_event.window).unwrap();
+// 		let mut preview_cam = cam.single_mut();
+
+// 		let width = window.resolution.physical_width();
+// 		let _height = window.resolution.physical_height();
+// 		let preview_width = ((ItemPreview::WIDTH_PERCENT as f32 / 100.) * width as f32).round() as u32
+// 			- ItemPreview::MARGIN * 2;
+// 		let top_left_x = width - preview_width - ItemPreview::MARGIN - ItemPreview::EDGE_OFFSET;
+// 		let top_left_y = ItemPreview::MARGIN + ItemPreview::EDGE_OFFSET;
+
+// 		preview_cam.viewport = Some(Viewport {
+// 			physical_position: UVec2::new(top_left_x, top_left_y),
+// 			physical_size: UVec2::new(preview_width, preview_width),
+// 			..default()
+// 		});
+// 	}
+// }

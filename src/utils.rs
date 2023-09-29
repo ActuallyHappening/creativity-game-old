@@ -9,6 +9,7 @@ use bevy_mod_picking::{
 pub use crate::core::Direction;
 pub use crate::core::*;
 pub use bevy::prelude::*;
+pub use bevy::sprite::MaterialMesh2dBundle;
 pub use bevy_dolly::prelude::*;
 pub use bevy_mod_picking::prelude::*;
 pub use bevy_rapier3d::prelude::*;
@@ -23,6 +24,10 @@ pub use std::{
 	ops::{Add, Div},
 };
 pub use strum::*;
+pub use bevy::{
+	core_pipeline::clear_color::ClearColorConfig, render::camera::Viewport, window::WindowResized,
+};
+pub use static_assertions::*;
 
 #[cfg(feature = "hanabi_particles")]
 mod particles;
@@ -31,13 +36,34 @@ pub use bevy_hanabi::*;
 #[cfg(feature = "hanabi_particles")]
 pub use particles::*;
 
-// todo convert into system param
+
 #[allow(clippy::upper_case_acronyms)]
 #[derive(SystemParam)]
 pub struct MMA<'w> {
 	pub meshs: ResMut<'w, Assets<Mesh>>,
 	pub mats: ResMut<'w, Assets<StandardMaterial>>,
 	pub ass: Res<'w, AssetServer>,
+}
+#[allow(clippy::upper_case_acronyms)]
+#[derive(SystemParam)]
+pub struct MM<'w> {
+	pub meshs: ResMut<'w, Assets<Mesh>>,
+	pub mats: ResMut<'w, Assets<StandardMaterial>>,
+}
+
+#[allow(clippy::upper_case_acronyms)]
+#[derive(SystemParam)]
+pub struct MMA2<'w> {
+	pub meshs: ResMut<'w, Assets<Mesh>>,
+	pub mats: ResMut<'w, Assets<ColorMaterial>>,
+	pub ass: Res<'w, AssetServer>,
+}
+
+#[allow(clippy::upper_case_acronyms)]
+#[derive(SystemParam)]
+pub struct MM2<'w> {
+	pub meshs: ResMut<'w, Assets<Mesh>>,
+	pub mats: ResMut<'w, Assets<ColorMaterial>>,
 }
 
 pub const PIXEL_SIZE: f32 = 5.;
