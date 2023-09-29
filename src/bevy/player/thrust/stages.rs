@@ -170,7 +170,7 @@ impl std::ops::Mul<f32> for Thrust<ForceFactors> {
 			turn_left: self.turn_left * rhs,
 			tilt_up: self.tilt_up * rhs,
 			roll_left: self.roll_left * rhs,
-			
+
 			_stage: PhantomData,
 		}
 	}

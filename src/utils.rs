@@ -6,11 +6,14 @@ use bevy_mod_picking::{
 	PickableBundle,
 };
 
+pub use crate::bevy::types::*;
 pub use crate::core::Direction;
 pub use crate::core::*;
-pub use crate::bevy::types::*;
 pub use bevy::prelude::*;
 pub use bevy::sprite::MaterialMesh2dBundle;
+pub use bevy::{
+	core_pipeline::clear_color::ClearColorConfig, render::camera::Viewport, window::WindowResized,
+};
 pub use bevy_dolly::prelude::*;
 pub use bevy_mod_picking::prelude::*;
 pub use bevy_rapier3d::prelude::*;
@@ -20,18 +23,15 @@ pub use derive_more::Deref;
 pub use derive_more::*;
 pub use extension_traits::extension;
 pub use rand::{random, Rng};
+pub use static_assertions::*;
+pub use std::any;
+pub use std::borrow::Cow;
+pub use std::f32::consts::{PI, TAU};
 pub use std::{
 	marker::PhantomData,
 	ops::{Add, Div},
 };
 pub use strum::*;
-pub use bevy::{
-	core_pipeline::clear_color::ClearColorConfig, render::camera::Viewport, window::WindowResized,
-};
-pub use static_assertions::*;
-pub use std::any;
-pub use std::f32::consts::{TAU, PI};
-pub use std::borrow::Cow;
 
 #[cfg(feature = "hanabi_particles")]
 mod particles;
@@ -45,7 +45,6 @@ pub use triangle::*;
 
 mod text;
 pub use text::*;
-
 
 #[allow(clippy::upper_case_acronyms)]
 #[derive(SystemParam)]
@@ -213,8 +212,6 @@ impl Style {
 		self
 	}
 }
-
-
 
 pub fn join2<A, B, AMarker, BMarker>(
 	mut a: A,

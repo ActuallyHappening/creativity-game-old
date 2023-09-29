@@ -7,7 +7,6 @@ pub struct UiCamera<S: CamType>(PhantomData<S>);
 pub trait CamType: Component + std::fmt::Debug + Send + Sync + Default + Sealed {
 	/// Implement this without the offset
 	fn _get_cam_transform(half_width: f32, half_height: f32) -> UVec2;
-	
 
 	/// Just a large number to stop cameras from viewing the same area
 	/// When Bevy releases a proper SubApp or Multi-World functionality, that will be used instead

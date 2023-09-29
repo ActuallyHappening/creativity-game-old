@@ -138,11 +138,12 @@ pub fn manually_threading_player_movement(
 	};
 
 	const BRAKING_FORCE_PENALTY: f32 = 0.15;
-	let force_factors = force_factors() * if is_braking {
-		BRAKING_FORCE_PENALTY
-	} else {
-		1.0
-	};
+	let force_factors = force_factors()
+		* if is_braking {
+			BRAKING_FORCE_PENALTY
+		} else {
+			1.0
+		};
 
 	let flagged_inputs = input_flags.clone() * base_normal.clone();
 	let relative_strengths = get_relative_strengths(
@@ -150,7 +151,12 @@ pub fn manually_threading_player_movement(
 		player_velocity,
 	);
 	let final_vectors = save_thrust_stages(
-		In((relative_strengths, base_normal, force_factors, BrakingInfo(is_braking, input_flags))),
+		In((
+			relative_strengths,
+			base_normal,
+			force_factors,
+			BrakingInfo(is_braking, input_flags),
+		)),
 		player_data,
 	);
 

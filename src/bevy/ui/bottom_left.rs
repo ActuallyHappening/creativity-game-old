@@ -1,8 +1,5 @@
 use super::*;
-use crate::{
-	bevy::player::{BrakingInfo, MainPlayer, RelativeStrength, RelativeVelocityMagnitudes, Thrust},
-	utils::*,
-};
+use crate::bevy::player::{BrakingInfo, RelativeStrength, RelativeVelocityMagnitudes, Thrust};
 
 const FULL_CIRCLE_RADIUS: f32 = 25.;
 const SMALLER_CIRCLE_RADIUS: f32 = FULL_CIRCLE_RADIUS - 2.;

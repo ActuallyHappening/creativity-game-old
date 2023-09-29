@@ -21,7 +21,11 @@ impl From<Triangle> for Mesh {
 		// See https://bevy-cheatbook.github.io/features/coords.html
 		mesh.insert_attribute(
 			Mesh::ATTRIBUTE_POSITION,
-			vec![[-width / 2., 0., 0.], [width / 2., 0., 0.], [0., height, 0.]],
+			vec![
+				[-width / 2., 0., 0.],
+				[width / 2., 0., 0.],
+				[0., height, 0.],
+			],
 		);
 
 		// In this example, normals and UVs don't matter,
