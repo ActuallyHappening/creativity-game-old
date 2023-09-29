@@ -34,28 +34,6 @@ impl Plugin for PlayerPlugin {
 				(
 					handle_camera_movement,
 					handle_player_mined_px,
-					// gather_player_movement.pipe(info),
-					// gather_player_movement.pipe(vectorise_input_flags).pipe(info),
-					// manual_get_final_thrust.pipe(apply_thrust).pipe(ignore),
-					// sequence(
-					// 	join3(
-					// 		sequence(
-					// 			join2(
-					// 				sequence(
-					// 					join2(gather_input_flags, get_base_normal_vectors),
-					// 					flag_normal_vectors,
-					// 				), //.pipe(info),
-					// 				max_velocity_magnitudes,
-					// 			), //.pipe(info),
-					// 			get_relative_strengths,
-					// 		), //.pipe(info),
-					// 		get_base_normal_vectors,
-					// 		force_factors,
-					// 	), //.pipe(info),
-					// 	save_thrust_stages,
-					// )
-					// .pipe(apply_thrust)
-					// .pipe(ignore).after(trigger_player_thruster_particles),
 					sequence(
 						get_base_normal_vectors,
 						calculate_relative_velocity_magnitudes,
@@ -115,16 +93,10 @@ fn initial_spawn_player(
 				.physics_collider_ball(10.)
 				.physics_zero_force()
 				.physics_zero_velocity()
-				.physics_zero_damping(),
+				.physics_zero_damping()
+				.physics_never_sleep(),
 		)
 		.with_children(|parent| {
-			// parent.spawn(PbrBundle {
-			// 	material: mma.mats.add(Color::GREEN.into()),
-			// 	transform: Transform::from_xyz(0., 0., -15.),
-			// 	mesh: mma.meshs.add(shape::Box::new(PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE).into()),
-			// 	..default()
-			// });
-
 			for part in PLAYER_STRUCTURE.spawn_bevy_bundles(&mut mma, effects) {
 				part.spawn_to_parent(parent);
 			}

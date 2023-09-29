@@ -141,6 +141,9 @@ impl<T: Bundle> T {
 			angular_damping: 0.,
 		})
 	}
+	fn physics_never_sleep(self) -> (Sleeping, Self) {
+		self.insert(Sleeping::disabled())
+	}
 }
 
 #[extension(pub trait TransformExt)]
