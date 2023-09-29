@@ -1,5 +1,7 @@
 use std::any;
 
+use bevy::input::keyboard;
+
 use crate::utils::*;
 
 use super::MainPlayer;
@@ -181,62 +183,66 @@ where
 }
 
 // #[bevycheck::system]
-pub fn gather_input_flags(keyboard_input: Res<Input<KeyCode>>) -> Thrust<InputFlags> {
-	match keyboard_input.pressed(KeyCode::Space) {
-		false => Thrust::<InputFlags> {
-			forward: match (
-				keyboard_input.pressed(KeyCode::W),
-				keyboard_input.pressed(KeyCode::S),
-			) {
-				(true, true) | (false, false) => None,
-				(true, false) => Some(true),
-				(false, true) => Some(false),
+pub fn gather_input_flags(keyboard_input: Res<Input<KeyCode>>) -> Option<Thrust<InputFlags>> {
+	if keyboard_input.pressed(KeyCode::ShiftLeft) {
+		None
+	} else {
+		Some(match keyboard_input.pressed(KeyCode::Space) {
+			false => Thrust::<InputFlags> {
+				forward: match (
+					keyboard_input.pressed(KeyCode::W),
+					keyboard_input.pressed(KeyCode::S),
+				) {
+					(true, true) | (false, false) => None,
+					(true, false) => Some(true),
+					(false, true) => Some(false),
+				},
+				up: match (
+					keyboard_input.pressed(KeyCode::Q),
+					keyboard_input.pressed(KeyCode::E),
+				) {
+					(true, true) | (false, false) => None,
+					(true, false) => Some(true),
+					(false, true) => Some(false),
+				},
+				right: match (
+					keyboard_input.pressed(KeyCode::D),
+					keyboard_input.pressed(KeyCode::A),
+				) {
+					(true, true) | (false, false) => None,
+					(true, false) => Some(true),
+					(false, true) => Some(false),
+				},
+				..default()
 			},
-			up: match (
-				keyboard_input.pressed(KeyCode::Q),
-				keyboard_input.pressed(KeyCode::E),
-			) {
-				(true, true) | (false, false) => None,
-				(true, false) => Some(true),
-				(false, true) => Some(false),
+			true => Thrust {
+				turn_left: match (
+					keyboard_input.pressed(KeyCode::A),
+					keyboard_input.pressed(KeyCode::D),
+				) {
+					(true, true) | (false, false) => None,
+					(true, false) => Some(true),
+					(false, true) => Some(false),
+				},
+				tilt_up: match (
+					keyboard_input.pressed(KeyCode::S),
+					keyboard_input.pressed(KeyCode::W),
+				) {
+					(true, true) | (false, false) => None,
+					(true, false) => Some(true),
+					(false, true) => Some(false),
+				},
+				roll_left: match (
+					keyboard_input.pressed(KeyCode::Q),
+					keyboard_input.pressed(KeyCode::E),
+				) {
+					(true, true) | (false, false) => None,
+					(true, false) => Some(true),
+					(false, true) => Some(false),
+				},
+				..default()
 			},
-			right: match (
-				keyboard_input.pressed(KeyCode::D),
-				keyboard_input.pressed(KeyCode::A),
-			) {
-				(true, true) | (false, false) => None,
-				(true, false) => Some(true),
-				(false, true) => Some(false),
-			},
-			..default()
-		},
-		true => Thrust {
-			turn_left: match (
-				keyboard_input.pressed(KeyCode::A),
-				keyboard_input.pressed(KeyCode::D),
-			) {
-				(true, true) | (false, false) => None,
-				(true, false) => Some(true),
-				(false, true) => Some(false),
-			},
-			tilt_up: match (
-				keyboard_input.pressed(KeyCode::S),
-				keyboard_input.pressed(KeyCode::W),
-			) {
-				(true, true) | (false, false) => None,
-				(true, false) => Some(true),
-				(false, true) => Some(false),
-			},
-			roll_left: match (
-				keyboard_input.pressed(KeyCode::Q),
-				keyboard_input.pressed(KeyCode::E),
-			) {
-				(true, true) | (false, false) => None,
-				(true, false) => Some(true),
-				(false, true) => Some(false),
-			},
-			..default()
-		},
+		})
 	}
 }
 
@@ -469,7 +475,7 @@ pub fn manually_threading_player_movement(
 ) {
 	let base_normal = get_base_normal_vectors(player_transform);
 	let flagged_inputs = flag_normal_vectors(In((
-		gather_input_flags(keyboard_input),
+		gather_input_flags(keyboard_input).expect("Unimplemented braking system"),
 		base_normal.clone(),
 	)));
 	let relative_strengths = get_relative_strengths(
