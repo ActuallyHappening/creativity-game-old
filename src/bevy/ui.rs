@@ -4,13 +4,39 @@ pub struct UiPlugin;
 impl Plugin for UiPlugin {
 	fn build(&self, app: &mut App) {
 		app
-			.add_systems(Startup, setup_camera::<BottomLeft>)
-			.add_systems(Update, update_camera::<BottomLeft>);
+			.add_systems(
+				Startup,
+				(
+					setup_camera::<BottomLeft>.in_set(BottomLeft),
+					setup_bottom_left_cam.after(BottomLeft),
+
+					setup_camera::<TopLeft>.in_set(TopLeft),
+					setup_top_left_cam.after(TopLeft),
+
+					setup_camera::<TopRight>.in_set(TopRight),
+					setup_top_right_cam.after(TopRight),
+
+
+					setup_camera::<BottomRight>.in_set(BottomRight),
+					setup_bottom_right_cam.after(BottomRight),
+				),
+			)
+			.add_systems(
+				Update,
+				(
+					update_camera::<BottomLeft>,
+					update_camera::<TopLeft>,
+					update_camera::<TopRight>,
+					update_camera::<BottomRight>,
+				),
+			);
 	}
 }
 
 mod camtype;
 pub use camtype::*;
+mod bottom_left;
+use bottom_left::*;
 
 fn setup_camera<T: CamType>(mut commands: Commands) {
 	commands.spawn(UiCamera::<T>::get_camera_bundle());
@@ -29,7 +55,11 @@ fn update_camera<T: CamType>(
 		let height = window.resolution.height();
 
 		let cam_translation = T::get_cam_transform(width / 2., height / 2.);
-		info!("Setting cam translation to {:?}", cam_translation);
+		// info!("Setting cam translation to {:?}", cam_translation);
 		cam.translation = Vec3::new(cam_translation.x as f32, cam_translation.y as f32, 0.);
 	}
 }
+
+fn setup_top_left_cam() {}
+fn setup_top_right_cam() {}
+fn setup_bottom_right_cam() {}
