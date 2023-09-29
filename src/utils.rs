@@ -46,7 +46,7 @@ mod triangle;
 pub use triangle::*;
 
 mod text;
-pub use text::*;
+pub use text::Text2dBundle;
 
 #[allow(clippy::upper_case_acronyms)]
 #[derive(SystemParam)]

@@ -1,9 +1,42 @@
 use super::*;
 
+use bevy::sprite::Mesh2dHandle;
 use meshtext::{MeshGenerator, MeshText, TextSection};
 
+/// Encapsulates 2D text with an offset-ed transform
+#[derive(Bundle, Clone, Default)]
+pub struct Text2dBundle {
+    pub mesh: Mesh2dHandle,
+    pub material: Handle<ColorMaterial>,
+		/// Is given an offset to center the text by default
+    transform: Transform,
+    pub global_transform: GlobalTransform,
+    /// User indication of whether an entity is visible
+    pub visibility: Visibility,
+    /// Algorithmically-computed indication of whether an entity is visible and should be extracted for rendering
+    pub computed_visibility: ComputedVisibility,
+}
+
+impl Text2dBundle {
+	pub fn new(text: impl Into<Cow<'static, str>>, font: Font, font_size: f32, colour: Color, mma: &mut MM2) -> Text2dBundle {
+		let (mesh, offset) = get_text_mesh(text, font_size, font);
+
+		Text2dBundle {
+			mesh: mma.meshs.add(mesh).into(),
+			transform: Transform::from_translation(offset),
+			material: mma.mats.add(colour.into()),
+			..default()
+		}
+	}
+
+	pub fn translate(mut self, delta: Vec3) -> Self {
+		self.transform.translation += delta;
+		self
+	}
+}
+
 /// Generates text mesh
-pub fn get_text_mesh_with_bbox(
+fn get_text_mesh_with_bbox(
 	text: impl Into<Cow<'static, str>>,
 	pixel_size: f32,
 	font: Font,
@@ -11,9 +44,6 @@ pub fn get_text_mesh_with_bbox(
 	let mut generator = {
 		match font {
 			Font::Medium => MeshGenerator::new(include_bytes!("../../assets/fonts/FiraMono-Medium.ttf")),
-			// Fonts::Light => MeshGenerator::new(include_bytes!("../assets/fonts/Oswald-Light.ttf")),
-			// Fonts::Heavy => MeshGenerator::new(include_bytes!("../assets/fonts/Oswald-Regular.ttf")),
-			// Fonts::LucidaGrande => MeshGenerator::new(include_bytes!("../assets/fonts/LucidaGrande.ttf")),
 		}
 	};
 
@@ -43,7 +73,7 @@ impl meshtext::BoundingBox {
 
 /// Returns mesh + offset (to ensure coordinates start in center of text).
 /// Without taking offset into account, text will be rendered with *top right* corner at center of entity.
-pub fn get_text_mesh(
+fn get_text_mesh(
 	text: impl Into<Cow<'static, str>>,
 	pixel_size: f32,
 	font: Font,

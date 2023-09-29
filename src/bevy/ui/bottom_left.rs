@@ -31,7 +31,7 @@ pub fn setup_bottom_left_cam(mut commands: Commands, mut mma: MM2) {
 		});
 }
 
-fn init_ah_circle(parent: &mut ChildBuilder, thrust_tye: ThrustType, index: usize, mma: &mut MM2) {
+fn init_ah_circle(parent: &mut ChildBuilder, thrust_type: ThrustType, index: usize, mma: &mut MM2) {
 	// Circle
 	let circle_center = Vec3::new(
 		FULL_CIRCLE_RADIUS + (FULL_CIRCLE_RADIUS * 2. + 3.) * index as f32,
@@ -69,7 +69,7 @@ fn init_ah_circle(parent: &mut ChildBuilder, thrust_tye: ThrustType, index: usiz
 			material: mma.mats.add(Color::ORANGE.into()),
 			..default()
 		}
-		.insert(NeedleVelocity(thrust_tye)),
+		.insert(NeedleVelocity(thrust_type)),
 	);
 	// force
 	let mesh = mma
@@ -82,23 +82,23 @@ fn init_ah_circle(parent: &mut ChildBuilder, thrust_tye: ThrustType, index: usiz
 			material: mma.mats.add(Color::BLUE.into()),
 			..default()
 		}
-		.insert(NeedleStrength(thrust_tye)),
+		.insert(NeedleStrength(thrust_type)),
 	);
 
 	// Input flags
 	let mesh = mma.meshs.add(shape::Circle::new(TINY_CIRCLE_RADIUS).into());
-	const RADIUS_OFFSET: f32 = SMALLER_CIRCLE_RADIUS / 2.;
+	const INNER_RADIUS_OFFSET: f32 = SMALLER_CIRCLE_RADIUS / 2.;
 	// left
 	parent.spawn(
 		MaterialMesh2dBundle {
 			mesh: mesh.clone().into(),
 			transform: Transform::from_translation(circle_center)
 				.translate_z(1.)
-				.translate_x(-RADIUS_OFFSET),
+				.translate_x(-INNER_RADIUS_OFFSET),
 			material: mma.mats.add(DISABLED_INPUT_COL.into()),
 			..default()
 		}
-		.insert(InputFlag::new(false, thrust_tye)),
+		.insert(InputFlag::new(false, thrust_type)),
 	);
 	// right
 	parent.spawn(
@@ -106,11 +106,20 @@ fn init_ah_circle(parent: &mut ChildBuilder, thrust_tye: ThrustType, index: usiz
 			mesh: mesh.into(),
 			transform: Transform::from_translation(circle_center)
 				.translate_z(1.)
-				.translate_x(RADIUS_OFFSET),
+				.translate_x(INNER_RADIUS_OFFSET),
 			material: mma.mats.add(DISABLED_INPUT_COL.into()),
 			..default()
 		}
-		.insert(InputFlag::new(true, thrust_tye)),
+		.insert(InputFlag::new(true, thrust_type)),
+	);
+
+	// Text
+	let text = thrust_type.ah_circle_name();
+	parent.spawn(
+		Text2dBundle::new(text, Font::Medium, 7., Color::RED, mma)
+			.translate(circle_center)
+			.translate(Vec3::Z * 1.)
+			.translate(-Vec3::Y * INNER_RADIUS_OFFSET),
 	);
 }
 
