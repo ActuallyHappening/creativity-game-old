@@ -39,6 +39,7 @@ impl From<Triangle> for Mesh {
 	}
 }
 
+#[allow(dead_code)]
 pub fn spawn_test_triangle(
 	mut commands: Commands,
 	mut meshes: ResMut<Assets<Mesh>>,

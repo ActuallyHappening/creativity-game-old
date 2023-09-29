@@ -1,7 +1,5 @@
 use std::any;
 
-use bevy::input::keyboard;
-
 use crate::utils::*;
 
 use super::MainPlayer;
@@ -9,20 +7,20 @@ use super::MainPlayer;
 #[derive(Debug, Clone)]
 pub struct Thrust<S: ThrustStage> {
 	/// Positive is forward obviously
-	forward: <S as self::ThrustStage>::DimensionType,
+	pub forward: <S as self::ThrustStage>::DimensionType,
 
-	up: <S as self::ThrustStage>::DimensionType,
+	pub up: <S as self::ThrustStage>::DimensionType,
 
-	right: <S as self::ThrustStage>::DimensionType,
+	pub right: <S as self::ThrustStage>::DimensionType,
 
 	/// Left is positive
-	turn_left: <S as self::ThrustStage>::DimensionType,
+	pub turn_left: <S as self::ThrustStage>::DimensionType,
 
 	/// Upwards is positive
-	tilt_up: <S as self::ThrustStage>::DimensionType,
+	pub tilt_up: <S as self::ThrustStage>::DimensionType,
 
 	/// Right is positive
-	roll_left: <S as self::ThrustStage>::DimensionType,
+	pub roll_left: <S as self::ThrustStage>::DimensionType,
 
 	_stage: PhantomData<S>,
 }

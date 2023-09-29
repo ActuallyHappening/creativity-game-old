@@ -136,6 +136,14 @@ impl<T: Bundle> T {
 	}
 }
 
+#[extension(pub trait TransformExt)]
+impl Transform {
+	fn translate_z(mut self, delta_z: f32) -> Self {
+		self.translation.z += delta_z;
+		self
+	}
+}
+
 #[derive(derive_more::Constructor, Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct WorldPoint {
 	/// player left-right
@@ -185,6 +193,21 @@ impl Style {
 		self
 	}
 }
+
+macro_rules! thrust_type {
+	($(pub struct $name:ident;)*) => {
+		$(
+			#[derive(Component, Debug,)]
+			pub struct $name;
+		)*
+	};
+}
+
+thrust_type!(
+	pub struct ThrustForwards;
+	pub struct ThrustRight;
+	pub struct ThrustUpwards;
+);
 
 pub fn join2<A, B, AMarker, BMarker>(
 	mut a: A,

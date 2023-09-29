@@ -57,7 +57,7 @@ impl Plugin for PlayerPlugin {
 
 #[derive(Component, Default)]
 pub struct MainPlayer {
-	relative_thrust: Thrust<RelativeStrength>,
+	pub relative_thrust: Thrust<RelativeStrength>,
 }
 
 lazy_static! {

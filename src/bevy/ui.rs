@@ -7,15 +7,14 @@ impl Plugin for UiPlugin {
 			.add_systems(
 				Startup,
 				(
-					setup_camera::<BottomLeft>.in_set(BottomLeft),
-					setup_bottom_left_cam.after(BottomLeft),
+					setup_camera::<BottomLeft>,//.in_set(BottomLeft),
+					setup_bottom_left_cam,//.after(BottomLeft),
 
 					setup_camera::<TopLeft>.in_set(TopLeft),
 					setup_top_left_cam.after(TopLeft),
 
 					setup_camera::<TopRight>.in_set(TopRight),
 					setup_top_right_cam.after(TopRight),
-
 
 					setup_camera::<BottomRight>.in_set(BottomRight),
 					setup_bottom_right_cam.after(BottomRight),
@@ -24,7 +23,9 @@ impl Plugin for UiPlugin {
 			.add_systems(
 				Update,
 				(
-					update_camera::<BottomLeft>,
+					update_camera::<BottomLeft>.in_set(BottomLeft),
+					update_bottom_left_camera.after(BottomLeft),
+
 					update_camera::<TopLeft>,
 					update_camera::<TopRight>,
 					update_camera::<BottomRight>,
