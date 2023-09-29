@@ -1,11 +1,11 @@
 use super::*;
 
-pub fn gather_input_flags(keyboard_input: Res<Input<KeyCode>>) -> Option<Thrust<InputFlags>> {
+pub fn gather_input_flags(keyboard_input: Res<Input<KeyCode>>) -> Option<Thrust<NonBrakingInputFlags>> {
 	if keyboard_input.pressed(KeyCode::ShiftLeft) {
 		None
 	} else {
 		Some(match keyboard_input.pressed(KeyCode::Space) {
-			false => Thrust::<InputFlags> {
+			false => Thrust::<NonBrakingInputFlags> {
 				forward: match (
 					keyboard_input.pressed(KeyCode::W),
 					keyboard_input.pressed(KeyCode::S),
@@ -87,13 +87,13 @@ pub fn get_base_normal_vectors(
 	}
 }
 
-pub const fn max_velocity_magnitudes() -> Thrust<MaxVelocityMagnitudes> {
+pub const fn max_velocity_magnitudes() -> Thrust<MaxAllowableVelocityMagnitudes> {
 	impl MainPlayer {
 		const MAX_LINEAR_VELOCITY: f32 = 10.;
 		const MAX_ANGULAR_VELOCITY: f32 = 0.2;
 	}
 
-	Thrust::<MaxVelocityMagnitudes> {
+	Thrust::<MaxAllowableVelocityMagnitudes> {
 		forward: MainPlayer::MAX_LINEAR_VELOCITY,
 		up: MainPlayer::MAX_LINEAR_VELOCITY,
 		right: MainPlayer::MAX_LINEAR_VELOCITY,

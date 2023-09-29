@@ -14,10 +14,23 @@ macro_rules! thrust_stage {
 }
 
 thrust_stage!(
+	/// type = [Option] < bool >
+	/// 
 	/// FLAGGED
-	/// What keys were pressed Option of bool for each dimension
+	/// 
+	/// What keys were pressed, without braking required.
 	#[derive(Default)]
-	pub struct InputFlags; type = Option<bool>
+	pub struct NonBrakingInputFlags; type = Option<bool>
+);
+
+thrust_stage!(
+	/// type = [Option] < bool >
+	/// 
+	/// FLAGGED - requires more information to flag
+	/// 
+	/// What "keys should be pressed" to brake the player
+	#[derive(Default)]
+	pub struct BreakingReactionFlags; type = Option<bool>
 );
 
 thrust_stage!(
@@ -34,14 +47,18 @@ thrust_stage!(
 	/// Vectors of length 1, used as a helper stage. signed
 	/// This MUST take into account the InputFlags, the 'flagged' part of the name
 	/// means when the input flags are None, then the vector is zero [Vec3::ZERO]
-	pub struct FlaggedNormalVectors; type = Signed<Vec3>
+	pub struct FlaggedPositionNormalVectors; type = Signed<Vec3>
 );
 
 thrust_stage!(
 	/// type = [f32]
+	/// 
 	/// UN FLAGGED
+	/// 
+	/// Used for *braking*
+	/// 
 	/// Vectors of maximum, used as a helper stage
-	pub struct MaxVelocityMagnitudes; type = f32
+	pub struct MaxAllowableVelocityMagnitudes; type = f32
 );
 
 thrust_stage!(
@@ -49,9 +66,11 @@ thrust_stage!(
 	/// 
 	/// Semi flagged, because taking actual player velocity into account.
 	/// 
-	/// Used for **UI** only
+	/// Used for UI and for *braking*.
+	/// Is public, and used for the HUD.
 	/// 
-	/// Is public, and used for the HUD
+	/// Represents the factor of current velocity, broken up into separate
+	/// **linearly independent** dimensions.
 	pub struct RelativeVelocityMagnitudes; type = f32
 );
 
@@ -76,8 +95,6 @@ thrust_stage!(
 
 thrust_stage!(
 	/// Final result which is applied to physics engine
-	/// Also used for absolute readings
-	#[derive(Default)]
 	pub struct FinalVectors; type = Vec3
 );
 

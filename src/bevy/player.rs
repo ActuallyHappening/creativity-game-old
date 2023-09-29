@@ -7,7 +7,10 @@ use std::ops::Deref;
 mod thrust;
 use lazy_static::lazy_static;
 use thrust::*;
-pub use thrust::{types, Thrust, RelativeVelocityMagnitudes, RelativeStrength, get_base_normal_vectors, calculate_relative_velocity_magnitudes, get_current_relative_strengths};
+pub use thrust::{
+	calculate_relative_velocity_magnitudes, get_base_normal_vectors, get_current_relative_strengths,
+	types, NonBrakingInputFlags, RelativeStrength, RelativeVelocityMagnitudes, Thrust,
+};
 
 pub struct PlayerPlugin;
 
@@ -52,7 +55,12 @@ impl Plugin for PlayerPlugin {
 					// )
 					// .pipe(apply_thrust)
 					// .pipe(ignore).after(trigger_player_thruster_particles),
-					manually_threading_player_movement.in_set(PlayerMove),
+					sequence(
+						get_base_normal_vectors,
+						calculate_relative_velocity_magnitudes,
+					)
+					.pipe(manually_threading_player_movement)
+					.in_set(PlayerMove),
 					trigger_player_thruster_particles.after(PlayerMove),
 				),
 			);
@@ -62,7 +70,7 @@ impl Plugin for PlayerPlugin {
 #[derive(Component, Default)]
 pub struct MainPlayer {
 	pub relative_strength: Thrust<RelativeStrength>,
-	// pub final_vectors: Thrust<FinalVectors>,
+	pub input_flags: Thrust<NonBrakingInputFlags>,
 }
 
 lazy_static! {
