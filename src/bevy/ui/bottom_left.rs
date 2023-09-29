@@ -1,45 +1,87 @@
 use super::*;
-use crate::{bevy::player::{MainPlayer, Thrust, RelativeVelocityMagnitudes}, utils::*};
+use crate::{
+	bevy::player::{MainPlayer, RelativeVelocityMagnitudes, Thrust},
+	utils::*,
+};
 
-#[derive(Component, Default)]
-pub struct Relative<T>(PhantomData<T>);
+const FULL_CIRCLE_RADIUS: f32 = 25.;
+const SMALLER_CIRCLE_RADIUS: f32 = FULL_CIRCLE_RADIUS - 2.;
+
+#[derive(Component, Debug)]
+pub struct NeedleVelocity(ThrustTypes);
 
 pub fn setup_bottom_left_cam(mut commands: Commands, mut mma: MM2) {
 	commands
 		.spawn(UiCamera::<BottomLeft>::get_offset_bundle())
 		.with_children(|parent| {
-			// Circle
-			let mesh = mma.meshs.add(shape::Circle::new(100.).into());
-			parent.spawn(MaterialMesh2dBundle {
-				mesh: mesh.into(),
-				material: mma.mats.add(ColorMaterial::from(Color::BLACK)),
-				transform: Transform::from_translation(Vec3::new(0., 0., 0.)),
-				..default()
-			});
-
-			// Needle
-			let mesh = mma.meshs.add(Triangle::new(10., 90.).into());
-			parent.spawn(
-				MaterialMesh2dBundle {
-					mesh: mesh.into(),
-					transform: Transform::from_rotation(Quat::from_rotation_z(-45f32.to_radians()))
-						.translate_z(1.),
-					material: mma.mats.add(Color::ORANGE.into()),
-					..default()
-				}
-				.insert(Relative::<ThrustForwards>::default()),
-			);
+			for (i, thrust_type) in ThrustTypes::iter().enumerate() {
+				init_ah_circle(parent, thrust_type, i, &mut mma);
+			}
 		});
+}
+
+fn init_ah_circle(parent: &mut ChildBuilder, thrust_tye: ThrustTypes, index: usize, mma: &mut MM2) {
+	// Circle
+	let circle_center = Vec3::new(
+		FULL_CIRCLE_RADIUS + (FULL_CIRCLE_RADIUS * 2. + 3.) * index as f32,
+		FULL_CIRCLE_RADIUS,
+		0.,
+	);
+	// larger circle
+	let mesh = mma.meshs.add(shape::Circle::new(FULL_CIRCLE_RADIUS).into());
+	parent.spawn(MaterialMesh2dBundle {
+		mesh: mesh.into(),
+		material: mma.mats.add(ColorMaterial::from(Color::MIDNIGHT_BLUE)),
+		transform: Transform::from_translation(circle_center),
+		..default()
+	});
+	// smaller circle
+	let mesh = mma
+		.meshs
+		.add(shape::Circle::new(SMALLER_CIRCLE_RADIUS).into());
+	parent.spawn(MaterialMesh2dBundle {
+		mesh: mesh.into(),
+		material: mma.mats.add(ColorMaterial::from(Color::BLACK)),
+		transform: Transform::from_translation(circle_center),
+		..default()
+	});
+
+	// Needle
+	// velocity
+	let mesh = mma
+		.meshs
+		.add(Triangle::new(FULL_CIRCLE_RADIUS / 10., SMALLER_CIRCLE_RADIUS * 0.9).into());
+	parent.spawn(
+		MaterialMesh2dBundle {
+			mesh: mesh.into(),
+			transform: Transform::from_translation(circle_center).translate_z(3.),
+			material: mma.mats.add(Color::ORANGE.into()),
+			..default()
+		}
+		.insert(NeedleVelocity(thrust_tye)),
+	);
+	// force
+	let mesh = mma
+		.meshs
+		.add(Triangle::new(FULL_CIRCLE_RADIUS / 10., SMALLER_CIRCLE_RADIUS * 0.75).into());
+	parent.spawn(
+		MaterialMesh2dBundle {
+			mesh: mesh.into(),
+			transform: Transform::from_translation(circle_center).translate_z(2.),
+			material: mma.mats.add(Color::BLUE.into()),
+			..default()
+		}
+		.insert(NeedleVelocity(thrust_tye)),
+	);
 }
 
 pub fn update_bottom_left_camera(
 	In(data): In<Thrust<RelativeVelocityMagnitudes>>,
-	mut needle: Query<&mut Transform, With<Relative<ThrustForwards>>>,
+	mut needle: Query<(&NeedleVelocity, &mut Transform)>,
 ) {
-	let mut needle = needle.single_mut();
-	let rot = (-45. + data.forward.clamp(-1.1, 1.1) * 40.).to_radians();
-
-	// debug!("Rotating needle to {}", rot);
-
-	needle.rotation = Quat::from_rotation_z(rot);
+	for (NeedleVelocity(thrust_type), mut transform) in needle.iter_mut() {
+		let data = data.get_from_type(*thrust_type).clamp(-0.9, 0.9);
+		let angle = data * TAU;
+		transform.rotation = Quat::from_rotation_z(angle);
+	}
 }

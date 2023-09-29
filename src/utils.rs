@@ -8,6 +8,7 @@ use bevy_mod_picking::{
 
 pub use crate::core::Direction;
 pub use crate::core::*;
+pub use crate::bevy::types::*;
 pub use bevy::prelude::*;
 pub use bevy::sprite::MaterialMesh2dBundle;
 pub use bevy_dolly::prelude::*;
@@ -29,6 +30,7 @@ pub use bevy::{
 };
 pub use static_assertions::*;
 pub use std::any;
+pub use std::f32::consts::TAU;
 
 #[cfg(feature = "hanabi_particles")]
 mod particles;
@@ -195,20 +197,7 @@ impl Style {
 	}
 }
 
-macro_rules! thrust_type {
-	($(pub struct $name:ident;)*) => {
-		$(
-			#[derive(Component, Debug, Default)]
-			pub struct $name;
-		)*
-	};
-}
 
-thrust_type!(
-	pub struct ThrustForwards;
-	pub struct ThrustRight;
-	pub struct ThrustUpwards;
-);
 
 pub fn join2<A, B, AMarker, BMarker>(
 	mut a: A,

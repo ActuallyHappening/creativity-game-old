@@ -15,6 +15,8 @@ pub use info_processors::*;
 mod info_enactors;
 pub use info_enactors::*;
 
+pub mod types;
+
 #[derive(Debug, Clone)]
 pub struct Thrust<S: ThrustStage> {
 	/// Positive is forward obviously
