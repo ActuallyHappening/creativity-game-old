@@ -8,6 +8,7 @@ use bevy_mod_picking::{
 use bevy_screen_diagnostics::{ScreenDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin};
 
 mod stars;
+use stars::*;
 // mod testparticles;
 
 use super::{camera::CameraPlugin, world_gen::spawn_random_world};
@@ -24,7 +25,7 @@ impl Plugin for SetupPlugin {
 					.build()
 					.disable::<DefaultHighlightingPlugin>()
 					.disable::<DebugPickingPlugin>(),
-			);
+			).add_systems(Update, blink_stars);
 
 		// app.add_systems(Update, test_activate_particles);
 

@@ -1,6 +1,12 @@
-use bevy::prelude::PbrBundle;
+use std::ops::Mul;
 
 use crate::utils::*;
+
+#[derive(Component)]
+pub struct Star {
+	blink_speed: f32,
+	blink_strength: f32,
+}
 
 pub fn spawn_random_star(commands: &mut Commands, MMA { meshs, mats, .. }: &mut MMA) {
 	// commands
@@ -60,5 +66,36 @@ impl Vec3 {
 			rng.gen_range(range.clone()),
 			rng.gen_range(range.clone()),
 		)
+	}
+}
+
+#[derive(Default)]
+pub struct StarMaterials(HashMap<u32, Handle<StandardMaterial>>);
+
+pub fn blink_stars(
+	mut mats: Local<StarMaterials>,
+	mut stars: Query<(&Star, &mut Handle<StandardMaterial>)>,
+	time: Res<Time>,
+	mut mma: MM,
+) {
+	let seconds_since_start = time.elapsed_seconds_wrapped();
+	for (star, mut mat) in stars.iter_mut() {
+		let val = (seconds_since_start / star.blink_speed)
+			.sin()
+			.mul(star.blink_strength)
+			.round() as u32;
+		let handle = if let Some(handle) = mats.0.get(&val) {
+			handle.clone()
+		} else {
+			let handle = mma.mats.add(StandardMaterial {
+				base_color: Color::WHITE,
+				emissive: Color::WHITE,
+				unlit: true,
+				..default()
+			});
+			mats.0.insert(val, handle.clone());
+			handle
+		};
+		*mat = handle;
 	}
 }

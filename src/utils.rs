@@ -34,6 +34,7 @@ pub use std::{
 	ops::{Add, Div},
 };
 pub use strum::*;
+pub use bevy::utils::HashMap;
 
 #[cfg(feature = "hanabi_particles")]
 mod particles;
