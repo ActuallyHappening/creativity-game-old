@@ -74,7 +74,7 @@ pub fn setup(mut commands: Commands, mut mma: MMA) {
 	});
 
 	// stars
-	for _ in 0..10000 {
+	for _ in 0..10_000 {
 		stars::spawn_random_star(&mut commands, &mut mma);
 		// tracing::info!("Spawned star");
 	}
