@@ -197,7 +197,7 @@ impl Style {
 macro_rules! thrust_type {
 	($(pub struct $name:ident;)*) => {
 		$(
-			#[derive(Component, Debug,)]
+			#[derive(Component, Debug, Default)]
 			pub struct $name;
 		)*
 	};

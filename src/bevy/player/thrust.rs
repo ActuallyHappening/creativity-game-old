@@ -91,6 +91,14 @@ impl Signed<Vec3> {
 			Signed::Zero => Vec3::ZERO,
 		}
 	}
+
+	fn signed_length(self) -> f32 {
+		match self {
+			Signed::Positive(v) => v.length(),
+			Signed::Negative(v) => -v.length(),
+			Signed::Zero => 0.,
+		}
+	}
 }
 impl From<f32> for Signed<f32> {
 	fn from(value: f32) -> Self {
@@ -117,7 +125,7 @@ thrust_stage!(
 	/// UN FLAGGED
 	/// Vectors of length 1, used to give information about whereabouts and
 	/// rotation of the player
-	pub struct BaseNormalVectors; type = Vec3
+	pub struct BasePositionNormalVectors; type = Vec3
 );
 
 thrust_stage!(
@@ -129,9 +137,17 @@ thrust_stage!(
 );
 
 thrust_stage!(
+	/// type = [f32]
 	/// UN FLAGGED
 	/// Vectors of maximum, used as a helper stage
 	pub struct MaxVelocityMagnitudes; type = f32
+);
+
+thrust_stage!(
+	/// type = [f32]
+	/// Semi flagged, because taking actual player velocity into account.
+	/// Is public, and used for the HUD
+	pub struct RelativeVelocityMagnitudes; type = f32
 );
 
 thrust_stage!(
@@ -246,7 +262,7 @@ pub fn gather_input_flags(keyboard_input: Res<Input<KeyCode>>) -> Option<Thrust<
 
 pub fn get_base_normal_vectors(
 	player_transform: Query<&Transform, With<MainPlayer>>,
-) -> Thrust<BaseNormalVectors> {
+) -> Thrust<BasePositionNormalVectors> {
 	let player = match player_transform.get_single() {
 		Ok(player) => player,
 		Err(e) => panic!("No player found: {:?}", e),
@@ -256,7 +272,7 @@ pub fn get_base_normal_vectors(
 	let up = player.up();
 
 	// the meat of the system
-	Thrust::<BaseNormalVectors> {
+	Thrust::<BasePositionNormalVectors> {
 		forward,
 		up,
 		right: forward.cross(up),
@@ -271,7 +287,7 @@ pub fn get_base_normal_vectors(
 // #[bevycheck::system]
 /// Makes normal vectors which were not selected by user to be [Vec3::ZERO].
 pub fn flag_normal_vectors(
-	In((input_flags, base)): In<(Thrust<InputFlags>, Thrust<BaseNormalVectors>)>,
+	In((input_flags, base)): In<(Thrust<InputFlags>, Thrust<BasePositionNormalVectors>)>,
 ) -> Thrust<FlaggedNormalVectors> {
 	#[extension(trait OptionExt)]
 	impl Option<bool> {
@@ -284,10 +300,10 @@ pub fn flag_normal_vectors(
 		}
 	}
 
-	impl std::ops::Mul<Thrust<BaseNormalVectors>> for Thrust<InputFlags> {
+	impl std::ops::Mul<Thrust<BasePositionNormalVectors>> for Thrust<InputFlags> {
 		type Output = Thrust<FlaggedNormalVectors>;
 
-		fn mul(self, base: Thrust<BaseNormalVectors>) -> Self::Output {
+		fn mul(self, base: Thrust<BasePositionNormalVectors>) -> Self::Output {
 			Thrust::<FlaggedNormalVectors> {
 				forward: self.forward.wrap_signed(base.forward),
 				right: self.right.wrap_signed(base.right),
@@ -305,6 +321,26 @@ pub fn flag_normal_vectors(
 	input_flags * base
 }
 
+#[extension(pub trait Vec3Ext)]
+impl Vec3 {
+	/// Returns a number between [0, 1] where 0 is no correlation and 1 is perfect correlation
+	fn factor_towards(&self, aimed: &Vec3) -> f32 {
+		self.normalize().dot(aimed.normalize()).add(1.).div(2.)
+	}
+
+	/// Returns a vector which is the projection of self onto aimed.
+	/// Amount of `self` in `aimed`
+	fn vector_project(&self, aimed: &Vec3) -> Signed<Vec3> {
+		let projected = *aimed * self.dot(*aimed) / aimed.length_squared();
+		if self.dot(*aimed) > 0. {
+			Signed::Positive(projected)
+		} else {
+			Signed::Negative(projected)
+		}
+	}
+}
+
+
 /// Takes into account the maximum power of each thruster and the current velocity
 pub fn get_relative_strengths(
 	In((aimed, max)): In<(Thrust<FlaggedNormalVectors>, Thrust<MaxVelocityMagnitudes>)>,
@@ -319,16 +355,13 @@ pub fn get_relative_strengths(
 			aimed.into_unit()
 		} else {
 			let aimed_vec: Vec3 = aimed.factor_in();
+			// 0 when speeding up, 1 when slowing down
 			let factor_slowing_down = 1.
-				- aimed_vec
-					.normalize()
-					.dot(current.normalize())
-					.add(1.)
-					.div(2.);
+				- aimed_vec.factor_towards(current);
 
 			let percentage_of_max_allowed_velocity = (current.length() / max).clamp(0., 1.);
 
-			if percentage_of_max_allowed_velocity > 0.9 {
+			if percentage_of_max_allowed_velocity > 0.5 {
 				factor_slowing_down * aimed.into_unit()
 			} else {
 				aimed.into_unit()
@@ -389,13 +422,13 @@ pub const fn force_factors() -> Thrust<ForceFactors> {
 pub fn save_thrust_stages(
 	In((relative_strength, normal_vectors, max)): In<(
 		Thrust<RelativeStrength>,
-		Thrust<BaseNormalVectors>,
+		Thrust<BasePositionNormalVectors>,
 		Thrust<ForceFactors>,
 	)>,
 	mut player_data: Query<&mut MainPlayer, With<MainPlayer>>,
 ) -> Thrust<FinalVectors> {
 	// relative (F) * normals (U) = almost final (FLAGGED)
-	impl std::ops::Mul<Thrust<RelativeStrength>> for Thrust<BaseNormalVectors> {
+	impl std::ops::Mul<Thrust<RelativeStrength>> for Thrust<BasePositionNormalVectors> {
 		type Output = Thrust<AlmostFinalVectors>;
 
 		fn mul(self, rhs: Thrust<RelativeStrength>) -> Self::Output {
@@ -555,6 +588,23 @@ pub fn trigger_player_thruster_particles(
 		} else {
 			spawner.set_active(false);
 		}
+	}
+}
+
+pub fn calculate_relative_velocity_magnitudes(In(base): In<Thrust<BasePositionNormalVectors>>, velocity: Query<&Velocity, With<MainPlayer>>) -> Thrust<RelativeVelocityMagnitudes> {
+	let max = max_velocity_magnitudes();
+	let velocity = velocity.single();
+
+	Thrust::<RelativeVelocityMagnitudes> {
+		forward: velocity.linvel.vector_project(&base.forward).signed_length() / max.forward,
+		up: velocity.linvel.vector_project(&base.up).signed_length() / max.up,
+		right: velocity.linvel.vector_project(&base.right).signed_length() / max.right,
+
+		turn_left: velocity.angvel.vector_project(&base.turn_left).signed_length() / max.turn_left,
+		tilt_up: velocity.angvel.vector_project(&base.tilt_up).signed_length() / max.tilt_up,
+		roll_left: velocity.angvel.vector_project(&base.roll_left).signed_length() / max.roll_left,
+
+		_stage: PhantomData
 	}
 }
 

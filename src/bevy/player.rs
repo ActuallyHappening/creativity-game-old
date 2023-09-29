@@ -7,10 +7,14 @@ use std::ops::Deref;
 mod thrust;
 use lazy_static::lazy_static;
 use thrust::*;
+pub use thrust::{Thrust, RelativeVelocityMagnitudes, get_base_normal_vectors, calculate_relative_velocity_magnitudes};
 
 pub struct PlayerPlugin;
+
+/// After player thrusts and movement have been handled
 #[derive(Hash, Debug, PartialEq, Eq, Clone, SystemSet)]
 pub struct PlayerMove;
+
 impl Plugin for PlayerPlugin {
 	fn build(&self, app: &mut App) {
 		app
