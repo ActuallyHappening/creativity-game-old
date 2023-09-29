@@ -70,7 +70,7 @@ impl Plugin for PlayerPlugin {
 #[derive(Component, Default)]
 pub struct MainPlayer {
 	pub relative_strength: Thrust<RelativeStrength>,
-	pub input_flags: Thrust<NonBrakingInputFlags>,
+	pub inputs: BrakingInfo,
 }
 
 lazy_static! {

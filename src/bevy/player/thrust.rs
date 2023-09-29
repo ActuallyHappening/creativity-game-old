@@ -20,6 +20,8 @@ mod info_processors;
 pub use info_processors::*;
 mod info_enactors;
 pub use info_enactors::*;
+mod braking;
+pub use braking::*;
 
 pub mod types;
 
@@ -69,19 +71,22 @@ where
 
 /// Combines the normal and relative thrusts into the final thrust vectors,
 /// and saves the necessary information to various places including in the [MainPlayer] component
+#[allow(clippy::type_complexity)]
 pub fn save_thrust_stages(
-	In((relative_strength, normal_vectors, max)): In<(
+	In((relative_strength, normal_vectors, max, braking_info)): In<(
 		Thrust<RelativeStrength>,
 		Thrust<BasePositionNormalVectors>,
 		Thrust<ForceFactors>,
+		BrakingInfo,
 	)>,
 	mut player_data: Query<&mut MainPlayer, With<MainPlayer>>,
 ) -> Thrust<FinalVectors> {
-	
-
 	let final_vectors = normal_vectors * relative_strength.clone() * max;
 
-	player_data.single_mut().relative_strength = relative_strength;
+	*player_data.single_mut() = MainPlayer {
+		relative_strength,
+		inputs: braking_info,
+	};
 
 	final_vectors
 }
@@ -97,7 +102,7 @@ pub fn manually_threading_player_movement(
 ) {
 	let base_normal = get_base_normal_vectors(player_transform);
 
-	let (is_braking, input_flags) = match gather_input_flags(keyboard_input) {
+	let BrakingInfo(is_braking, input_flags) = match gather_input_flags(keyboard_input) {
 		None => {
 			// breaking, must do opposite of current velocity to counteract / brake
 			const CUTOFF: f32 = 0.02;
@@ -124,11 +129,11 @@ pub fn manually_threading_player_movement(
 				flagged_inputs.forward = None;
 			}
 
-			(true, flagged_inputs)
+			BrakingInfo(true, flagged_inputs)
 		}
 		Some(input_flags) => {
 			// not breaking, can use what player provides
-			(false, input_flags)
+			BrakingInfo(false, input_flags)
 		}
 	};
 
@@ -139,13 +144,13 @@ pub fn manually_threading_player_movement(
 		1.0
 	};
 
-	let flagged_inputs = input_flags * base_normal.clone();
+	let flagged_inputs = input_flags.clone() * base_normal.clone();
 	let relative_strengths = get_relative_strengths(
 		In((flagged_inputs, max_velocity_magnitudes())),
 		player_velocity,
 	);
 	let final_vectors = save_thrust_stages(
-		In((relative_strengths, base_normal, force_factors)),
+		In((relative_strengths, base_normal, force_factors, BrakingInfo(is_braking, input_flags))),
 		player_data,
 	);
 
