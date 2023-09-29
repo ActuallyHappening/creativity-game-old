@@ -2,8 +2,18 @@ use crate::utils::*;
 
 use super::MainPlayer;
 
-mod signed;
-use signed::*;
+mod helpers;
+use helpers::*;
+
+mod stages;
+pub use stages::*;
+
+mod info_gathering;
+pub use info_gathering::*;
+mod info_processors;
+pub use info_processors::*;
+mod info_enactors;
+pub use info_enactors::*;
 
 #[derive(Debug, Clone)]
 pub struct Thrust<S: ThrustStage> {
@@ -29,84 +39,7 @@ pub struct Thrust<S: ThrustStage> {
 pub trait ThrustStage {
 	type DimensionType: std::fmt::Debug + Clone;
 }
-macro_rules! thrust_stage {
-	($(#[$($attrss:tt)*])* $(pub)? struct $name:ident; type = $type:ty) => {
-		#[doc = concat!("Dimension type = ", stringify!($type), "\n")]
-		$(#[$($attrss)*])*
 
-		#[derive(Debug, Clone,)]
-		pub struct $name;
-		impl ThrustStage for $name {
-			type DimensionType = $type;
-		}
-	};
-}
-
-
-thrust_stage!(
-	/// FLAGGED
-	/// What keys were pressed Option of bool for each dimension
-	#[derive(Default)]
-	pub struct InputFlags; type = Option<bool>
-);
-
-thrust_stage!(
-	/// type = [Vec3]
-	///
-	/// UN FLAGGED
-	/// Vectors of length 1, used to give information about whereabouts and
-	/// rotation of the player
-	pub struct BasePositionNormalVectors; type = Vec3
-);
-
-thrust_stage!(
-	/// FLAGGED
-	/// Vectors of length 1, used as a helper stage. signed
-	/// This MUST take into account the InputFlags, the 'flagged' part of the name
-	/// means when the input flags are None, then the vector is zero [Vec3::ZERO]
-	pub struct FlaggedNormalVectors; type = Signed<Vec3>
-);
-
-thrust_stage!(
-	/// type = [f32]
-	/// UN FLAGGED
-	/// Vectors of maximum, used as a helper stage
-	pub struct MaxVelocityMagnitudes; type = f32
-);
-
-thrust_stage!(
-	/// type = [f32]
-	/// Semi flagged, because taking actual player velocity into account.
-	/// Is public, and used for the HUD
-	pub struct RelativeVelocityMagnitudes; type = f32
-);
-
-thrust_stage!(
-	/// type = [f32]
-	///
-	/// FLAGGED
-	/// Shows how much of the maximum power can be used
-	/// Used for animating the player and for relative readings
-	#[derive(Default)]
-	pub struct RelativeStrength; type = f32
-);
-
-thrust_stage!(
-	/// UN FLAGGED
-	/// Factors multiplied into the final thrust vectors
-	pub struct ForceFactors; type = f32
-);
-
-thrust_stage!(
-	/// Final result which is applied to physics engine
-	/// Also used for absolute readings
-	pub struct FinalVectors; type = Vec3
-);
-
-thrust_stage!(
-	/// Just needs to be multiplied by the [ForceFactors] before it is a final thrust type
-	pub struct AlmostFinalVectors; type = Vec3
-);
 
 impl<D, T> Default for Thrust<D>
 where
@@ -127,226 +60,6 @@ where
 	}
 }
 
-// #[bevycheck::system]
-pub fn gather_input_flags(keyboard_input: Res<Input<KeyCode>>) -> Option<Thrust<InputFlags>> {
-	if keyboard_input.pressed(KeyCode::ShiftLeft) {
-		None
-	} else {
-		Some(match keyboard_input.pressed(KeyCode::Space) {
-			false => Thrust::<InputFlags> {
-				forward: match (
-					keyboard_input.pressed(KeyCode::W),
-					keyboard_input.pressed(KeyCode::S),
-				) {
-					(true, true) | (false, false) => None,
-					(true, false) => Some(true),
-					(false, true) => Some(false),
-				},
-				up: match (
-					keyboard_input.pressed(KeyCode::Q),
-					keyboard_input.pressed(KeyCode::E),
-				) {
-					(true, true) | (false, false) => None,
-					(true, false) => Some(true),
-					(false, true) => Some(false),
-				},
-				right: match (
-					keyboard_input.pressed(KeyCode::D),
-					keyboard_input.pressed(KeyCode::A),
-				) {
-					(true, true) | (false, false) => None,
-					(true, false) => Some(true),
-					(false, true) => Some(false),
-				},
-				..default()
-			},
-			true => Thrust {
-				turn_left: match (
-					keyboard_input.pressed(KeyCode::A),
-					keyboard_input.pressed(KeyCode::D),
-				) {
-					(true, true) | (false, false) => None,
-					(true, false) => Some(true),
-					(false, true) => Some(false),
-				},
-				tilt_up: match (
-					keyboard_input.pressed(KeyCode::S),
-					keyboard_input.pressed(KeyCode::W),
-				) {
-					(true, true) | (false, false) => None,
-					(true, false) => Some(true),
-					(false, true) => Some(false),
-				},
-				roll_left: match (
-					keyboard_input.pressed(KeyCode::Q),
-					keyboard_input.pressed(KeyCode::E),
-				) {
-					(true, true) | (false, false) => None,
-					(true, false) => Some(true),
-					(false, true) => Some(false),
-				},
-				..default()
-			},
-		})
-	}
-}
-
-pub fn get_base_normal_vectors(
-	player_transform: Query<&Transform, With<MainPlayer>>,
-) -> Thrust<BasePositionNormalVectors> {
-	let player = match player_transform.get_single() {
-		Ok(player) => player,
-		Err(e) => panic!("No player found: {:?}", e),
-	};
-
-	let forward = player.forward();
-	let up = player.up();
-
-	// the meat of the system
-	Thrust::<BasePositionNormalVectors> {
-		forward,
-		up,
-		right: forward.cross(up),
-
-		turn_left: up,
-		tilt_up: forward.cross(up),
-		roll_left: -forward,
-		_stage: PhantomData,
-	}
-}
-
-// #[bevycheck::system]
-/// Makes normal vectors which were not selected by user to be [Vec3::ZERO].
-pub fn flag_normal_vectors(
-	In((input_flags, base)): In<(Thrust<InputFlags>, Thrust<BasePositionNormalVectors>)>,
-) -> Thrust<FlaggedNormalVectors> {
-	#[extension(trait OptionExt)]
-	impl Option<bool> {
-		fn wrap_signed(self, wrapped: Vec3) -> Signed<Vec3> {
-			match self {
-				Some(true) => Signed::Positive(wrapped),
-				Some(false) => Signed::Negative(wrapped),
-				None => Signed::Zero,
-			}
-		}
-	}
-
-	impl std::ops::Mul<Thrust<BasePositionNormalVectors>> for Thrust<InputFlags> {
-		type Output = Thrust<FlaggedNormalVectors>;
-
-		fn mul(self, base: Thrust<BasePositionNormalVectors>) -> Self::Output {
-			Thrust::<FlaggedNormalVectors> {
-				forward: self.forward.wrap_signed(base.forward),
-				right: self.right.wrap_signed(base.right),
-				up: self.up.wrap_signed(base.up),
-
-				roll_left: self.roll_left.wrap_signed(base.roll_left),
-				turn_left: self.turn_left.wrap_signed(base.turn_left),
-				tilt_up: self.tilt_up.wrap_signed(base.tilt_up),
-
-				_stage: PhantomData,
-			}
-		}
-	}
-
-	input_flags * base
-}
-
-#[extension(pub trait Vec3Ext)]
-impl Vec3 {
-	/// Returns a number between [0, 1] where 0 is no correlation and 1 is perfect correlation
-	fn factor_towards(&self, aimed: &Vec3) -> f32 {
-		self.normalize().dot(aimed.normalize()).add(1.).div(2.)
-	}
-
-	/// Returns a vector which is the projection of self onto aimed.
-	/// Amount of `self` in `aimed`
-	fn vector_project(&self, aimed: &Vec3) -> Signed<Vec3> {
-		let projected = *aimed * self.dot(*aimed) / aimed.length_squared();
-		if self.dot(*aimed) > 0. {
-			Signed::Positive(projected)
-		} else {
-			Signed::Negative(projected)
-		}
-	}
-}
-
-
-/// Takes into account the maximum power of each thruster and the current velocity
-pub fn get_relative_strengths(
-	In((aimed, max)): In<(Thrust<FlaggedNormalVectors>, Thrust<MaxVelocityMagnitudes>)>,
-	player_velocity: Query<&Velocity, With<MainPlayer>>,
-) -> Thrust<RelativeStrength> {
-	let Velocity { linvel, angvel } = player_velocity.single();
-
-	fn factor_allowed_forwards(aimed: Signed<Vec3>, max: f32, current: &Vec3) -> f32 {
-		if aimed.is_zero() {
-			0.
-		} else if current.length() == 0. {
-			aimed.into_unit()
-		} else {
-			let aimed_vec: Vec3 = aimed.factor_in();
-			// 0 when speeding up, 1 when slowing down
-			let factor_slowing_down = 1.
-				- aimed_vec.factor_towards(current);
-
-			let percentage_of_max_allowed_velocity = (current.length() / max).clamp(0., 1.);
-
-			if percentage_of_max_allowed_velocity > 0.5 {
-				factor_slowing_down * aimed.into_unit()
-			} else {
-				aimed.into_unit()
-			}
-		}
-	}
-
-	Thrust::<RelativeStrength> {
-		forward: factor_allowed_forwards(aimed.forward, max.forward, linvel),
-		up: factor_allowed_forwards(aimed.up, max.up, linvel),
-		right: factor_allowed_forwards(aimed.right, max.right, linvel),
-
-		tilt_up: factor_allowed_forwards(aimed.tilt_up, max.tilt_up, angvel),
-		roll_left: factor_allowed_forwards(aimed.roll_left, max.roll_left, angvel),
-		turn_left: factor_allowed_forwards(aimed.turn_left, max.turn_left, angvel),
-		_stage: PhantomData,
-	}
-}
-
-pub const fn max_velocity_magnitudes() -> Thrust<MaxVelocityMagnitudes> {
-	impl MainPlayer {
-		const MAX_LINEAR_VELOCITY: f32 = 10.;
-		const MAX_ANGULAR_VELOCITY: f32 = 0.2;
-	}
-
-	Thrust::<MaxVelocityMagnitudes> {
-		forward: MainPlayer::MAX_LINEAR_VELOCITY,
-		up: MainPlayer::MAX_LINEAR_VELOCITY,
-		right: MainPlayer::MAX_LINEAR_VELOCITY,
-
-		turn_left: MainPlayer::MAX_ANGULAR_VELOCITY,
-		tilt_up: MainPlayer::MAX_ANGULAR_VELOCITY,
-		roll_left: MainPlayer::MAX_ANGULAR_VELOCITY,
-		_stage: PhantomData,
-	}
-}
-
-pub const fn force_factors() -> Thrust<ForceFactors> {
-	impl MainPlayer {
-		const MOVE_FACTOR: f32 = 5_000_000.;
-		const TURN_FACTOR: f32 = 5_000_000.;
-	}
-
-	Thrust::<ForceFactors> {
-		forward: MainPlayer::MOVE_FACTOR,
-		up: MainPlayer::MOVE_FACTOR,
-		right: MainPlayer::MOVE_FACTOR,
-
-		turn_left: MainPlayer::TURN_FACTOR,
-		tilt_up: MainPlayer::TURN_FACTOR,
-		roll_left: MainPlayer::TURN_FACTOR,
-		_stage: PhantomData,
-	}
-}
 
 /// Combines the normal and relative thrusts into the final thrust vectors,
 /// and saves the necessary information to various places including in the [MainPlayer] component
@@ -401,32 +114,6 @@ pub fn save_thrust_stages(
 	final_vectors
 }
 
-pub fn apply_thrust(
-	In(thrust): In<Thrust<FinalVectors>>,
-	mut player_physics: Query<&mut ExternalForce, With<MainPlayer>>,
-	time: Res<Time>,
-) -> Thrust<FinalVectors> {
-	let mut player = player_physics.single_mut();
-	let delta = time.delta_seconds_f64() as f32;
-
-	impl MainPlayer {
-		const MAX_TOTAL_ANGULAR_FORCE: f32 = 10_000_000.;
-		const MAX_TOTAL_LINEAR_FORCE: f32 = 10_000_000.;
-	}
-
-	player.force = (thrust.forward + thrust.up + thrust.right)
-		.clamp_length(0., MainPlayer::MAX_TOTAL_LINEAR_FORCE);
-	player.force *= delta;
-
-	player.torque = (thrust.turn_left + thrust.tilt_up + thrust.roll_left)
-		.clamp_length(0., MainPlayer::MAX_TOTAL_ANGULAR_FORCE);
-	player.torque *= delta;
-
-	// info!("Thrust: (ang len = {})");
-
-	thrust
-}
-
 pub fn manually_threading_player_movement(
 	keyboard_input: Res<Input<KeyCode>>,
 	player_transform: Query<&Transform, With<MainPlayer>>,
@@ -452,92 +139,6 @@ pub fn manually_threading_player_movement(
 	apply_thrust(In(final_vectors), player_physics, time);
 }
 
-pub fn trigger_player_thruster_particles(
-	player: Query<&MainPlayer>,
-	mut particles: Query<(&mut EffectSpawner, &Thruster)>,
-) {
-	let MainPlayer {
-		relative_thrust: thrust,
-	} = player.single();
-
-	impl ThrusterFlags {
-		/// If flags match, add relative strength, else add nothing
-		fn degree_of_match(&self, actual: &Thrust<RelativeStrength>) -> f32 {
-			let flags = self;
-			let mut counter = 0.;
-
-			let forward = Signed::from(actual.forward);
-			if flags
-				.forward_back
-				.is_some_and(|f| f == forward.is_positive())
-			{
-				counter += forward.into_unit().abs();
-			}
-
-			let up = Signed::from(actual.up);
-			if flags.up_down.is_some_and(|f| f == up.is_positive()) {
-				counter += up.into_unit().abs();
-			}
-
-			let right = Signed::from(actual.right);
-			if flags.right_left.is_some_and(|f| f == right.is_positive()) {
-				counter += right.into_unit().abs();
-			}
-
-			let turn_left = Signed::from(actual.turn_left);
-			if flags
-				.turn_left
-				.is_some_and(|f| f == turn_left.is_positive())
-			{
-				counter += turn_left.into_unit().abs();
-			}
-
-			let tilt_up = Signed::from(actual.tilt_up);
-			if flags.tilt_up.is_some_and(|f| f == tilt_up.is_positive()) {
-				counter += tilt_up.into_unit().abs();
-			}
-
-			let roll_left = Signed::from(actual.roll_left);
-			if flags
-				.roll_left
-				.is_some_and(|f| f == roll_left.is_positive())
-			{
-				counter += roll_left.into_unit().abs();
-			}
-
-			counter
-		}
-	}
-
-	for (mut spawner, Thruster { flags, .. }) in particles.iter_mut() {
-		// todo: show gradient of particles, change acceleration / lifetime?
-
-		let degree = flags.degree_of_match(thrust);
-
-		if degree > 0. {
-			spawner.set_active(true);
-		} else {
-			spawner.set_active(false);
-		}
-	}
-}
-
-pub fn calculate_relative_velocity_magnitudes(In(base): In<Thrust<BasePositionNormalVectors>>, velocity: Query<&Velocity, With<MainPlayer>>) -> Thrust<RelativeVelocityMagnitudes> {
-	let max = max_velocity_magnitudes();
-	let velocity = velocity.single();
-
-	Thrust::<RelativeVelocityMagnitudes> {
-		forward: velocity.linvel.vector_project(&base.forward).signed_length() / max.forward,
-		up: velocity.linvel.vector_project(&base.up).signed_length() / max.up,
-		right: velocity.linvel.vector_project(&base.right).signed_length() / max.right,
-
-		turn_left: velocity.angvel.vector_project(&base.turn_left).signed_length() / max.turn_left,
-		tilt_up: velocity.angvel.vector_project(&base.tilt_up).signed_length() / max.tilt_up,
-		roll_left: velocity.angvel.vector_project(&base.roll_left).signed_length() / max.roll_left,
-
-		_stage: PhantomData
-	}
-}
 
 // #[bevycheck::system]
 // pub fn manual_get_final_thrust(

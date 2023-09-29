@@ -1,5 +1,24 @@
 use crate::utils::*;
 
+#[extension(pub trait Vec3Ext)]
+impl Vec3 {
+	/// Returns a number between [0, 1] where 0 is no correlation and 1 is perfect correlation
+	fn factor_towards(&self, aimed: &Vec3) -> f32 {
+		self.normalize().dot(aimed.normalize()).add(1.).div(2.)
+	}
+
+	/// Returns a vector which is the projection of self onto aimed.
+	/// Amount of `self` in `aimed`
+	fn vector_project(&self, aimed: &Vec3) -> Signed<Vec3> {
+		let projected = *aimed * self.dot(*aimed) / aimed.length_squared();
+		if self.dot(*aimed) > 0. {
+			Signed::Positive(projected)
+		} else {
+			Signed::Negative(projected)
+		}
+	}
+}
+
 #[derive(Debug, Clone, Copy, Default)]
 pub enum Signed<T>
 where
