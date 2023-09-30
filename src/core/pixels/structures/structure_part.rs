@@ -12,6 +12,20 @@ pub enum StructurePart {
 	},
 }
 
+impl StructurePart {
+	pub fn compute_shape(&self) -> Option<(Vec3, Quat, Collider)> {
+		match self {
+			StructurePart::Thruster { .. } => None,
+			StructurePart::Pixel { px, relative_location } => Some({
+				let pos = relative_location.clone().into_world_vector();
+				let rot = Quat::IDENTITY;
+				let shape = Collider::cuboid(PIXEL_SIZE / 2., PIXEL_SIZE / 2., PIXEL_SIZE / 2.);
+				(pos, rot, shape)
+			})
+		}
+	}
+}
+
 impl<L> From<(Thruster, L)> for StructurePart
 where
 	L: Into<RelativePixelPoint>,

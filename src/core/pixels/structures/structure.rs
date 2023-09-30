@@ -17,13 +17,24 @@ impl Structure {
 		self
 	}
 
+	fn compute_shape(&self) -> Vec<(Vec3, Quat, Collider)> {
+		self.parts
+			.iter()
+			.filter_map(|p| p.compute_shape())
+			.collect()
+	}
+
+	fn compute_collider(&self) -> Collider {
+		Collider::compound(self.compute_shape())
+	}
+
 	pub fn compute_bevy_bundles(
 		&self,
 		mma: &mut MMA,
 		effects: ResMut<Assets<EffectAsset>>,
-	) -> Vec<StructureBundle> {
+	) -> (Collider, Vec<StructureBundle>) {
 		let effects = effects.into_inner();
-		self
+		(self.compute_collider(), self
 			.parts
 			.clone()
 			.into_iter()
@@ -60,7 +71,7 @@ impl Structure {
 					},
 				},
 			})
-			.collect()
+			.collect())
 	}
 }
 

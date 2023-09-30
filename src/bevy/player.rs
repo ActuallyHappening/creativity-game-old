@@ -79,6 +79,9 @@ fn initial_spawn_player(
 	effects: ResMut<Assets<EffectAsset>>,
 ) {
 	info!("Spawning player");
+
+	let (collider, player_parts) = PLAYER_STRUCTURE.compute_bevy_bundles(&mut mma, effects);
+
 	commands
 		.spawn(
 			(
@@ -90,14 +93,15 @@ fn initial_spawn_player(
 			)
 				.named("Main Player")
 				.physics_dynamic()
-				.physics_collider_ball(10.)
+				.insert(collider)
+				// .physics_collider_ball(10.)
 				.physics_zero_force()
 				.physics_zero_velocity()
 				.physics_zero_damping()
 				.physics_never_sleep(),
 		)
 		.with_children(|parent| {
-			for part in PLAYER_STRUCTURE.compute_bevy_bundles(&mut mma, effects) {
+			for part in  player_parts {
 				part.spawn_to_parent(parent);
 			}
 		});
