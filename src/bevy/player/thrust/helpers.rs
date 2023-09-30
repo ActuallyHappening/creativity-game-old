@@ -30,6 +30,21 @@ impl Option<bool> {
 	}
 }
 
+#[extension(pub trait f32Ext)]
+impl f32 {
+	fn map_num(self, min: f32, max: f32, bound_min: f32, bound_max: f32) -> f32 {
+		(self - min) / (max - min) * (bound_max - bound_min) + bound_min
+	}
+
+	fn clamp_max(self, bound_upper: f32) -> f32 {
+		if self > bound_upper {
+			bound_upper
+		} else {
+			self
+		}
+	}
+}
+
 #[derive(Debug, Clone, Copy, Default)]
 pub enum Signed<T>
 where

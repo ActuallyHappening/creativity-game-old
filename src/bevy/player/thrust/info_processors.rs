@@ -1,3 +1,5 @@
+use std::ops::Mul;
+
 use super::*;
 
 /// Takes into account the maximum power of each thruster and the current velocity
@@ -20,10 +22,17 @@ pub fn get_relative_strengths(
 			// 0 when speeding up, 1 when slowing down
 			let factor_slowing_down = 1. - aimed_vec.factor_towards(current);
 
+			// 1 when at max velocity, 0 when at 0 velocity
 			let percentage_of_max_allowed_velocity = (current.length() / max).clamp(0., 1.);
 
-			if percentage_of_max_allowed_velocity > 0.5 {
-				factor_slowing_down * aimed.into_unit()
+			const CUTOFF: f32 = 0.6;
+			if percentage_of_max_allowed_velocity > CUTOFF {
+				// gradually slow down
+				// 0 when at max velocity, 1 when at cutoff velocity
+				let max_limit_factor = 1. - percentage_of_max_allowed_velocity.map_num(CUTOFF, 1., 0., 1.);
+				assert!((0. .. 1.).contains(&max_limit_factor));
+
+				(factor_slowing_down + max_limit_factor).clamp_max(1.) * aimed.into_unit()
 			} else {
 				aimed.into_unit()
 			}

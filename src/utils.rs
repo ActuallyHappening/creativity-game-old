@@ -31,7 +31,7 @@ pub use std::borrow::Cow;
 pub use std::f32::consts::{PI, TAU};
 pub use std::{
 	marker::PhantomData,
-	ops::{Add, Div},
+	ops::{Add, Div, Mul},
 };
 pub use strum::*;
 pub use bevy::utils::HashMap;
