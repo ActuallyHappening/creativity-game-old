@@ -42,6 +42,22 @@ impl Reflection for ThrusterFlags {
 	}
 }
 
+impl std::ops::Index<ThrustType> for ThrusterFlags {
+	type Output = Option<bool>;
+	
+	fn index(&self, index: ThrustType) -> &Self::Output {
+		match index {
+			ThrustType::Forward => &self.forward_back,
+			ThrustType::Up => &self.up_down,
+			ThrustType::Right => &self.right_left,
+
+			ThrustType::TiltUp => &self.tilt_up,
+			ThrustType::RollLeft => &self.roll_left,
+			ThrustType::TurnLeft => &self.turn_left,
+		}
+	}
+}
+
 #[test]
 fn thrust_flags() {
 	let expexted = ThrusterFlags {

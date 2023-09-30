@@ -65,7 +65,7 @@ impl<T: ThrustStage> Thrust<T> {
 		}
 	}
 	
-	pub fn for_each(&mut self, mut f: impl FnMut(&T::DimensionType, ThrustType)) {
+	pub fn for_each(& self, mut f: impl FnMut(&T::DimensionType, ThrustType)) {
 		for thrust_type in ThrustType::iter() {
 			f(self.get_from_type(thrust_type), thrust_type);
 		}

@@ -31,54 +31,26 @@ pub fn trigger_player_thruster_particles(
 	mut particles: Query<(&mut EffectSpawner, &Thruster)>,
 ) {
 	let MainPlayer {
-		relative_strength: thrust,
+		thrust_responses: thrust,
 		..
 	} = player.single();
 
 	impl ThrusterFlags {
 		/// If flags match, add relative strength, else add nothing
-		fn degree_of_match(&self, actual: &Thrust<RelativeStrength>) -> f32 {
+		fn degree_of_match(&self, actual: &Thrust<ThrustReactionsStage>) -> f32 {
 			let flags = self;
 			let mut counter = 0.;
 
-			let forward = Signed::from(actual.forward);
-			if flags
-				.forward_back
-				.is_some_and(|f| f == forward.is_positive())
-			{
-				counter += forward.into_unit().abs();
-			}
-
-			let up = Signed::from(actual.up);
-			if flags.up_down.is_some_and(|f| f == up.is_positive()) {
-				counter += up.into_unit().abs();
-			}
-
-			let right = Signed::from(actual.right);
-			if flags.right_left.is_some_and(|f| f == right.is_positive()) {
-				counter += right.into_unit().abs();
-			}
-
-			let turn_left = Signed::from(actual.turn_left);
-			if flags
-				.turn_left
-				.is_some_and(|f| f == turn_left.is_positive())
-			{
-				counter += turn_left.into_unit().abs();
-			}
-
-			let tilt_up = Signed::from(actual.tilt_up);
-			if flags.tilt_up.is_some_and(|f| f == tilt_up.is_positive()) {
-				counter += tilt_up.into_unit().abs();
-			}
-
-			let roll_left = Signed::from(actual.roll_left);
-			if flags
-				.roll_left
-				.is_some_and(|f| f == roll_left.is_positive())
-			{
-				counter += roll_left.into_unit().abs();
-			}
+			actual.for_each(|reaction, thrust_type| {
+				match reaction {
+					ThrustReactions::Normal { input: Some(actual) } | ThrustReactions::Braking { braking_direction: Some(actual) } => {
+						if flags[thrust_type].is_some_and(|f| f == *actual) {
+							counter += 1.;
+						}
+					}
+					_ => {}
+				}
+			});
 
 			counter
 		}
