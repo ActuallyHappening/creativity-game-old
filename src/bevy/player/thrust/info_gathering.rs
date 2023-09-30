@@ -132,7 +132,7 @@ pub fn get_current_relative_strengths(player: Query<&MainPlayer>) -> Thrust<Rela
 	player.single().relative_strength.clone()
 }
 
-pub fn get_current_thrust_reactions(
+pub fn get_current_af_flags(
 	player: Query<&MainPlayer>,
 ) -> Thrust<ArtificialFrictionFlags> {
 	player.single().artificial_friction_flags.clone()

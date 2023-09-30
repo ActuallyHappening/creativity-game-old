@@ -73,22 +73,25 @@ where
 /// and saves the necessary information to various places including in the [MainPlayer] component
 #[allow(clippy::type_complexity)]
 pub fn save_thrust_stages(
-	In((relative_strength, normal_vectors, max, braking_info, artificial_friction)): In<(
+	In((relative_strength, normal_vectors, max, thrust_responses,)): In<(
 		Thrust<RelativeStrength>,
 		Thrust<BasePositionNormalVectors>,
 		Thrust<ForceFactors>,
 		Thrust<ThrustReactionsStage>,
-		Thrust<ArtificialFrictionFlags>,
 	)>,
 	mut player_data: Query<&mut MainPlayer, With<MainPlayer>>,
 ) -> Thrust<FinalVectors> {
 	let final_vectors = normal_vectors * relative_strength.clone() * max;
 
-	*player_data.single_mut() = MainPlayer {
+	let mut player = player_data.single_mut();
+
+	let player_data = MainPlayer {
 		relative_strength,
-		thrust_responses: braking_info,
-		artificial_friction_flags: artificial_friction,
+		thrust_responses,
+		// although this clone is an anti-pattern, it will fail to compile if any new fields are added
+		artificial_friction_flags: player.artificial_friction_flags.clone(),
 	};
+	*player = player_data;
 
 	final_vectors
 }
@@ -121,7 +124,6 @@ pub fn manually_threading_player_movement(
 			base_normal,
 			force_factors,
 			input_flags,
-			artificial_friction_flags,
 		)),
 		player_data,
 	);

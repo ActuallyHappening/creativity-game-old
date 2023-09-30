@@ -113,7 +113,7 @@ impl Thrust<ThrustReactionsStage> {
 		for thrust_type in ThrustType::iter() {
 			generic_flags.set_from_type(
 				thrust_type,
-				self.get_from_type(thrust_type).into_generic_flag(),
+				self.get_from_type(thrust_type).clone().into_generic_flag(),
 			);
 		}
 

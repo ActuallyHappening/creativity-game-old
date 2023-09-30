@@ -1,5 +1,5 @@
 use super::*;
-use crate::bevy::player::{BrakingInfo, RelativeStrength, RelativeVelocityMagnitudes, Thrust};
+use crate::bevy::player::{RelativeStrength, RelativeVelocityMagnitudes, Thrust, ThrustReactionsStage, ThrustReactions, MainPlayer};
 
 const FULL_CIRCLE_RADIUS: f32 = 25.;
 const SMALLER_CIRCLE_RADIUS: f32 = FULL_CIRCLE_RADIUS - 2.;
@@ -141,17 +141,20 @@ fn init_ah_circle(parent: &mut ChildBuilder, thrust_type: ThrustType, index: usi
 }
 
 pub fn update_bottom_left_camera(
-	In((velocity, relative_strength, BrakingInfo(is_braking, flags))): In<(
+	In((velocity, relative_strength,)): In<(
 		Thrust<RelativeVelocityMagnitudes>,
 		Thrust<RelativeStrength>,
-		BrakingInfo,
 	)>,
 	mut needle_velocity: Query<(&NeedleVelocity, &mut Transform), Without<NeedleStrength>>,
 	mut needle_force: Query<(&NeedleStrength, &mut Transform), Without<NeedleVelocity>>,
 	mut input_flags: Query<(&InputFlag, &mut Handle<ColorMaterial>)>,
 
+	player: Query<&MainPlayer>,
+
 	mut mma: MM2,
 ) {
+	let thrust_responses = &player.single().thrust_responses;
+	
 	fn update(transform: &mut Transform, data: f32) {
 		let angle = data * PI;
 		transform.rotation = Quat::from_rotation_z(angle);
@@ -178,30 +181,21 @@ pub fn update_bottom_left_camera(
 			is_right,
 			thrust_type,
 		},
-		material,
+		mut material,
 	) in input_flags.iter_mut()
 	{
-		let flag = flags.get_from_type(*thrust_type);
-		match flag.as_ref() {
-			None => {
-				*material.into_inner() = mma.mats.add(DISABLED_INPUT_COL.into());
+		*material = mma.mats.add(
+			{
+				let response = thrust_responses.get_from_type(*thrust_type);
+				response.into_colour(*is_right)
 			}
-			Some(flag_right) => {
-				if *is_right == *flag_right {
-					let handle = mma.mats.add(
-						if is_braking {
-							BRAKING_ENABLED_COL
-						} else {
-							USER_ENABLED_COL
-						}
-						.into(),
-					);
+			.into(),
+		);
+	}
+}
 
-					*material.into_inner() = handle;
-				} else {
-					*material.into_inner() = mma.mats.add(DISABLED_INPUT_COL.into());
-				}
-			}
-		}
+impl ThrustReactions {
+	fn into_colour(&self, is_right: bool) -> Color {
+		todo!()
 	}
 }

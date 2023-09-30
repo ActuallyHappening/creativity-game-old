@@ -9,8 +9,8 @@ use lazy_static::lazy_static;
 use thrust::*;
 pub use thrust::{
 	calculate_relative_velocity_magnitudes, get_base_normal_vectors,
-	get_current_relative_strengths, types, GenericInputFlags, RelativeStrength,
-	RelativeVelocityMagnitudes, Thrust,
+	get_current_relative_strengths, types, RelativeStrength,
+	RelativeVelocityMagnitudes, Thrust, ThrustReactionsStage, ThrustReactions
 };
 
 pub struct PlayerPlugin;
@@ -39,7 +39,7 @@ impl Plugin for PlayerPlugin {
 							get_base_normal_vectors,
 							calculate_relative_velocity_magnitudes,
 						),
-						get_current_thrust_reactions,
+						get_current_af_flags,
 					)
 					.pipe(manually_threading_player_movement)
 					.in_set(PlayerMove),

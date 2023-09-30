@@ -21,13 +21,12 @@ impl Plugin for UiPlugin {
 				Update,
 				(
 					update_camera::<BottomLeft>.in_set(BottomLeft),
-					join3(
+					join2(
 						sequence(
 							get_base_normal_vectors,
 							calculate_relative_velocity_magnitudes,
 						),
 						get_current_relative_strengths,
-						get_current_braking_info,
 					)
 					.pipe(update_bottom_left_camera)
 					.after(PlayerMove),
