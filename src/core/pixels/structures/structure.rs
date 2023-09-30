@@ -5,15 +5,6 @@ pub struct Structure {
 	parts: Vec<StructurePart>,
 }
 
-pub enum StructureBundle {
-	Pixel(PbrBundle),
-	Thruster {
-		visual: PbrBundle,
-		data: Thruster,
-		particles: ParticleEffectBundle,
-	},
-}
-
 impl Structure {
 	pub fn new(parts: impl IntoIterator<Item = impl Into<StructurePart>>) -> Self {
 		Self {
@@ -26,7 +17,7 @@ impl Structure {
 		self
 	}
 
-	pub fn spawn_bevy_bundles(
+	pub fn compute_bevy_bundles(
 		&self,
 		mma: &mut MMA,
 		effects: ResMut<Assets<EffectAsset>>,
@@ -60,12 +51,14 @@ impl Structure {
 				StructurePart::Pixel {
 					px,
 					relative_location,
-				} => StructureBundle::Pixel(PbrBundle {
-					material: mma.mats.add(px.clone().into()),
-					transform: Transform::from_translation(relative_location.into_world_vector()),
-					mesh: mma.meshs.add(shape::Cube::new(PIXEL_SIZE).into()),
-					..default()
-				}),
+				} => StructureBundle::Pixel {
+					visual: PbrBundle {
+						material: mma.mats.add(px.clone().into()),
+						transform: Transform::from_translation(relative_location.into_world_vector()),
+						mesh: mma.meshs.add(shape::Cube::new(PIXEL_SIZE).into()),
+						..default()
+					},
+				},
 			})
 			.collect()
 	}
@@ -142,24 +135,5 @@ impl Reflection for Structure {
 			})
 			.collect();
 		self
-	}
-}
-
-impl StructureBundle {
-	pub fn spawn_to_parent(self, parent: &mut ChildBuilder) {
-		match self {
-			StructureBundle::Pixel(bundle) => {
-				parent.spawn(bundle);
-			}
-			StructureBundle::Thruster {
-				visual,
-				particles,
-				data,
-			} => {
-				parent.spawn(visual).with_children(|parent| {
-					parent.spawn(particles.insert(data));
-				});
-			}
-		};
 	}
 }

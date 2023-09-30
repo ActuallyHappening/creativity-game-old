@@ -97,7 +97,7 @@ fn initial_spawn_player(
 				.physics_never_sleep(),
 		)
 		.with_children(|parent| {
-			for part in PLAYER_STRUCTURE.spawn_bevy_bundles(&mut mma, effects) {
+			for part in PLAYER_STRUCTURE.compute_bevy_bundles(&mut mma, effects) {
 				part.spawn_to_parent(parent);
 			}
 		});

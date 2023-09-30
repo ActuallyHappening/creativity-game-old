@@ -4,6 +4,9 @@ use crate::utils::*;
 mod structure;
 pub use structure::Structure;
 
+mod structure_bundle;
+pub use structure_bundle::StructureBundle;
+
 mod structure_part;
 use structure_part::StructurePart;
 
