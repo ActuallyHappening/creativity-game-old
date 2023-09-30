@@ -6,19 +6,25 @@ use meshtext::{MeshGenerator, MeshText, TextSection};
 /// Encapsulates 2D text with an offset-ed transform
 #[derive(Bundle, Clone, Default)]
 pub struct Text2dBundle {
-    pub mesh: Mesh2dHandle,
-    pub material: Handle<ColorMaterial>,
-		/// Is given an offset to center the text by default
-    transform: Transform,
-    pub global_transform: GlobalTransform,
-    /// User indication of whether an entity is visible
-    pub visibility: Visibility,
-    /// Algorithmically-computed indication of whether an entity is visible and should be extracted for rendering
-    pub computed_visibility: ComputedVisibility,
+	pub mesh: Mesh2dHandle,
+	pub material: Handle<ColorMaterial>,
+	/// Is given an offset to center the text by default
+	transform: Transform,
+	pub global_transform: GlobalTransform,
+	/// User indication of whether an entity is visible
+	pub visibility: Visibility,
+	/// Algorithmically-computed indication of whether an entity is visible and should be extracted for rendering
+	pub computed_visibility: ComputedVisibility,
 }
 
 impl Text2dBundle {
-	pub fn new(text: impl Into<Cow<'static, str>>, font: Font, font_size: f32, colour: Color, mma: &mut MM2) -> Text2dBundle {
+	pub fn new(
+		text: impl Into<Cow<'static, str>>,
+		font: Font,
+		font_size: f32,
+		colour: Color,
+		mma: &mut MM2,
+	) -> Text2dBundle {
 		let (mesh, offset) = get_text_mesh(text, font_size, font);
 
 		Text2dBundle {
@@ -73,11 +79,7 @@ impl meshtext::BoundingBox {
 
 /// Returns mesh + offset (to ensure coordinates start in center of text).
 /// Without taking offset into account, text will be rendered with *top right* corner at center of entity.
-fn get_text_mesh(
-	text: impl Into<Cow<'static, str>>,
-	pixel_size: f32,
-	font: Font,
-) -> (Mesh, Vec3) {
+fn get_text_mesh(text: impl Into<Cow<'static, str>>, pixel_size: f32, font: Font) -> (Mesh, Vec3) {
 	let (mesh, bbox) = get_text_mesh_with_bbox(text, pixel_size, font);
 	(mesh, bbox.get_required_text_offset())
 }

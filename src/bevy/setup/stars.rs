@@ -117,7 +117,7 @@ pub fn blink_stars(
 impl Star {
 	pub fn new() -> Star {
 		let mut rng = rand::thread_rng();
-		
+
 		Star {
 			blink_speed: rng.gen_range(0.01..0.5),
 			blink_strength: rng.gen_range(0.1..1.),

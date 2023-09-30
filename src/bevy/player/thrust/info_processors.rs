@@ -1,5 +1,3 @@
-use std::ops::Mul;
-
 use super::*;
 
 /// Takes into account the maximum power of each thruster and the current velocity
@@ -10,7 +8,10 @@ pub fn get_relative_strengths(
 	)>,
 	player_velocity: Query<&Velocity, With<MainPlayer>>,
 ) -> Thrust<RelativeStrength> {
-	let Velocity { linvel, angvel } = player_velocity.single();
+	let Velocity {
+		ref linvel,
+		ref angvel,
+	} = player_velocity.single();
 
 	fn factor_allowed_forwards(aimed: Signed<Vec3>, max: f32, current: &Vec3) -> f32 {
 		if aimed.is_zero() {
@@ -30,7 +31,7 @@ pub fn get_relative_strengths(
 				// gradually slow down
 				// 0 when at max velocity, 1 when at cutoff velocity
 				let max_limit_factor = 1. - percentage_of_max_allowed_velocity.map_num(CUTOFF, 1., 0., 1.);
-				assert!((0. .. 1.).contains(&max_limit_factor));
+				assert!((0. ..1.).contains(&max_limit_factor));
 
 				(factor_slowing_down + max_limit_factor).clamp_max(1.) * aimed.into_unit()
 			} else {

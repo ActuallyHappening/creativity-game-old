@@ -18,19 +18,43 @@ thrust_stage!(
 	///
 	/// FLAGGED
 	///
-	/// What keys were pressed, without braking required.
+	/// Information about each dimension of movement, used for enacting
+	/// player movement after processing of what should actually been done.
 	#[derive(Default)]
-	pub struct NonBrakingInputFlags; type = Option<bool>
+	pub struct GenericInputFlags; type = Option<bool>
 );
 
 thrust_stage!(
-	/// type = [Option] < bool >
+	/// type = [bool]
 	///
-	/// FLAGGED - requires more information to flag
+	/// FLAGGED - chosen by player
 	///
-	/// What "keys should be pressed" to brake the player
+	/// What types of movements should be "friction-ed"
+	pub struct ArtificialFrictionFlags; type = bool
+);
+
+impl Default for Thrust<ArtificialFrictionFlags> {
+	fn default() -> Self {
+		Thrust::<ArtificialFrictionFlags> {
+			forward: true,
+			up: true,
+			right: true,
+
+			turn_left: true,
+			tilt_up: true,
+			roll_left: true,
+
+			_stage: PhantomData,
+		}
+	}
+}
+
+thrust_stage!(
+	/// type = [ThrustReactions]
+	/// 
+	/// Intermediate stage for processing in `thrust_reactions`.rs
 	#[derive(Default)]
-	pub struct BreakingReactionFlags; type = Option<bool>
+	pub struct ThrustReactionsStage; type = ThrustReactions
 );
 
 thrust_stage!(
@@ -103,7 +127,7 @@ thrust_stage!(
 	pub struct AlmostFinalVectors; type = Vec3
 );
 
-impl std::ops::Mul<Thrust<BasePositionNormalVectors>> for Thrust<NonBrakingInputFlags> {
+impl std::ops::Mul<Thrust<BasePositionNormalVectors>> for Thrust<GenericInputFlags> {
 	type Output = Thrust<FlaggedPositionNormalVectors>;
 
 	fn mul(self, base: Thrust<BasePositionNormalVectors>) -> Self::Output {

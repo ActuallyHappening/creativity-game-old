@@ -13,6 +13,7 @@ pub use crate::core::Direction;
 pub use crate::core::*;
 pub use bevy::prelude::*;
 pub use bevy::sprite::MaterialMesh2dBundle;
+pub use bevy::utils::HashMap;
 pub use bevy::{
 	core_pipeline::clear_color::ClearColorConfig, render::camera::Viewport, window::WindowResized,
 };
@@ -34,7 +35,6 @@ pub use std::{
 	ops::{Add, Div, Mul},
 };
 pub use strum::*;
-pub use bevy::utils::HashMap;
 
 #[cfg(feature = "hanabi_particles")]
 mod particles;

@@ -6,6 +6,8 @@
 	],
 	"settings": {
 		"cSpell.words": [
+			"angvel",
+			"linvel",
 			"pickable",
 			"Pickable",
 			"Raycast"

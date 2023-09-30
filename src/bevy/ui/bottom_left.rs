@@ -49,8 +49,10 @@ fn init_ah_circle(parent: &mut ChildBuilder, thrust_type: ThrustType, index: usi
 	// Circle
 	const MARGIN: f32 = 3.;
 	let circle_center = Vec3::new(
-		FULL_CIRCLE_RADIUS + (FULL_CIRCLE_RADIUS * 2. + MARGIN) * thrust_type.get_trust_offset().0 as f32,
-		FULL_CIRCLE_RADIUS + (FULL_CIRCLE_RADIUS * 2. + MARGIN) * thrust_type.get_trust_offset().1 as f32,
+		FULL_CIRCLE_RADIUS
+			+ (FULL_CIRCLE_RADIUS * 2. + MARGIN) * thrust_type.get_trust_offset().0 as f32,
+		FULL_CIRCLE_RADIUS
+			+ (FULL_CIRCLE_RADIUS * 2. + MARGIN) * thrust_type.get_trust_offset().1 as f32,
 		0.,
 	);
 	// larger circle

@@ -18,7 +18,8 @@ impl Structure {
 	}
 
 	fn compute_shape(&self) -> Vec<(Vec3, Quat, Collider)> {
-		self.parts
+		self
+			.parts
 			.iter()
 			.filter_map(|p| p.compute_shape())
 			.collect()
@@ -34,44 +35,47 @@ impl Structure {
 		effects: ResMut<Assets<EffectAsset>>,
 	) -> (Collider, Vec<StructureBundle>) {
 		let effects = effects.into_inner();
-		(self.compute_collider(), self
-			.parts
-			.clone()
-			.into_iter()
-			.map(move |p| match p {
-				StructurePart::Thruster {
-					thrust,
-					relative_location,
-				} => StructureBundle::Thruster {
-					visual: PbrBundle {
-						material: mma.mats.add(Color::ORANGE_RED.into()),
-						transform: Transform::from_translation(
-							relative_location.into_world_vector()
-								- (PIXEL_SIZE / 3.) * thrust.facing.into_direction_vector(),
-						),
-						mesh: mma.meshs.add(shape::Cube::new(PIXEL_SIZE / 2.).into()),
-						..default()
+		(
+			self.compute_collider(),
+			self
+				.parts
+				.clone()
+				.into_iter()
+				.map(move |p| match p {
+					StructurePart::Thruster {
+						thrust,
+						relative_location,
+					} => StructureBundle::Thruster {
+						visual: PbrBundle {
+							material: mma.mats.add(Color::ORANGE_RED.into()),
+							transform: Transform::from_translation(
+								relative_location.into_world_vector()
+									- (PIXEL_SIZE / 3.) * thrust.facing.into_direction_vector(),
+							),
+							mesh: mma.meshs.add(shape::Cube::new(PIXEL_SIZE / 2.).into()),
+							..default()
+						},
+						particles: {
+							let mut particles = gen_particles(effects);
+							particles.transform = Transform::from_rotation(thrust.facing.into_rotation());
+							particles
+						},
+						data: thrust,
 					},
-					particles: {
-						let mut particles = gen_particles(effects);
-						particles.transform = Transform::from_rotation(thrust.facing.into_rotation());
-						particles
+					StructurePart::Pixel {
+						px,
+						relative_location,
+					} => StructureBundle::Pixel {
+						visual: PbrBundle {
+							material: mma.mats.add(px.clone().into()),
+							transform: Transform::from_translation(relative_location.into_world_vector()),
+							mesh: mma.meshs.add(shape::Cube::new(PIXEL_SIZE).into()),
+							..default()
+						},
 					},
-					data: thrust,
-				},
-				StructurePart::Pixel {
-					px,
-					relative_location,
-				} => StructureBundle::Pixel {
-					visual: PbrBundle {
-						material: mma.mats.add(px.clone().into()),
-						transform: Transform::from_translation(relative_location.into_world_vector()),
-						mesh: mma.meshs.add(shape::Cube::new(PIXEL_SIZE).into()),
-						..default()
-					},
-				},
-			})
-			.collect())
+				})
+				.collect(),
+		)
 	}
 }
 

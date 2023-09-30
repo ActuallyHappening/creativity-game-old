@@ -41,6 +41,18 @@ impl<T: ThrustStage> Thrust<T> {
 		}
 	}
 
+	pub fn get_mut_from_type(&mut self, thrust_type: ThrustType) -> &mut T::DimensionType {
+		match thrust_type {
+			ThrustType::Forward => &mut self.forward,
+			ThrustType::Right => &mut self.right,
+			ThrustType::Up => &mut self.up,
+
+			ThrustType::TurnLeft => &mut self.turn_left,
+			ThrustType::TiltUp => &mut self.tilt_up,
+			ThrustType::RollLeft => &mut self.roll_left,
+		}
+	}
+
 	pub fn set_from_type(&mut self, thrust_type: ThrustType, value: T::DimensionType) {
 		match thrust_type {
 			ThrustType::Forward => self.forward = value,
@@ -50,6 +62,12 @@ impl<T: ThrustStage> Thrust<T> {
 			ThrustType::TurnLeft => self.turn_left = value,
 			ThrustType::TiltUp => self.tilt_up = value,
 			ThrustType::RollLeft => self.roll_left = value,
+		}
+	}
+	
+	pub fn for_each(&mut self, mut f: impl FnMut(&T::DimensionType, ThrustType)) {
+		for thrust_type in ThrustType::iter() {
+			f(self.get_from_type(thrust_type), thrust_type);
 		}
 	}
 }

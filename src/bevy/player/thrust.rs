@@ -20,8 +20,8 @@ mod info_processors;
 pub use info_processors::*;
 mod info_enactors;
 pub use info_enactors::*;
-mod braking;
-pub use braking::*;
+mod thrust_reactions;
+pub use thrust_reactions::*;
 
 pub mod types;
 
@@ -73,11 +73,12 @@ where
 /// and saves the necessary information to various places including in the [MainPlayer] component
 #[allow(clippy::type_complexity)]
 pub fn save_thrust_stages(
-	In((relative_strength, normal_vectors, max, braking_info)): In<(
+	In((relative_strength, normal_vectors, max, braking_info, artificial_friction)): In<(
 		Thrust<RelativeStrength>,
 		Thrust<BasePositionNormalVectors>,
 		Thrust<ForceFactors>,
-		BrakingInfo,
+		Thrust<ThrustReactionsStage>,
+		Thrust<ArtificialFrictionFlags>,
 	)>,
 	mut player_data: Query<&mut MainPlayer, With<MainPlayer>>,
 ) -> Thrust<FinalVectors> {
@@ -85,14 +86,18 @@ pub fn save_thrust_stages(
 
 	*player_data.single_mut() = MainPlayer {
 		relative_strength,
-		inputs: braking_info,
+		thrust_responses: braking_info,
+		artificial_friction_flags: artificial_friction,
 	};
 
 	final_vectors
 }
 
 pub fn manually_threading_player_movement(
-	In(current_velocity): In<Thrust<RelativeVelocityMagnitudes>>,
+	In((current_velocity, artificial_friction_flags)): In<(
+		Thrust<RelativeVelocityMagnitudes>,
+		Thrust<ArtificialFrictionFlags>,
+	)>,
 	keyboard_input: Res<Input<KeyCode>>,
 	player_transform: Query<&Transform, With<MainPlayer>>,
 	player_velocity: Query<&Velocity, With<MainPlayer>>,
@@ -102,50 +107,10 @@ pub fn manually_threading_player_movement(
 ) {
 	let base_normal = get_base_normal_vectors(player_transform);
 
-	let BrakingInfo(is_braking, input_flags) = match gather_input_flags(keyboard_input) {
-		None => {
-			// breaking, must do opposite of current velocity to counteract / brake
-			const CUTOFF: f32 = 0.02;
-			let mut flagged_inputs = Thrust::<NonBrakingInputFlags>::default();
+	let raw_inputs = gather_input_flags(keyboard_input);
+	let (input_flags, force_factors) = process_inputs(raw_inputs, artificial_friction_flags, current_velocity);
 
-			for thrust_type in ThrustType::iter() {
-				let current = current_velocity.get_from_type(thrust_type);
-				if current > &CUTOFF {
-					flagged_inputs.set_from_type(thrust_type, Some(false));
-				} else if current < &-CUTOFF {
-					flagged_inputs.set_from_type(thrust_type, Some(true));
-				} else {
-					// cheating-ly stop velocity because it is small enough
-					flagged_inputs.set_from_type(thrust_type, None);
-				}
-			}
-
-			if current_velocity.forward > CUTOFF {
-				flagged_inputs.forward = Some(false)
-			} else if current_velocity.forward < -CUTOFF {
-				flagged_inputs.forward = Some(true)
-			} else {
-				// cheating-ly stop velocity because it is small enough
-				flagged_inputs.forward = None;
-			}
-
-			BrakingInfo(true, flagged_inputs)
-		}
-		Some(input_flags) => {
-			// not breaking, can use what player provides
-			BrakingInfo(false, input_flags)
-		}
-	};
-
-	const BRAKING_FORCE_PENALTY: f32 = 0.15;
-	let force_factors = force_factors()
-		* if is_braking {
-			BRAKING_FORCE_PENALTY
-		} else {
-			1.0
-		};
-
-	let flagged_inputs = input_flags.clone() * base_normal.clone();
+	let flagged_inputs = input_flags.clone().into_generic_flags() * base_normal.clone();
 	let relative_strengths = get_relative_strengths(
 		In((flagged_inputs, max_velocity_magnitudes())),
 		player_velocity,
@@ -155,7 +120,8 @@ pub fn manually_threading_player_movement(
 			relative_strengths,
 			base_normal,
 			force_factors,
-			BrakingInfo(is_braking, input_flags),
+			input_flags,
+			artificial_friction_flags,
 		)),
 		player_data,
 	);

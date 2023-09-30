@@ -8,8 +8,8 @@ mod thrust;
 use lazy_static::lazy_static;
 use thrust::*;
 pub use thrust::{
-	calculate_relative_velocity_magnitudes, get_base_normal_vectors, get_current_braking_info,
-	get_current_relative_strengths, types, BrakingInfo, NonBrakingInputFlags, RelativeStrength,
+	calculate_relative_velocity_magnitudes, get_base_normal_vectors,
+	get_current_relative_strengths, types, GenericInputFlags, RelativeStrength,
 	RelativeVelocityMagnitudes, Thrust,
 };
 
@@ -34,9 +34,12 @@ impl Plugin for PlayerPlugin {
 				(
 					handle_camera_movement,
 					handle_player_mined_px,
-					sequence(
-						get_base_normal_vectors,
-						calculate_relative_velocity_magnitudes,
+					join2(
+						sequence(
+							get_base_normal_vectors,
+							calculate_relative_velocity_magnitudes,
+						),
+						get_current_thrust_reactions,
 					)
 					.pipe(manually_threading_player_movement)
 					.in_set(PlayerMove),
@@ -46,10 +49,15 @@ impl Plugin for PlayerPlugin {
 	}
 }
 
+/// Denotes the main, controllable player
 #[derive(Component, Default)]
 pub struct MainPlayer {
+	/// Current relative strength, used for UI
 	pub relative_strength: Thrust<RelativeStrength>,
-	pub inputs: BrakingInfo,
+	/// Current inputs including braking info, used for UI
+	pub thrust_responses: Thrust<ThrustReactionsStage>,
+	/// Optional artificial friction flags, starts all enabled
+	pub artificial_friction_flags: Thrust<ArtificialFrictionFlags>,
 }
 
 lazy_static! {
@@ -101,7 +109,7 @@ fn initial_spawn_player(
 				.physics_never_sleep(),
 		)
 		.with_children(|parent| {
-			for part in  player_parts {
+			for part in player_parts {
 				part.spawn_to_parent(parent);
 			}
 		});

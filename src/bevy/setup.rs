@@ -25,7 +25,8 @@ impl Plugin for SetupPlugin {
 					.build()
 					.disable::<DefaultHighlightingPlugin>()
 					.disable::<DebugPickingPlugin>(),
-			).add_systems(Update, blink_stars);
+			)
+			.add_systems(Update, blink_stars);
 
 		// app.add_systems(Update, test_activate_particles);
 

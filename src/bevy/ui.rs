@@ -45,7 +45,7 @@ mod bottom_left;
 use bottom_left::*;
 
 use super::player::{
-	calculate_relative_velocity_magnitudes, get_base_normal_vectors, get_current_braking_info,
+	calculate_relative_velocity_magnitudes, get_base_normal_vectors,
 	get_current_relative_strengths, PlayerMove,
 };
 

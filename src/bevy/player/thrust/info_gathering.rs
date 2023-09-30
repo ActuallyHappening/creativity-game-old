@@ -1,14 +1,14 @@
 use super::*;
 
 /// [Option::None] when braking
-pub fn gather_input_flags(
+pub(super) fn gather_input_flags(
 	keyboard_input: Res<Input<KeyCode>>,
-) -> Option<Thrust<NonBrakingInputFlags>> {
+) -> Option<Thrust<GenericInputFlags>> {
 	if keyboard_input.pressed(KeyCode::ShiftLeft) {
 		None
 	} else {
 		Some(match keyboard_input.pressed(KeyCode::Space) {
-			false => Thrust::<NonBrakingInputFlags> {
+			false => Thrust::<GenericInputFlags> {
 				forward: match (
 					keyboard_input.pressed(KeyCode::W),
 					keyboard_input.pressed(KeyCode::S),
@@ -69,10 +69,7 @@ pub fn gather_input_flags(
 pub fn get_base_normal_vectors(
 	player_transform: Query<&Transform, With<MainPlayer>>,
 ) -> Thrust<BasePositionNormalVectors> {
-	let player = match player_transform.get_single() {
-		Ok(player) => player,
-		Err(e) => panic!("No player found: {:?}", e),
-	};
+	let player = player_transform.single();
 
 	let forward = player.forward();
 	let up = player.up();
@@ -90,7 +87,7 @@ pub fn get_base_normal_vectors(
 	}
 }
 
-pub fn max_velocity_magnitudes() -> Thrust<MaxAllowableVelocityMagnitudes> {
+pub(super) fn max_velocity_magnitudes() -> Thrust<MaxAllowableVelocityMagnitudes> {
 	impl MainPlayer {
 		const MAX_LINEAR_VELOCITY: f32 = 10.;
 		const MAX_ANGULAR_VELOCITY: f32 = 0.2;
@@ -108,7 +105,7 @@ pub fn max_velocity_magnitudes() -> Thrust<MaxAllowableVelocityMagnitudes> {
 	}
 }
 
-pub const fn force_factors() -> Thrust<ForceFactors> {
+pub(super) const fn force_factors() -> Thrust<ForceFactors> {
 	impl MainPlayer {
 		const MOVE_FACTOR: f32 = 5_000_000.;
 		const TURN_FACTOR: f32 = 5_000_000.;
@@ -135,6 +132,8 @@ pub fn get_current_relative_strengths(player: Query<&MainPlayer>) -> Thrust<Rela
 	player.single().relative_strength.clone()
 }
 
-pub fn get_current_braking_info(player: Query<&MainPlayer>) -> BrakingInfo {
-	player.single().inputs.clone()
+pub fn get_current_thrust_reactions(
+	player: Query<&MainPlayer>,
+) -> Thrust<ArtificialFrictionFlags> {
+	player.single().artificial_friction_flags.clone()
 }
