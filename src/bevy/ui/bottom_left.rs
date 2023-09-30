@@ -1,5 +1,8 @@
 use super::*;
-use crate::bevy::player::{RelativeStrength, RelativeVelocityMagnitudes, Thrust, ThrustReactionsStage, ThrustReactions, MainPlayer};
+use crate::bevy::player::{
+	MainPlayer, RelativeStrength, RelativeVelocityMagnitudes, Thrust, ThrustReactions,
+	ThrustReactionsStage,
+};
 
 const FULL_CIRCLE_RADIUS: f32 = 25.;
 const SMALLER_CIRCLE_RADIUS: f32 = FULL_CIRCLE_RADIUS - 2.;
@@ -8,6 +11,7 @@ const TINY_CIRCLE_RADIUS: f32 = 5.;
 const DISABLED_INPUT_COL: Color = Color::GRAY;
 const USER_ENABLED_COL: Color = Color::GREEN;
 const BRAKING_ENABLED_COL: Color = Color::RED;
+const ARTIFICIAL_FRICTION_ENABLED_COL: Color = Color::YELLOW;
 
 #[derive(Component, Debug)]
 pub struct NeedleVelocity(ThrustType);
@@ -141,7 +145,7 @@ fn init_ah_circle(parent: &mut ChildBuilder, thrust_type: ThrustType, index: usi
 }
 
 pub fn update_bottom_left_camera(
-	In((velocity, relative_strength,)): In<(
+	In((velocity, relative_strength)): In<(
 		Thrust<RelativeVelocityMagnitudes>,
 		Thrust<RelativeStrength>,
 	)>,
@@ -154,7 +158,7 @@ pub fn update_bottom_left_camera(
 	mut mma: MM2,
 ) {
 	let thrust_responses = &player.single().thrust_responses;
-	
+
 	fn update(transform: &mut Transform, data: f32) {
 		let angle = data * PI;
 		transform.rotation = Quat::from_rotation_z(angle);
@@ -186,8 +190,9 @@ pub fn update_bottom_left_camera(
 	{
 		*material = mma.mats.add(
 			{
-				let response = thrust_responses.get_from_type(*thrust_type);
-				response.into_colour(*is_right)
+				thrust_responses
+					.get_from_type(*thrust_type)
+					.into_colour(*is_right)
 			}
 			.into(),
 		);
@@ -196,6 +201,19 @@ pub fn update_bottom_left_camera(
 
 impl ThrustReactions {
 	fn into_colour(&self, is_right: bool) -> Color {
-		todo!()
+		match self {
+			ThrustReactions::Normal { input } => match (input, is_right) {
+				(Some(true), true) | (Some(false), false) => USER_ENABLED_COL,
+				(None, _) | (Some(false), true) | (Some(true), false) => DISABLED_INPUT_COL,
+			},
+			ThrustReactions::ArtificialFriction { friction_direction } => match (friction_direction, is_right) {
+				(Some(true), true) | (Some(false), false) => ARTIFICIAL_FRICTION_ENABLED_COL,
+				(None, _) | (Some(false), true) | (Some(true), false) => DISABLED_INPUT_COL,
+			},
+			ThrustReactions::Braking { braking_direction  } => match (braking_direction, is_right) {
+				(Some(true), true) | (Some(false), false) => BRAKING_ENABLED_COL,
+				(None, _) | (Some(false), true) | (Some(true), false) => DISABLED_INPUT_COL,
+			},
+		}
 	}
 }

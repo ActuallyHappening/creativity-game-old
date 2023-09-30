@@ -47,7 +47,7 @@ fn braking(
 	current_velocity: Thrust<RelativeVelocityMagnitudes>,
 ) -> (Thrust<ThrustReactionsStage>, Thrust<ForceFactors>) {
 	// breaking, must do opposite of current velocity to counteract / brake
-	const BRAKING_FORCE_PENALTY: f32 = 0.15;
+	const BRAKING_FORCE_PENALTY: f32 = 0.25;
 
 	let mut flagged_inputs = Thrust::<ThrustReactionsStage>::default();
 
