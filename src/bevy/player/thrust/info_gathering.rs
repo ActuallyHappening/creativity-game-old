@@ -90,19 +90,19 @@ pub fn get_base_normal_vectors(
 	}
 }
 
-pub const fn max_velocity_magnitudes() -> Thrust<MaxAllowableVelocityMagnitudes> {
+pub fn max_velocity_magnitudes() -> Thrust<MaxAllowableVelocityMagnitudes> {
 	impl MainPlayer {
 		const MAX_LINEAR_VELOCITY: f32 = 10.;
 		const MAX_ANGULAR_VELOCITY: f32 = 0.2;
 	}
 
 	Thrust::<MaxAllowableVelocityMagnitudes> {
-		forward: MainPlayer::MAX_LINEAR_VELOCITY,
+		forward: 20.,
 		up: MainPlayer::MAX_LINEAR_VELOCITY,
 		right: MainPlayer::MAX_LINEAR_VELOCITY,
 
+		tilt_up: MainPlayer::MAX_ANGULAR_VELOCITY * 2.,
 		turn_left: MainPlayer::MAX_ANGULAR_VELOCITY,
-		tilt_up: MainPlayer::MAX_ANGULAR_VELOCITY,
 		roll_left: MainPlayer::MAX_ANGULAR_VELOCITY,
 		_stage: PhantomData,
 	}

@@ -46,6 +46,8 @@ pub use particles::*;
 mod triangle;
 pub use triangle::*;
 
+mod test;
+
 mod text;
 pub use text::Text2dBundle;
 

@@ -31,11 +31,26 @@ pub fn setup_bottom_left_cam(mut commands: Commands, mut mma: MM2) {
 		});
 }
 
+impl ThrustType {
+	fn get_trust_offset(&self) -> (i8, i8) {
+		match self {
+			ThrustType::Forward => (0, 0),
+			ThrustType::Up => (1, 0),
+			ThrustType::Right => (2, 0),
+
+			ThrustType::TiltUp => (0, 1),
+			ThrustType::RollLeft => (1, 1),
+			ThrustType::TurnLeft => (0, 2),
+		}
+	}
+}
+
 fn init_ah_circle(parent: &mut ChildBuilder, thrust_type: ThrustType, index: usize, mma: &mut MM2) {
 	// Circle
+	const MARGIN: f32 = 3.;
 	let circle_center = Vec3::new(
-		FULL_CIRCLE_RADIUS + (FULL_CIRCLE_RADIUS * 2. + 3.) * index as f32,
-		FULL_CIRCLE_RADIUS,
+		FULL_CIRCLE_RADIUS + (FULL_CIRCLE_RADIUS * 2. + MARGIN) * thrust_type.get_trust_offset().0 as f32,
+		FULL_CIRCLE_RADIUS + (FULL_CIRCLE_RADIUS * 2. + MARGIN) * thrust_type.get_trust_offset().1 as f32,
 		0.,
 	);
 	// larger circle
