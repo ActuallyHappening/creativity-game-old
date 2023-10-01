@@ -42,3 +42,11 @@ impl WorldObjectType {
 		}
 	}
 }
+
+pub fn spawn_initial_world(mut commands: Commands) {
+	let mut rng = rand::thread_rng();
+
+	for _ in 0..100 {
+		
+	}
+}

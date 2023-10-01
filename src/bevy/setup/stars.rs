@@ -41,7 +41,7 @@ pub fn spawn_random_star(commands: &mut Commands, MMA { meshs, mats, .. }: &mut 
 				.try_into()
 				.unwrap(),
 			),
-			transform: Transform::from_translation(random_pos()),
+			transform: Transform::from_translation(random_pos(SpaceRegions::FarAway)),
 			..default()
 		}
 		.insert(Star::new()),
@@ -49,31 +49,9 @@ pub fn spawn_random_star(commands: &mut Commands, MMA { meshs, mats, .. }: &mut 
 	// });
 }
 
-fn random_pos() -> Vec3 {
-	let mut p = Vec3::random();
-	while p.length() < 10_000. {
-		p = Vec3::random();
-	}
-	p
-}
-
 // fn random_color() -> Color {
 // 	Color::rgb(random(), random(), random())
 // }
-
-#[extension(trait VecExt)]
-impl Vec3 {
-	fn random() -> Vec3 {
-		let mut rng = rand::thread_rng();
-		let max = 200_000.;
-		let range = -max..max;
-		Vec3::new(
-			rng.gen_range(range.clone()),
-			rng.gen_range(range.clone()),
-			rng.gen_range(range.clone()),
-		)
-	}
-}
 
 #[derive(Default)]
 pub struct StarMaterials(HashMap<u32, Handle<StandardMaterial>>);

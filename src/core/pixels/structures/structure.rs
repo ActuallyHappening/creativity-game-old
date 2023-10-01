@@ -12,12 +12,6 @@ impl Structure {
 		}
 	}
 
-	pub fn new_from_parts(parts: impl Iterator<Item = StructurePart>) -> Self {
-		Self {
-			parts: parts.collect(),
-		}
-	}
-
 	pub fn with(mut self, part: impl IntoIterator<Item = impl Into<StructurePart>>) -> Self {
 		self.parts.extend(part.into_iter().map(|p| p.into()));
 		self

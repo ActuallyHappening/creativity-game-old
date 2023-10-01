@@ -52,6 +52,9 @@ mod test;
 mod text;
 pub use text::Text2dBundle;
 
+mod vectors;
+pub use vectors::*;
+
 #[allow(clippy::upper_case_acronyms)]
 #[derive(SystemParam)]
 pub struct MMA<'w> {
