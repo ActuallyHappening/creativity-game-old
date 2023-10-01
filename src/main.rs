@@ -1,4 +1,4 @@
-use bevy::{log::LogPlugin, prelude::*};
+use bevy::{log::LogPlugin, prelude::*, window::WindowMode};
 use creativity_game::*;
 
 fn main() {
@@ -13,6 +13,7 @@ fn main() {
 						prevent_default_event_handling: false,
 						canvas: Some("#canvas".to_string()),
 						title: "Creativity Game".to_string(),
+						mode: WindowMode::BorderlessFullscreen,
 						..default()
 					}),
 					..default()

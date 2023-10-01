@@ -55,6 +55,9 @@ pub use text::Text2dBundle;
 mod vectors;
 pub use vectors::*;
 
+mod render_layer;
+pub use render_layer::*;
+
 #[allow(clippy::upper_case_acronyms)]
 #[derive(SystemParam)]
 pub struct MMA<'w> {

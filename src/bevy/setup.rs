@@ -47,8 +47,8 @@ impl Plugin for SetupPlugin {
 		#[cfg(feature = "hanabi_particles")]
 		app.add_plugins(HanabiPlugin);
 
-		// #[cfg(feature = "debugging")]
-		// app.add_plugins(RapierDebugRenderPlugin::default());
+		#[cfg(feature = "debugging")]
+		app.add_plugins(RapierDebugRenderPlugin::default());
 
 		#[cfg(feature = "dev")]
 		#[cfg(feature = "debugging")]
