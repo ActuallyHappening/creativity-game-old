@@ -11,7 +11,7 @@ mod stars;
 use stars::*;
 // mod testparticles;
 
-use super::{camera::CameraPlugin, world_gen::spawn_random_world};
+use super::camera::CameraPlugin;
 use crate::utils::*;
 
 pub struct SetupPlugin;
@@ -19,7 +19,7 @@ impl Plugin for SetupPlugin {
 	fn build(&self, app: &mut App) {
 		app
 			.insert_resource(Msaa::default())
-			.add_systems(Startup, (setup, spawn_random_world))
+			.add_systems(Startup, (setup,))
 			.add_plugins(
 				DefaultPickingPlugins
 					.build()

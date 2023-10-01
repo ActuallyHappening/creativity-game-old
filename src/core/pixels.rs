@@ -4,6 +4,8 @@ mod structures;
 pub use structures::*;
 mod macros;
 use macros::*;
+mod world_gen;
+pub use world_gen::*;
 
 /// Data about a class of pixels
 /// Does not implement [PartialEq] because the identity of a pixel is only in its variant,
