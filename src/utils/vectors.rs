@@ -29,25 +29,26 @@ impl VelocityRanges {
 	}
 }
 
-fn unchecked_random(upper: f32) -> Vec3 {
-	let mut rng = rand::thread_rng();
-	let range = -upper..upper;
-	Vec3::new(
-		rng.gen_range(range.clone()),
-		rng.gen_range(range.clone()),
-		rng.gen_range(range.clone()),
-	)
+#[extension(trait Vec3Ext)]
+impl Vec3 {
+	/// Radius in normal units
+	/// Theta in radians
+	/// phi in radians
+	fn from_polar(radius: f32, theta: f32, phi: f32) -> Self {
+		Self {
+			x: radius * theta.sin() * phi.cos(),
+			y: radius * theta.sin() * phi.sin(),
+			z: radius * theta.cos(),
+		}
+	}
 }
 
 fn checked_random(range: RangeInclusive<f32>) -> Vec3 {
-	let (lower, upper) = (*range.start(), *range.end());
-	assert!(lower > 0., "Lower bound passed to random util func must be greater than 0, because radius must be positive.");
+	let (lower, _upper) = (*range.start(), *range.end());
+	assert!(lower >= 0., "Lower bound passed to random util func must be greater than 0, because radius must be positive.");
+	let mut rng = rand::thread_rng();
 
-	let mut p = unchecked_random(upper);
-	while p.length() < lower {
-		p = unchecked_random(upper);
-	}
-	p
+	Vec3::from_polar(rng.gen_range(range), rng.gen_range(0. ..=TAU), rng.gen_range(0. ..=TAU))
 }
 
 pub fn random_pos(range: SpaceRegions) -> Vec3 {

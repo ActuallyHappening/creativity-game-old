@@ -46,7 +46,7 @@ impl WorldObjectType {
 pub fn spawn_initial_world(mut commands: Commands, mut mma: MMA) {
 	let mut rng = rand::thread_rng();
 
-	(0..100).map(|_| {
+	for _ in 0..10 {
 		let pos = random_pos(SpaceRegions::VisibleNotInsidePlayer);
 		let rot = Quat::from_euler(
 			EulerRot::XYZ,
@@ -85,5 +85,5 @@ pub fn spawn_initial_world(mut commands: Commands, mut mma: MMA) {
 					.into_iter()
 					.for_each(|b| b.default_spawn_to_parent(parent));
 			});
-	});
+	}
 }
