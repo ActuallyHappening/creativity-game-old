@@ -43,10 +43,47 @@ impl WorldObjectType {
 	}
 }
 
-pub fn spawn_initial_world(mut commands: Commands) {
+pub fn spawn_initial_world(mut commands: Commands, mut mma: MMA) {
 	let mut rng = rand::thread_rng();
 
-	for _ in 0..100 {
-		
-	}
+	(0..100).map(|_| {
+		let pos = random_pos(SpaceRegions::VisibleNotInsidePlayer);
+		let rot = Quat::from_euler(
+			EulerRot::XYZ,
+			rng.gen_range(0. ..=TAU),
+			rng.gen_range(0. ..=TAU),
+			rng.gen_range(0. ..=TAU),
+		);
+		let velocity = random_velocity(VelocityRanges::Slow);
+
+		let object_type = WorldObjectType::Asteroid {
+			approx_radius: NonZeroU8::new(rng.gen_range(1..=10)).unwrap(),
+		};
+
+		let (collider, bundles) = object_type
+			.generate_structure()
+			.compute_bevy_bundles(&mut mma, None);
+
+		commands
+			.spawn(
+				(
+					collider,
+					velocity,
+					PbrBundle {
+						transform: Transform {
+							translation: pos,
+							rotation: rot,
+							scale: Vec3::ONE,
+						},
+						..default()
+					},
+				)
+					.physics_dynamic(),
+			)
+			.with_children(|parent| {
+				bundles
+					.into_iter()
+					.for_each(|b| b.default_spawn_to_parent(parent));
+			});
+	});
 }

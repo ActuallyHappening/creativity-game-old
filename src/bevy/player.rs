@@ -8,9 +8,9 @@ mod thrust;
 use lazy_static::lazy_static;
 use thrust::*;
 pub use thrust::{
-	calculate_relative_velocity_magnitudes, get_base_normal_vectors,
-	get_current_relative_strengths, types, RelativeStrength,
-	RelativeVelocityMagnitudes, Thrust, ThrustReactionsStage, ThrustReactions
+	calculate_relative_velocity_magnitudes, get_base_normal_vectors, get_current_relative_strengths,
+	types, RelativeStrength, RelativeVelocityMagnitudes, Thrust, ThrustReactions,
+	ThrustReactionsStage,
 };
 
 pub struct PlayerPlugin;
@@ -88,7 +88,7 @@ fn initial_spawn_player(
 ) {
 	info!("Spawning player");
 
-	let (collider, player_parts) = PLAYER_STRUCTURE.compute_bevy_bundles(&mut mma, effects);
+	let (collider, player_parts) = PLAYER_STRUCTURE.compute_bevy_bundles(&mut mma, Some(effects));
 
 	commands
 		.spawn(
@@ -110,7 +110,7 @@ fn initial_spawn_player(
 		)
 		.with_children(|parent| {
 			for part in player_parts {
-				part.spawn_to_parent(parent);
+				part.default_spawn_to_parent(parent);
 			}
 		});
 }

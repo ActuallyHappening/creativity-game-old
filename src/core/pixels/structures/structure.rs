@@ -32,16 +32,15 @@ impl Structure {
 	pub fn compute_bevy_bundles(
 		&self,
 		mma: &mut MMA,
-		effects: ResMut<Assets<EffectAsset>>,
+		mut effects: Option<ResMut<Assets<EffectAsset>>>,
 	) -> (Collider, Vec<StructureBundle>) {
-		let effects = effects.into_inner();
 		(
 			self.compute_collider(),
 			self
 				.parts
 				.clone()
 				.into_iter()
-				.map(move |p| match p {
+				.map(|p| match p {
 					StructurePart::Thruster {
 						thrust,
 						relative_location,
@@ -56,7 +55,7 @@ impl Structure {
 							..default()
 						},
 						particles: {
-							let mut particles = gen_particles(effects);
+							let mut particles = gen_particles(effects.as_mut().unwrap());
 							particles.transform = Transform::from_rotation(thrust.facing.into_rotation());
 							particles
 						},

@@ -12,7 +12,7 @@ pub enum StructureBundle {
 }
 
 impl StructureBundle {
-	pub fn spawn_to_parent(self, parent: &mut ChildBuilder) {
+	pub fn default_spawn_to_parent(self, parent: &mut ChildBuilder) {
 		match self {
 			StructureBundle::Pixel { visual } => {
 				parent.spawn(visual);

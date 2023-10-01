@@ -44,7 +44,8 @@ pub fn spawn_random_star(commands: &mut Commands, MMA { meshs, mats, .. }: &mut 
 			transform: Transform::from_translation(random_pos(SpaceRegions::FarAway)),
 			..default()
 		}
-		.insert(Star::new()),
+		.insert(Star::new())
+		.named("Star"),
 	);
 	// });
 }
