@@ -8,7 +8,7 @@ mod structure_bundle;
 pub use structure_bundle::StructureBundle;
 
 mod structure_part;
-use structure_part::StructurePart;
+pub use structure_part::StructurePart;
 
 pub trait Reflection {
 	fn reflect_horizontally(self) -> Self;
@@ -25,7 +25,7 @@ mod direction;
 pub use direction::Direction;
 
 mod relative_pixel_point;
-use relative_pixel_point::RelativePixelPoint;
+pub use relative_pixel_point::RelativePixelPoint;
 
 impl From<Pixel> for StandardMaterial {
 	fn from(px: Pixel) -> Self {

@@ -169,26 +169,6 @@ impl Transform {
 	}
 }
 
-#[derive(derive_more::Constructor, Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct WorldPoint {
-	/// player left-right
-	pub x: i32,
-	/// player up-down
-	pub y: i32,
-	/// player backwards-forwards
-	pub z: i32,
-}
-
-impl WorldPoint {
-	pub fn into_bevy_vector(self) -> Vec3 {
-		Vec3::new(
-			self.x as f32 * PIXEL_SIZE,
-			self.y as f32 * PIXEL_SIZE,
-			self.z as f32 * PIXEL_SIZE,
-		)
-	}
-}
-
 pub enum Font {
 	Medium,
 }

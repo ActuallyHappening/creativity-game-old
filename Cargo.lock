@@ -2176,6 +2176,7 @@ dependencies = [
  "lazy_static",
  "meshtext",
  "noise",
+ "num-integer",
  "once_cell",
  "rand 0.8.5",
  "rand_derive",

@@ -2,13 +2,13 @@ use super::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Default, Mul)]
 pub struct RelativePixelPoint {
-	pub x: i8,
-	pub y: i8,
-	pub z: i8,
+	pub x: i32,
+	pub y: i32,
+	pub z: i32,
 }
 
 impl RelativePixelPoint {
-	pub const fn new(x: i8, y: i8, z: i8) -> RelativePixelPoint {
+	pub const fn new(x: i32, y: i32, z: i32) -> RelativePixelPoint {
 		RelativePixelPoint { x, y, z }
 	}
 
@@ -23,8 +23,8 @@ impl From<RelativePixelPoint> for Vec3 {
 	}
 }
 
-impl From<(i8, i8, i8)> for RelativePixelPoint {
-	fn from((x, y, z): (i8, i8, i8)) -> Self {
+impl From<(i32, i32, i32)> for RelativePixelPoint {
+	fn from((x, y, z): (i32, i32, i32)) -> Self {
 		Self::new(x, y, z)
 	}
 }
