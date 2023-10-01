@@ -17,7 +17,7 @@ impl SpaceRegions {
 	fn range(&self) -> RangeInclusive<f32> {
 		match self {
 			Self::FarAway => 20_000. ..=400_000.,
-			Self::VisibleNotInsidePlayer => 50. ..=5_000.,
+			Self::VisibleNotInsidePlayer => 50. ..=1_000.,
 		}
 	}
 }
