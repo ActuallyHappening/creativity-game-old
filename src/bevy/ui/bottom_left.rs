@@ -26,13 +26,9 @@ pub struct InputFlag {
 }
 
 pub fn setup_bottom_left_cam(mut commands: Commands, mut mma: MM2) {
-	commands
-		.spawn(UiCamera::<BottomLeft>::get_offset_bundle())
-		.with_children(|parent| {
-			for (i, thrust_type) in ThrustType::iter().enumerate() {
-				init_ah_circle(parent, thrust_type, i, &mut mma);
-			}
-		});
+	for (i, thrust_type) in ThrustType::iter().enumerate() {
+		init_ah_circle(&mut commands, thrust_type, i, &mut mma);
+	}
 }
 
 impl ThrustType {
@@ -49,7 +45,7 @@ impl ThrustType {
 	}
 }
 
-fn init_ah_circle(parent: &mut ChildBuilder, thrust_type: ThrustType, index: usize, mma: &mut MM2) {
+fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, index: usize, mma: &mut MM2) {
 	// Circle
 	const MARGIN: f32 = 3.;
 	let circle_center = Vec3::new(
@@ -206,11 +202,13 @@ impl ThrustReactions {
 				(Some(true), true) | (Some(false), false) => USER_ENABLED_COL,
 				(None, _) | (Some(false), true) | (Some(true), false) => DISABLED_INPUT_COL,
 			},
-			ThrustReactions::ArtificialFriction { friction_direction } => match (friction_direction, is_right) {
-				(Some(true), true) | (Some(false), false) => ARTIFICIAL_FRICTION_ENABLED_COL,
-				(None, _) | (Some(false), true) | (Some(true), false) => DISABLED_INPUT_COL,
-			},
-			ThrustReactions::Braking { braking_direction  } => match (braking_direction, is_right) {
+			ThrustReactions::ArtificialFriction { friction_direction } => {
+				match (friction_direction, is_right) {
+					(Some(true), true) | (Some(false), false) => ARTIFICIAL_FRICTION_ENABLED_COL,
+					(None, _) | (Some(false), true) | (Some(true), false) => DISABLED_INPUT_COL,
+				}
+			}
+			ThrustReactions::Braking { braking_direction } => match (braking_direction, is_right) {
 				(Some(true), true) | (Some(false), false) => BRAKING_ENABLED_COL,
 				(None, _) | (Some(false), true) | (Some(true), false) => DISABLED_INPUT_COL,
 			},

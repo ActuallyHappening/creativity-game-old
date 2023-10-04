@@ -14,12 +14,12 @@ pub use crate::core::*;
 pub use bevy::prelude::*;
 pub use bevy::sprite::MaterialMesh2dBundle;
 pub use bevy::{
-	core_pipeline::clear_color::ClearColorConfig, render::camera::Viewport, window::WindowResized,
+	core_pipeline::{clear_color::ClearColorConfig}, render::camera::Viewport, window::WindowResized,
 };
 pub use bevy_dolly::prelude::*;
 pub use bevy_mod_picking::prelude::*;
 pub use bevy_rapier3d::prelude::*;
-pub use contracts::*;
+// pub use contracts::*;
 pub use derive_builder::Builder;
 pub use derive_more::{Deref, DerefMut};
 pub use derive_more::*;
