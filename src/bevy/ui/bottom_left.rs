@@ -57,22 +57,28 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, index: usize, 
 	);
 	// larger circle
 	let mesh = mma.meshs.add(shape::Circle::new(FULL_CIRCLE_RADIUS).into());
-	parent.spawn(MaterialMesh2dBundle {
-		mesh: mesh.into(),
-		material: mma.mats.add(ColorMaterial::from(Color::MIDNIGHT_BLUE)),
-		transform: Transform::from_translation(circle_center),
-		..default()
-	});
+	parent.spawn(
+		MaterialMesh2dBundle {
+			mesh: mesh.into(),
+			material: mma.mats.add(ColorMaterial::from(Color::MIDNIGHT_BLUE)),
+			transform: Transform::from_translation(circle_center),
+			..default()
+		}
+		.render_layer(BottomLeft),
+	);
 	// smaller circle
 	let mesh = mma
 		.meshs
 		.add(shape::Circle::new(SMALLER_CIRCLE_RADIUS).into());
-	parent.spawn(MaterialMesh2dBundle {
-		mesh: mesh.into(),
-		material: mma.mats.add(ColorMaterial::from(Color::BLACK)),
-		transform: Transform::from_translation(circle_center),
-		..default()
-	});
+	parent.spawn(
+		MaterialMesh2dBundle {
+			mesh: mesh.into(),
+			material: mma.mats.add(ColorMaterial::from(Color::BLACK)),
+			transform: Transform::from_translation(circle_center),
+			..default()
+		}
+		.render_layer(BottomLeft),
+	);
 
 	// Needle
 	// velocity
@@ -86,7 +92,8 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, index: usize, 
 			material: mma.mats.add(Color::ORANGE.into()),
 			..default()
 		}
-		.insert(NeedleVelocity(thrust_type)),
+		.insert(NeedleVelocity(thrust_type))
+		.render_layer(BottomLeft),
 	);
 	// force
 	let mesh = mma
@@ -99,7 +106,8 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, index: usize, 
 			material: mma.mats.add(Color::BLUE.into()),
 			..default()
 		}
-		.insert(NeedleStrength(thrust_type)),
+		.insert(NeedleStrength(thrust_type))
+		.render_layer(BottomLeft),
 	);
 
 	// Input flags
@@ -115,7 +123,8 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, index: usize, 
 			material: mma.mats.add(DISABLED_INPUT_COL.into()),
 			..default()
 		}
-		.insert(InputFlag::new(false, thrust_type)),
+		.insert(InputFlag::new(false, thrust_type))
+		.render_layer(BottomLeft),
 	);
 	// right
 	parent.spawn(
@@ -127,7 +136,8 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, index: usize, 
 			material: mma.mats.add(DISABLED_INPUT_COL.into()),
 			..default()
 		}
-		.insert(InputFlag::new(true, thrust_type)),
+		.insert(InputFlag::new(true, thrust_type))
+		.render_layer(BottomLeft),
 	);
 
 	// Text
@@ -136,7 +146,8 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, index: usize, 
 		Text2dBundle::new(text, Font::Medium, 7., Color::RED, mma)
 			.translate(circle_center)
 			.translate(Vec3::Z * 1.)
-			.translate(-Vec3::Y * INNER_RADIUS_OFFSET),
+			.translate(-Vec3::Y * INNER_RADIUS_OFFSET)
+			.render_layer(BottomLeft),
 	);
 }
 
