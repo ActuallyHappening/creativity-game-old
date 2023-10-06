@@ -44,12 +44,12 @@ mod bottom_left;
 use bottom_left::*;
 
 use super::player::{
-	calculate_relative_velocity_magnitudes, get_base_normal_vectors,
-	get_current_relative_strengths, PlayerMove,
+	calculate_relative_velocity_magnitudes, get_base_normal_vectors, get_current_relative_strengths,
+	PlayerMove,
 };
 
 fn setup_camera<T: CamType>(mut commands: Commands) {
-	commands.spawn(UiCamera::<T>::get_camera_bundle());
+	commands.spawn(UiCamera::<T>::get_camera_bundle().pickable_camera());
 }
 
 fn update_camera<T: CamType>(

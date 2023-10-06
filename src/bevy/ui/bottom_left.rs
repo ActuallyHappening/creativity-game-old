@@ -71,6 +71,11 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, mma: &mut MM2)
 			..default()
 		}
 		.pickable()
+		.insert(On::<Pointer<Down>>::run(
+			|| {
+				info!("Clicked!");
+			},
+		))
 		.render_layer(BottomLeft),
 	);
 	layer_counter += 1.;
@@ -184,23 +189,55 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, mma: &mut MM2)
 		.not_pickable()
 		.render_layer(BottomLeft),
 	);
-	layer_counter += 1.;
+	// layer_counter += 1.;
 }
 
+#[allow(clippy::type_complexity)]
 pub fn update_bottom_left_camera(
 	In((velocity, relative_strength)): In<(
 		Thrust<RelativeVelocityMagnitudes>,
 		Thrust<RelativeStrength>,
 	)>,
-	mut needle_velocity: Query<(&NeedleVelocity, &mut Transform), Without<NeedleStrength>>,
-	mut needle_force: Query<(&NeedleStrength, &mut Transform), Without<NeedleVelocity>>,
-	mut input_flags: Query<(&InputFlag, &mut Handle<ColorMaterial>)>,
+	mut needle_velocity: Query<
+		(&NeedleVelocity, &mut Transform),
+		(
+			Without<NeedleStrength>,
+			Without<InputFlag>,
+			Without<BorderCircle>,
+		),
+	>,
+	mut needle_force: Query<
+		(&NeedleStrength, &mut Transform),
+		(
+			Without<NeedleVelocity>,
+			Without<InputFlag>,
+			Without<BorderCircle>,
+		),
+	>,
+	mut input_flags: Query<
+		(&InputFlag, &mut Handle<ColorMaterial>),
+		(
+			Without<NeedleVelocity>,
+			Without<NeedleStrength>,
+			Without<BorderCircle>,
+		),
+	>,
+	mut braking_borders: Query<
+		(&BorderCircle, &mut Handle<ColorMaterial>),
+		(
+			Without<NeedleVelocity>,
+			Without<NeedleStrength>,
+			Without<InputFlag>,
+		),
+	>,
 
 	player: Query<&MainPlayer>,
 
 	mut mma: MM2,
 ) {
-	let thrust_responses = &player.single().thrust_responses;
+	let player = player.single();
+	let thrust_responses = &player.thrust_responses;
+	let artificial_friction_flags = &player.artificial_friction_flags;
 
 	fn update(transform: &mut Transform, data: f32) {
 		let angle = data * PI;
@@ -236,6 +273,19 @@ pub fn update_bottom_left_camera(
 				thrust_responses
 					.get_from_type(*thrust_type)
 					.into_colour(*is_right)
+			}
+			.into(),
+		);
+	}
+
+	for (BorderCircle(thrust_type), mut material) in braking_borders.iter_mut() {
+		*material = mma.mats.add(
+			{
+				if *artificial_friction_flags.get_from_type(*thrust_type) {
+					ARTIFICIAL_FRICTION_ENABLED_COL
+				} else {
+					Color::BLACK
+				}
 			}
 			.into(),
 		);

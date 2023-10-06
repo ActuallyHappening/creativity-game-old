@@ -111,6 +111,9 @@ impl<T: Bundle> T {
 			self,
 		)
 	}
+	fn pickable_camera(self) -> (RaycastPickCamera, Self) {
+		self.insert(RaycastPickCamera::default())
+	}
 
 	/// Does not consume click events
 	fn not_pickable(self) -> (Pickable, Self) {
