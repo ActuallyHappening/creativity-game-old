@@ -1,5 +1,7 @@
 use std::ops::RangeInclusive;
 
+use rand::rngs::ThreadRng;
+
 use crate::utils::*;
 
 /// Dividing space by radius from the origin
@@ -34,21 +36,53 @@ impl Vec3 {
 	/// Radius in normal units
 	/// Theta in radians
 	/// phi in radians
-	fn from_polar(radius: f32, theta: f32, phi: f32) -> Self {
+	fn from_polar_normal(theta: f32, phi: f32) -> Self {
 		Self {
-			x: radius * theta.sin() * phi.cos(),
-			y: radius * theta.sin() * phi.sin(),
-			z: radius * theta.cos(),
+			x: theta.sin() * phi.cos(),
+			y: theta.sin() * phi.sin(),
+			z: theta.cos(),
 		}
+	}
+
+	/// Seed1 between 0 and 2π
+	/// seed2 between -1 and 1
+	fn gen_random_sphere_normal(rng: &mut ThreadRng,) -> Self {
+		let phi = rng.gen_range(0. ..TAU);
+		let z = rng.gen_range(-1. ..1.);
+
+		assert!((0f32..TAU).contains(&phi));
+		assert!((-1f32..=1f32).contains(&z));
+
+		// let phi = 1. - seed2.powi(2);
+		let theta = z.acos();
+		// let phi = rng.gen_range(0. .. PI);
+
+		// let ret = Vec3::new(phi.mul(theta.cos()), phi.mul(theta.sin()), seed2);
+		let ret = Vec3::from_polar_normal(theta, phi);
+
+		assert!(
+			ret.length().round() == 1.,
+			"ret length: {} (rounded = {})",
+			ret.length(),
+			ret.length().round()
+		);
+
+		ret.normalize()
 	}
 }
 
 fn checked_random(range: RangeInclusive<f32>) -> Vec3 {
-	let (lower, _upper) = (*range.start(), *range.end());
+	let (lower, upper) = (*range.start(), *range.end());
 	assert!(lower >= 0., "Lower bound passed to random util func must be greater than 0, because radius must be positive.");
 	let mut rng = rand::thread_rng();
 
-	Vec3::from_polar(rng.gen_range(range), rng.gen_range(0. ..=TAU), rng.gen_range(0. ..=TAU))
+	let normal = Vec3::gen_random_sphere_normal(&mut rng);
+
+	let ret = normal.mul(rng.gen_range(lower..=upper));
+
+	assert!(range.contains(&ret.length()));
+
+	ret
 }
 
 pub fn random_pos(range: SpaceRegions) -> Vec3 {
