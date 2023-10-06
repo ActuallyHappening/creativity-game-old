@@ -71,11 +71,9 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, mma: &mut MM2)
 			..default()
 		}
 		.pickable()
-		.insert(On::<Pointer<Down>>::run(
-			|| {
-				info!("Clicked!");
-			},
-		))
+		.insert(On::<Pointer<Down>>::run(|| {
+			info!("Clicked!");
+		}))
 		.render_layer(BottomLeft),
 	);
 	layer_counter += 1.;
@@ -198,38 +196,44 @@ pub fn update_bottom_left_camera(
 		Thrust<RelativeVelocityMagnitudes>,
 		Thrust<RelativeStrength>,
 	)>,
-	mut needle_velocity: Query<
-		(&NeedleVelocity, &mut Transform),
-		(
-			Without<NeedleStrength>,
-			Without<InputFlag>,
-			Without<BorderCircle>,
-		),
-	>,
-	mut needle_force: Query<
-		(&NeedleStrength, &mut Transform),
-		(
-			Without<NeedleVelocity>,
-			Without<InputFlag>,
-			Without<BorderCircle>,
-		),
-	>,
-	mut input_flags: Query<
-		(&InputFlag, &mut Handle<ColorMaterial>),
-		(
-			Without<NeedleVelocity>,
-			Without<NeedleStrength>,
-			Without<BorderCircle>,
-		),
-	>,
-	mut braking_borders: Query<
-		(&BorderCircle, &mut Handle<ColorMaterial>),
-		(
-			Without<NeedleVelocity>,
-			Without<NeedleStrength>,
-			Without<InputFlag>,
-		),
-	>,
+	// mut needle_velocity: Query<
+	// 	(&NeedleVelocity, &mut Transform),
+	// 	(
+	// 		Without<NeedleStrength>,
+	// 		Without<InputFlag>,
+	// 		Without<BorderCircle>,
+	// 	),
+	// >,
+	// mut needle_force: Query<
+	// 	(&NeedleStrength, &mut Transform),
+	// 	(
+	// 		Without<NeedleVelocity>,
+	// 		Without<InputFlag>,
+	// 		Without<BorderCircle>,
+	// 	),
+	// >,
+	// mut input_flags: Query<
+	// 	(&InputFlag, &mut Handle<ColorMaterial>),
+	// 	(
+	// 		Without<NeedleVelocity>,
+	// 		Without<NeedleStrength>,
+	// 		Without<BorderCircle>,
+	// 	),
+	// >,
+	// mut braking_borders: Query<
+	// 	(&BorderCircle, &mut Handle<ColorMaterial>),
+	// 	(
+	// 		Without<NeedleVelocity>,
+	// 		Without<NeedleStrength>,
+	// 		Without<InputFlag>,
+	// 	),
+	// >,
+	mut set: ParamSet<(
+		Query<(&NeedleVelocity, &mut Transform)>,
+		Query<(&NeedleStrength, &mut Transform)>,
+		Query<(&InputFlag, &mut Handle<ColorMaterial>)>,
+		Query<(&BorderCircle, &mut Handle<ColorMaterial>)>,
+	)>,
 
 	player: Query<&MainPlayer>,
 
@@ -238,6 +242,8 @@ pub fn update_bottom_left_camera(
 	let player = player.single();
 	let thrust_responses = &player.thrust_responses;
 	let artificial_friction_flags = &player.artificial_friction_flags;
+
+	let mut needle_velocity = set.p0();
 
 	fn update(transform: &mut Transform, data: f32) {
 		let angle = data * PI;
@@ -251,6 +257,8 @@ pub fn update_bottom_left_camera(
 		);
 	}
 
+	let mut needle_force = set.p1();
+
 	for (NeedleStrength(thrust_type), mut transform) in needle_force.iter_mut() {
 		update(
 			&mut transform,
@@ -259,6 +267,8 @@ pub fn update_bottom_left_camera(
 				.clamp(-0.9, 0.9),
 		);
 	}
+
+	let mut input_flags = set.p2();
 
 	for (
 		InputFlag {
@@ -277,6 +287,8 @@ pub fn update_bottom_left_camera(
 			.into(),
 		);
 	}
+
+	let mut braking_borders = set.p3();
 
 	for (BorderCircle(thrust_type), mut material) in braking_borders.iter_mut() {
 		*material = mma.mats.add(
