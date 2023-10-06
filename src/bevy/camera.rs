@@ -88,15 +88,12 @@ pub fn handle_camera_movement(
 			scroll_y += ev.delta.y / 100.;
 		}
 
-		// if scroll_x != 0. || scroll_y != 0. {
-		// 	info!("Scroll x: {} y: {}", scroll_x, scroll_y);
+		// restricts movement if not a majority in one direction
+		// if scroll_y.abs() < scroll_x.abs() {
+		// 	scroll_y = 0.;
+		// } else if scroll_x.abs() < scroll_y.abs() {
+		// 	scroll_x = 0.;
 		// }
-
-		if scroll_y.abs() < scroll_x.abs() {
-			scroll_y = 0.;
-		} else if scroll_x.abs() < scroll_y.abs() {
-			scroll_x = 0.;
-		}
 
 		false
 	} else {
