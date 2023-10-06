@@ -27,8 +27,11 @@ pub struct InputFlag {
 	thrust_type: ThrustType,
 }
 
-#[derive(Component, Debug, Constructor)]
+#[derive(Component, Debug)]
 pub struct BorderCircle(ThrustType);
+
+#[derive(Component, Debug)]
+pub struct BorderHitbox(ThrustType);
 
 pub fn setup_bottom_left_cam(mut commands: Commands, mut mma: MM2) {
 	for thrust_type in ThrustType::iter() {
@@ -71,9 +74,19 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, mma: &mut MM2)
 			..default()
 		}
 		.pickable()
-		.insert(On::<Pointer<Down>>::run(|| {
-			info!("Clicked!");
-		}))
+		.insert(On::<Pointer<Down>>::run(
+			|event: Res<ListenerInput<Pointer<Down>>>,
+			 mut player: Query<&mut MainPlayer>,
+			 this: Query<&BorderHitbox>| {
+				let mut player = player.single_mut();
+				let this = this.get(event.target).unwrap();
+
+				let current = *player.artificial_friction_flags.get_from_type(this.0);
+				player.artificial_friction_flags
+					.set_from_type(this.0, !current);
+			},
+		))
+		.insert(BorderHitbox(thrust_type))
 		.named("AHC Larger")
 		.render_layer(BottomLeft),
 	);
