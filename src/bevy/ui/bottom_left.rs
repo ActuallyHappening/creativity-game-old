@@ -74,6 +74,7 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, mma: &mut MM2)
 		.insert(On::<Pointer<Down>>::run(|| {
 			info!("Clicked!");
 		}))
+		.named("AHC Larger")
 		.render_layer(BottomLeft),
 	);
 	layer_counter += 1.;
@@ -90,6 +91,7 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, mma: &mut MM2)
 		}
 		.insert(BorderCircle(thrust_type))
 		.not_pickable()
+		.named("AHC Border")
 		.render_layer(BottomLeft),
 	);
 	layer_counter += 1.;
@@ -105,6 +107,7 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, mma: &mut MM2)
 			..default()
 		}
 		.not_pickable()
+		.named("AHC Smaller")
 		.render_layer(BottomLeft),
 	);
 	layer_counter += 1.;
@@ -117,6 +120,7 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, mma: &mut MM2)
 			.translate_z(layer_counter)
 			.translate_y(-INNER_RADIUS_OFFSET)
 			.not_pickable()
+			.named("AHC Text")
 			.render_layer(BottomLeft),
 	);
 	layer_counter += 1.;
@@ -136,6 +140,7 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, mma: &mut MM2)
 		}
 		.insert(InputFlag::new(false, thrust_type))
 		.not_pickable()
+		.named("AHC Left input")
 		.render_layer(BottomLeft),
 	);
 	// right
@@ -150,6 +155,7 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, mma: &mut MM2)
 		}
 		.insert(InputFlag::new(true, thrust_type))
 		.not_pickable()
+		.named("AHC Right input")
 		.render_layer(BottomLeft),
 	);
 	layer_counter += 1.;
@@ -168,6 +174,7 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, mma: &mut MM2)
 		}
 		.insert(NeedleStrength(thrust_type))
 		.not_pickable()
+		.named("AHC Force needle")
 		.render_layer(BottomLeft),
 	);
 	layer_counter += 1.;
@@ -185,6 +192,7 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, mma: &mut MM2)
 		}
 		.insert(NeedleVelocity(thrust_type))
 		.not_pickable()
+		.named("AHC Velocity needle")
 		.render_layer(BottomLeft),
 	);
 	// layer_counter += 1.;
@@ -196,38 +204,6 @@ pub fn update_bottom_left_camera(
 		Thrust<RelativeVelocityMagnitudes>,
 		Thrust<RelativeStrength>,
 	)>,
-	// mut needle_velocity: Query<
-	// 	(&NeedleVelocity, &mut Transform),
-	// 	(
-	// 		Without<NeedleStrength>,
-	// 		Without<InputFlag>,
-	// 		Without<BorderCircle>,
-	// 	),
-	// >,
-	// mut needle_force: Query<
-	// 	(&NeedleStrength, &mut Transform),
-	// 	(
-	// 		Without<NeedleVelocity>,
-	// 		Without<InputFlag>,
-	// 		Without<BorderCircle>,
-	// 	),
-	// >,
-	// mut input_flags: Query<
-	// 	(&InputFlag, &mut Handle<ColorMaterial>),
-	// 	(
-	// 		Without<NeedleVelocity>,
-	// 		Without<NeedleStrength>,
-	// 		Without<BorderCircle>,
-	// 	),
-	// >,
-	// mut braking_borders: Query<
-	// 	(&BorderCircle, &mut Handle<ColorMaterial>),
-	// 	(
-	// 		Without<NeedleVelocity>,
-	// 		Without<NeedleStrength>,
-	// 		Without<InputFlag>,
-	// 	),
-	// >,
 	mut set: ParamSet<(
 		Query<(&NeedleVelocity, &mut Transform)>,
 		Query<(&NeedleStrength, &mut Transform)>,

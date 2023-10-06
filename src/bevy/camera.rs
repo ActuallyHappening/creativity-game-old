@@ -63,9 +63,9 @@ impl CameraPlugin {
 				// .with(RotationAccumulator::new(Quat::IDENTITY))
 				// .with(Smooth::new_position(0.75).predictive(true))
 				.build(),
-			RenderLayers::all(),
+			// RenderLayers::all(),
 			MainCamera,
-		).pickable_camera()
+		).named("Main Camera")
 	}
 }
 
