@@ -39,6 +39,19 @@ impl Text2dBundle {
 		self.transform.translation += delta;
 		self
 	}
+
+	pub fn translate_x(mut self, delta_x: f32) -> Self {
+		self.transform.translation.x += delta_x;
+		self
+	}
+	pub fn translate_y(mut self, delta_y: f32) -> Self {
+		self.transform.translation.y += delta_y;
+		self
+	}
+	pub fn translate_z(mut self, delta_z: f32) -> Self {
+		self.transform.translation.z += delta_z;
+		self
+	}
 }
 
 /// Generates text mesh
