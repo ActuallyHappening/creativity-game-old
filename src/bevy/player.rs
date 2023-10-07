@@ -64,9 +64,6 @@ pub struct MainPlayer {
 	pub thrust_responses: Thrust<ThrustReactionsStage>,
 	/// Optional artificial friction flags, starts all enabled
 	pub artificial_friction_flags: Thrust<ArtificialFrictionFlags>,
-
-	/// Information about weapon controls
-	pub weapon_flags: WeaponFlags,
 }
 
 lazy_static! {
