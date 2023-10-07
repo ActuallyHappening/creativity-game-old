@@ -9,7 +9,8 @@ const FULL_CIRCLE_RADIUS: f32 = 40.;
 const BORDER_CIRCLE_RADIUS: f32 = FULL_CIRCLE_RADIUS - 4.;
 const SMALLER_CIRCLE_RADIUS: f32 = FULL_CIRCLE_RADIUS - 5.;
 const TINY_CIRCLE_RADIUS: f32 = 7.;
-const TEXT_SIZE: f32 = 15.;
+const PRIMARY_TEXT_SIZE: f32 = 15.;
+const KEYCODE_TEXT_SIZE: f32 = 18.;
 
 const DISABLED_INPUT_COL: Color = Color::GRAY;
 const USER_ENABLED_COL: Color = Color::GREEN;
@@ -126,10 +127,10 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, mma: &mut MM2)
 	);
 	layer_counter += 1.;
 
-	// Text
+	// primary Text
 	let text = thrust_type.ah_circle_name();
 	parent.spawn(
-		crate::utils::Text2dBundle::new(text, Font::Medium, TEXT_SIZE, Color::RED, mma)
+		crate::utils::Text2dBundle::new(text, Font::Medium, PRIMARY_TEXT_SIZE, Color::RED, mma)
 			.translate(circle_center)
 			.translate_z(layer_counter)
 			.translate_y(-INNER_RADIUS_OFFSET)
@@ -138,6 +139,7 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, mma: &mut MM2)
 			.render_layer(BottomLeft),
 	);
 	layer_counter += 1.;
+	
 
 	// Input flags
 	let mesh = mma.meshs.add(shape::Circle::new(TINY_CIRCLE_RADIUS).into());
@@ -171,6 +173,29 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, mma: &mut MM2)
 		.not_pickable()
 		.named("AHC Right input")
 		.render_layer(BottomLeft),
+	);
+	layer_counter += 1.;
+
+	// keycode text
+	let (positive, negative) = thrust_type.keybinds();
+	parent.spawn(
+		crate::utils::Text2dBundle::new(positive.into_str(), Font::Medium, KEYCODE_TEXT_SIZE, Color::BLUE, mma)
+			.translate(circle_center)
+			.translate_z(layer_counter)
+			.translate_x(INNER_RADIUS_OFFSET)
+			.not_pickable()
+			.named("AHC Text")
+			.render_layer(BottomLeft),
+	);
+	layer_counter += 1.;
+	parent.spawn(
+		crate::utils::Text2dBundle::new(negative.into_str(), Font::Medium, KEYCODE_TEXT_SIZE, Color::BLUE, mma)
+			.translate(circle_center)
+			.translate_z(layer_counter)
+			.translate_x(-INNER_RADIUS_OFFSET)
+			.not_pickable()
+			.named("AHC Text")
+			.render_layer(BottomLeft),
 	);
 	layer_counter += 1.;
 

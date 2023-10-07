@@ -2,7 +2,7 @@ use super::*;
 
 impl ThrustType {
 	/// Returns (positive, negative) keybinds
-	const fn keybinds(self) -> (KeyCode, KeyCode) {
+	pub const fn keybinds(self) -> (KeyCode, KeyCode) {
 		match self {
 			ThrustType::Forward => (KeyCode::R, KeyCode::F),
 			ThrustType::Right => (KeyCode::S, KeyCode::H),
