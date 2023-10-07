@@ -5,10 +5,11 @@ use crate::bevy::player::{
 };
 use crate::utils::Text2dBundle;
 
-const FULL_CIRCLE_RADIUS: f32 = 25.;
-const BORDER_CIRCLE_RADIUS: f32 = FULL_CIRCLE_RADIUS - 3.;
-const SMALLER_CIRCLE_RADIUS: f32 = FULL_CIRCLE_RADIUS - 4.;
-const TINY_CIRCLE_RADIUS: f32 = 5.;
+const FULL_CIRCLE_RADIUS: f32 = 40.;
+const BORDER_CIRCLE_RADIUS: f32 = FULL_CIRCLE_RADIUS - 4.;
+const SMALLER_CIRCLE_RADIUS: f32 = FULL_CIRCLE_RADIUS - 5.;
+const TINY_CIRCLE_RADIUS: f32 = 7.;
+const TEXT_SIZE: f32 = 15.;
 
 const DISABLED_INPUT_COL: Color = Color::GRAY;
 const USER_ENABLED_COL: Color = Color::GREEN;
@@ -59,9 +60,9 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, mma: &mut MM2)
 	let mut layer_counter: f32 = 0.;
 	let circle_center = Vec3::new(
 		FULL_CIRCLE_RADIUS
-			+ (FULL_CIRCLE_RADIUS * 2. + MARGIN) * thrust_type.get_trust_offset().0 as f32,
+			+ (FULL_CIRCLE_RADIUS * 2. + MARGIN) * thrust_type.get_trust_offset().0 as f32 + MARGIN,
 		FULL_CIRCLE_RADIUS
-			+ (FULL_CIRCLE_RADIUS * 2. + MARGIN) * thrust_type.get_trust_offset().1 as f32,
+			+ (FULL_CIRCLE_RADIUS * 2. + MARGIN) * thrust_type.get_trust_offset().1 as f32 + MARGIN,
 		layer_counter,
 	);
 	// larger circle
@@ -128,7 +129,7 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, mma: &mut MM2)
 	// Text
 	let text = thrust_type.ah_circle_name();
 	parent.spawn(
-		crate::utils::Text2dBundle::new(text, Font::Medium, 7., Color::RED, mma)
+		crate::utils::Text2dBundle::new(text, Font::Medium, TEXT_SIZE, Color::RED, mma)
 			.translate(circle_center)
 			.translate_z(layer_counter)
 			.translate_y(-INNER_RADIUS_OFFSET)
