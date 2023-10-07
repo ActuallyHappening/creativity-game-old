@@ -50,6 +50,9 @@ impl Plugin for SetupPlugin {
 		#[cfg(feature = "debugging")]
 		app.add_plugins(RapierDebugRenderPlugin::default());
 
+		// #[cfg(feature = "debugging")]
+		// app.add_plugins(OverlayPlugin { font_size: 23.0, ..default() });
+
 		#[cfg(feature = "dev")]
 		#[cfg(feature = "debugging")]
 		app

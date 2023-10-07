@@ -49,7 +49,7 @@ impl ThrustType {
 			ThrustType::Right => (2, 0),
 
 			ThrustType::TiltUp => (0, 1),
-			ThrustType::RollLeft => (1, 1),
+			ThrustType::RollRight => (1, 1),
 			ThrustType::TurnRight => (0, 2),
 		}
 	}
@@ -268,7 +268,7 @@ pub fn update_bottom_left_camera(
 	for (NeedleVelocity(thrust_type), mut transform) in needle_velocity.iter_mut() {
 		update(
 			&mut transform,
-			velocity.get_from_type(*thrust_type).clamp(-1.1, 1.1),
+			velocity.get_from_type(*thrust_type).neg().clamp(-1.1, 1.1),
 		);
 	}
 
@@ -279,6 +279,7 @@ pub fn update_bottom_left_camera(
 			&mut transform,
 			relative_strength
 				.get_from_type(*thrust_type)
+				.neg()
 				.clamp(-0.9, 0.9),
 		);
 	}

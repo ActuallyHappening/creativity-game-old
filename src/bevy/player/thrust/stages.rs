@@ -42,7 +42,7 @@ impl Default for Thrust<ArtificialFrictionFlags> {
 
 			turn_right: true,
 			tilt_up: true,
-			roll_left: true,
+			roll_right: true,
 
 			_stage: PhantomData,
 		}
@@ -136,7 +136,7 @@ impl std::ops::Mul<Thrust<BasePositionNormalVectors>> for Thrust<GenericInputFla
 			right: self.right.wrap_signed(base.right),
 			up: self.up.wrap_signed(base.up),
 
-			roll_left: self.roll_left.wrap_signed(base.roll_left),
+			roll_right: self.roll_right.wrap_signed(base.roll_right),
 			turn_right: self.turn_right.wrap_signed(base.turn_right),
 			tilt_up: self.tilt_up.wrap_signed(base.tilt_up),
 
@@ -157,7 +157,7 @@ impl std::ops::Mul<Thrust<RelativeStrength>> for Thrust<BasePositionNormalVector
 
 			turn_right: self.turn_right * rhs.turn_right,
 			tilt_up: self.tilt_up * rhs.tilt_up,
-			roll_left: self.roll_left * rhs.roll_left,
+			roll_right: self.roll_right * rhs.roll_right,
 			_stage: PhantomData,
 		}
 	}
@@ -175,7 +175,7 @@ impl std::ops::Mul<Thrust<ForceFactors>> for Thrust<AlmostFinalVectors> {
 
 			turn_right: self.turn_right * rhs.turn_right,
 			tilt_up: self.tilt_up * rhs.tilt_up,
-			roll_left: self.roll_left * rhs.roll_left,
+			roll_right: self.roll_right * rhs.roll_right,
 			_stage: PhantomData,
 		}
 	}
@@ -193,7 +193,7 @@ impl std::ops::Mul<f32> for Thrust<ForceFactors> {
 
 			turn_right: self.turn_right * rhs,
 			tilt_up: self.tilt_up * rhs,
-			roll_left: self.roll_left * rhs,
+			roll_right: self.roll_right * rhs,
 
 			_stage: PhantomData,
 		}

@@ -1,4 +1,5 @@
 use super::*;
+use crate::utils::*;
 
 /// Takes into account the maximum power of each thruster and the current velocity
 pub fn get_relative_strengths(
@@ -40,14 +41,16 @@ pub fn get_relative_strengths(
 		}
 	}
 
+	// debug!("Right factor: {:?}", factor_allowed_forwards(aimed.turn_right, max.turn_right, angvel));
+
 	Thrust::<RelativeStrength> {
 		forward: factor_allowed_forwards(aimed.forward, max.forward, linvel),
 		up: factor_allowed_forwards(aimed.up, max.up, linvel),
 		right: factor_allowed_forwards(aimed.right, max.right, linvel),
 
-		tilt_up: factor_allowed_forwards(aimed.tilt_up, max.tilt_up, angvel),
-		roll_left: factor_allowed_forwards(aimed.roll_left, max.roll_left, angvel),
 		turn_right: factor_allowed_forwards(aimed.turn_right, max.turn_right, angvel),
+		tilt_up: factor_allowed_forwards(aimed.tilt_up, max.tilt_up, angvel),
+		roll_right: factor_allowed_forwards(aimed.roll_right, max.roll_right, angvel),
 		_stage: PhantomData,
 	}
 }
@@ -73,16 +76,17 @@ pub fn calculate_relative_velocity_magnitudes(
 			.vector_project(&base.turn_right)
 			.signed_length()
 			/ max.turn_right,
+
 		tilt_up: velocity
 			.angvel
 			.vector_project(&base.tilt_up)
 			.signed_length()
 			/ max.tilt_up,
-		roll_left: velocity
+		roll_right: velocity
 			.angvel
-			.vector_project(&base.roll_left)
+			.vector_project(&base.roll_right)
 			.signed_length()
-			/ max.roll_left,
+			/ max.roll_right,
 
 		_stage: PhantomData,
 	}

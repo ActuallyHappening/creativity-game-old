@@ -5,12 +5,12 @@ impl ThrustType {
 	pub const fn keybinds(self) -> (KeyCode, KeyCode) {
 		match self {
 			ThrustType::Forward => (KeyCode::R, KeyCode::F),
-			ThrustType::Right => (KeyCode::S, KeyCode::H),
+			ThrustType::Right => (KeyCode::H, KeyCode::S),
 			ThrustType::Up => (KeyCode::Y, KeyCode::W),
 
 			ThrustType::TurnRight => (KeyCode::G, KeyCode::D),
 			ThrustType::TiltUp => (KeyCode::T, KeyCode::E),
-			ThrustType::RollLeft => (KeyCode::X, KeyCode::B),
+			ThrustType::RollRight => (KeyCode::B, KeyCode::X),
 		}
 	}
 
@@ -62,7 +62,7 @@ pub fn get_base_normal_vectors(
 
 		turn_right: -up,
 		tilt_up: forward.cross(up),
-		roll_left: -forward,
+		roll_right: forward,
 		_stage: PhantomData,
 	}
 }
@@ -80,7 +80,7 @@ pub(super) fn max_velocity_magnitudes() -> Thrust<MaxAllowableVelocityMagnitudes
 
 		tilt_up: MainPlayer::MAX_ANGULAR_VELOCITY * 2.,
 		turn_right: MainPlayer::MAX_ANGULAR_VELOCITY,
-		roll_left: MainPlayer::MAX_ANGULAR_VELOCITY,
+		roll_right: MainPlayer::MAX_ANGULAR_VELOCITY,
 		_stage: PhantomData,
 	}
 }
@@ -98,7 +98,7 @@ pub(super) const fn force_factors() -> Thrust<ForceFactors> {
 
 		turn_right: MainPlayer::TURN_FACTOR,
 		tilt_up: MainPlayer::TURN_FACTOR,
-		roll_left: MainPlayer::TURN_FACTOR,
+		roll_right: MainPlayer::TURN_FACTOR,
 		_stage: PhantomData,
 	}
 }

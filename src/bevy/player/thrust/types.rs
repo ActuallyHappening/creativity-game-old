@@ -25,7 +25,7 @@ pub enum ThrustType {
 
 	TurnRight,
 	TiltUp,
-	RollLeft,
+	RollRight,
 }
 
 impl<T: ThrustStage> Thrust<T> {
@@ -37,7 +37,7 @@ impl<T: ThrustStage> Thrust<T> {
 
 			ThrustType::TurnRight => &self.turn_right,
 			ThrustType::TiltUp => &self.tilt_up,
-			ThrustType::RollLeft => &self.roll_left,
+			ThrustType::RollRight => &self.roll_right,
 		}
 	}
 
@@ -49,7 +49,7 @@ impl<T: ThrustStage> Thrust<T> {
 
 			ThrustType::TurnRight => &mut self.turn_right,
 			ThrustType::TiltUp => &mut self.tilt_up,
-			ThrustType::RollLeft => &mut self.roll_left,
+			ThrustType::RollRight => &mut self.roll_right,
 		}
 	}
 
@@ -61,7 +61,7 @@ impl<T: ThrustStage> Thrust<T> {
 
 			ThrustType::TurnRight => self.turn_right = value,
 			ThrustType::TiltUp => self.tilt_up = value,
-			ThrustType::RollLeft => self.roll_left = value,
+			ThrustType::RollRight => self.roll_right = value,
 		}
 	}
 	
@@ -85,7 +85,7 @@ impl ThrustType {
 
 			Self::TurnRight => "turn",
 			Self::TiltUp => "tilt",
-			Self::RollLeft => "roll",
+			Self::RollRight => "roll",
 		}
 	}
 }

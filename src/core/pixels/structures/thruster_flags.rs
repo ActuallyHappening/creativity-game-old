@@ -17,7 +17,7 @@ pub struct ThrusterFlags {
 	#[builder(default)]
 	pub tilt_up: Option<bool>,
 	#[builder(default)]
-	pub roll_left: Option<bool>,
+	pub roll_right: Option<bool>,
 }
 
 impl ThrusterFlags {
@@ -30,14 +30,14 @@ impl Reflection for ThrusterFlags {
 	fn reflect_horizontally(mut self) -> Self {
 		self.right_left = self.right_left.map(|v| !v);
 		self.turn_right = self.turn_right.map(|v| !v);
-		self.roll_left = self.roll_left.map(|v| !v);
+		self.roll_right = self.roll_right.map(|v| !v);
 		self
 	}
 
 	fn reflect_vertically(mut self) -> Self {
 		self.up_down = self.up_down.map(|v| !v);
 		self.tilt_up = self.tilt_up.map(|v| !v);
-		self.roll_left = self.roll_left.map(|v| !v);
+		self.roll_right = self.roll_right.map(|v| !v);
 		self
 	}
 }
@@ -52,7 +52,7 @@ impl std::ops::Index<ThrustType> for ThrusterFlags {
 			ThrustType::Right => &self.right_left,
 
 			ThrustType::TiltUp => &self.tilt_up,
-			ThrustType::RollLeft => &self.roll_left,
+			ThrustType::RollRight => &self.roll_right,
 			ThrustType::TurnRight => &self.turn_right,
 		}
 	}
@@ -62,13 +62,13 @@ impl std::ops::Index<ThrustType> for ThrusterFlags {
 fn thrust_flags() {
 	let expexted = ThrusterFlags {
 		up_down: Some(false),
-		roll_left: Some(true),
+		roll_right: Some(true),
 		..default()
 	};
 
 	let actual = ThrusterFlagsBuilder::default()
 		.up_down(false)
-		.roll_left(true)
+		.roll_right(true)
 		.build()
 		.unwrap();
 

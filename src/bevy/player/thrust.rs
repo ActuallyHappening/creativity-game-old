@@ -40,7 +40,7 @@ pub struct Thrust<S: ThrustStage> {
 	pub tilt_up: <S as self::ThrustStage>::DimensionType,
 
 	/// Right is positive
-	pub roll_left: <S as self::ThrustStage>::DimensionType,
+	pub roll_right: <S as self::ThrustStage>::DimensionType,
 
 	_stage: PhantomData<S>,
 }
@@ -62,7 +62,7 @@ where
 
 			turn_right: T::default(),
 			tilt_up: T::default(),
-			roll_left: T::default(),
+			roll_right: T::default(),
 			_stage: PhantomData,
 		}
 	}

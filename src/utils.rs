@@ -31,12 +31,13 @@ pub use std::borrow::Cow;
 pub use std::f32::consts::{PI, TAU};
 pub use std::{
 	marker::PhantomData,
-	ops::{Add, Div, Mul},
+	ops::{Add as _, Div as _, Mul as _, Neg as _},
 };
 pub use strum::*;
 pub use std::collections::HashMap;
 pub use std::num::*;
 pub use std::time::Duration;
+// pub use bevy_debug_text_overlay::{screen_print, OverlayPlugin};
 
 #[cfg(feature = "hanabi_particles")]
 mod particles;
