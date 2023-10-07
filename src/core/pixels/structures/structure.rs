@@ -61,6 +61,21 @@ impl Structure {
 						},
 						data: thrust,
 					},
+					StructurePart::Weapon {
+						weapon,
+						relative_location,
+					} => StructureBundle::Weapon {
+						visual: PbrBundle {
+							material: mma.mats.add(Color::RED.into()),
+							transform: Transform::from_translation(
+								relative_location.into_world_vector()
+									- (PIXEL_SIZE / 2.) * weapon.facing.into_direction_vector(),
+							),
+							mesh: mma.meshs.add(shape::Cube::new(PIXEL_SIZE / 3.).into()),
+							..default()
+						},
+						data: weapon,
+					},
 					StructurePart::Pixel {
 						px,
 						relative_location,
@@ -110,6 +125,19 @@ impl Reflection for Structure {
 						relative_location: relative_location.reflect_horizontally(),
 					},
 				],
+				StructurePart::Weapon {
+					weapon,
+					relative_location,
+				} => [
+					StructurePart::Weapon {
+						weapon: weapon.clone(),
+						relative_location: relative_location.clone(),
+					},
+					StructurePart::Weapon {
+						weapon: weapon.reflect_horizontally(),
+						relative_location: relative_location.reflect_horizontally(),
+					},
+				],
 			})
 			.collect();
 		self
@@ -143,6 +171,19 @@ impl Reflection for Structure {
 					},
 					StructurePart::Thruster {
 						thrust: thrust.reflect_vertically(),
+						relative_location: relative_location.reflect_vertically(),
+					},
+				],
+				StructurePart::Weapon {
+					weapon,
+					relative_location,
+				} => [
+					StructurePart::Weapon {
+						weapon: weapon.clone(),
+						relative_location: relative_location.clone(),
+					},
+					StructurePart::Weapon {
+						weapon: weapon.reflect_vertically(),
 						relative_location: relative_location.reflect_vertically(),
 					},
 				],

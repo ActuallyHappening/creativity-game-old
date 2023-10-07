@@ -85,13 +85,8 @@ pub fn save_thrust_stages(
 
 	let mut player = player_data.single_mut();
 
-	let player_data = MainPlayer {
-		relative_strength,
-		thrust_responses,
-		// although this clone is an anti-pattern, it will fail to compile if any new fields are added
-		artificial_friction_flags: player.artificial_friction_flags.clone(),
-	};
-	*player = player_data;
+	player.relative_strength = relative_strength;
+	player.thrust_responses = thrust_responses;
 
 	final_vectors
 }

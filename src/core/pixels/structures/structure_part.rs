@@ -10,15 +10,19 @@ pub enum StructurePart {
 		thrust: Thruster,
 		relative_location: RelativePixelPoint,
 	},
+	Weapon {
+		weapon: Weapon,
+		relative_location: RelativePixelPoint,
+	},
 }
 
 impl StructurePart {
 	pub fn compute_shape(&self) -> Option<(Vec3, Quat, Collider)> {
 		match self {
-			StructurePart::Thruster { .. } => None,
+			StructurePart::Thruster { .. } | StructurePart::Weapon { .. } => None,
 			StructurePart::Pixel {
-				px,
 				relative_location,
+				..
 			} => Some({
 				let pos = relative_location.clone().into_world_vector();
 				let rot = Quat::IDENTITY;
@@ -36,6 +40,18 @@ where
 	fn from((thrust, relative_location): (Thruster, L)) -> Self {
 		Self::Thruster {
 			thrust,
+			relative_location: relative_location.into(),
+		}
+	}
+}
+
+impl<L> From<(Weapon, L)> for StructurePart
+where
+	L: Into<RelativePixelPoint>,
+{
+	fn from((weapon, relative_location): (Weapon, L)) -> Self {
+		Self::Weapon {
+			weapon,
 			relative_location: relative_location.into(),
 		}
 	}

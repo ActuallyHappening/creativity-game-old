@@ -21,6 +21,9 @@ pub use thruster::Thruster;
 mod thruster_flags;
 pub use thruster_flags::ThrusterFlags;
 
+mod weapons;
+pub use weapons::*;
+
 mod direction;
 pub use direction::Direction;
 

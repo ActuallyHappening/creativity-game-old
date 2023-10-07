@@ -9,6 +9,10 @@ pub enum StructureBundle {
 		data: Thruster,
 		particles: ParticleEffectBundle,
 	},
+	Weapon {
+		visual: PbrBundle,
+		data: Weapon,
+	}
 }
 
 impl StructureBundle {
@@ -25,6 +29,9 @@ impl StructureBundle {
 				parent.spawn(visual).with_children(|parent| {
 					parent.spawn(particles.insert(data));
 				});
+			}
+			StructureBundle::Weapon { visual, data } => {
+				parent.spawn(visual.insert(data));
 			}
 		};
 	}

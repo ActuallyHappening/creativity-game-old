@@ -3,15 +3,18 @@ use crate::core::PlayerInventory;
 use super::camera::handle_camera_movement;
 use crate::utils::*;
 use std::ops::Deref;
+use lazy_static::lazy_static;
 
 mod thrust;
-use lazy_static::lazy_static;
 use thrust::*;
 pub use thrust::{
 	calculate_relative_velocity_magnitudes, get_base_normal_vectors, get_current_relative_strengths,
 	types, RelativeStrength, RelativeVelocityMagnitudes, Thrust, ThrustReactions,
 	ThrustReactionsStage,
 };
+
+mod weapons;
+use weapons::*;
 
 pub struct PlayerPlugin;
 
@@ -58,6 +61,9 @@ pub struct MainPlayer {
 	pub thrust_responses: Thrust<ThrustReactionsStage>,
 	/// Optional artificial friction flags, starts all enabled
 	pub artificial_friction_flags: Thrust<ArtificialFrictionFlags>,
+
+	/// Information about weapon controls
+	pub weapon_flags: WeaponFlags,
 }
 
 lazy_static! {
@@ -76,6 +82,8 @@ lazy_static! {
 		(Thruster::new(Direction::Left, ThrusterFlags::builder().right_left(true).turn_left(false).roll_left(false).build().unwrap()), (-1, 1, 1)),
 		(Thruster::new(Direction::Backward, ThrusterFlags::builder().forward_back(true).build().unwrap()), (-1, 0, 2)),
 		(Thruster::new(Direction::Forward, ThrusterFlags::builder().forward_back(false).build().unwrap()), (-1, 0, -1)),
+	]).with([
+		(Weapon::new(Direction::Forward), (-2, 0, -2)), // left 2, front 2
 	])
 	.reflect_horizontally()
 	.reflect_vertically();
