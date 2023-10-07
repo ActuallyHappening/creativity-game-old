@@ -10,7 +10,8 @@
 			"linvel",
 			"pickable",
 			"Pickable",
-			"Raycast"
+			"Raycast",
+			"reparented"
 		]
 	}
 }
