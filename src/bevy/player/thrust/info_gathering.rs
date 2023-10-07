@@ -1,5 +1,40 @@
 use super::*;
 
+impl ThrustType {
+	/// Returns (positive, negative) keybinds
+	const fn keybinds(self) -> (KeyCode, KeyCode) {
+		match self {
+			ThrustType::Forward => (KeyCode::R, KeyCode::F),
+			ThrustType::Right => (KeyCode::S, KeyCode::H),
+			ThrustType::Up => (KeyCode::Y, KeyCode::W),
+
+			ThrustType::TurnLeft => (KeyCode::D, KeyCode::G),
+			ThrustType::TiltUp => (KeyCode::T, KeyCode::E),
+			ThrustType::RollLeft => (KeyCode::X, KeyCode::B),
+		}
+	}
+
+	fn gather_flag(self, inputs: &Input<KeyCode>) -> Option<bool> {
+		let (positive, negative) = self.keybinds();
+		match (inputs.pressed(positive), inputs.pressed(negative)) {
+			(true, true) | (false, false) => None,
+			(true, false) => Some(true),
+			(false, true) => Some(false),
+		}
+	}
+
+	fn gather_flags(inputs: &Input<KeyCode>) -> Thrust<GenericInputFlags> {
+		let mut ret = Thrust::default();
+
+		for ttype in ThrustType::iter() {
+			let flag = ttype.gather_flag(inputs);
+			ret.set_from_type(ttype, flag);
+		}
+
+		ret
+	}
+}
+
 /// [Option::None] when braking
 pub(super) fn gather_input_flags(
 	keyboard_input: Res<Input<KeyCode>>,
@@ -7,62 +42,7 @@ pub(super) fn gather_input_flags(
 	if keyboard_input.pressed(KeyCode::ShiftLeft) {
 		None
 	} else {
-		Some(match keyboard_input.pressed(KeyCode::Space) {
-			false => Thrust::<GenericInputFlags> {
-				forward: match (
-					keyboard_input.pressed(KeyCode::W),
-					keyboard_input.pressed(KeyCode::S),
-				) {
-					(true, true) | (false, false) => None,
-					(true, false) => Some(true),
-					(false, true) => Some(false),
-				},
-				up: match (
-					keyboard_input.pressed(KeyCode::Q),
-					keyboard_input.pressed(KeyCode::E),
-				) {
-					(true, true) | (false, false) => None,
-					(true, false) => Some(true),
-					(false, true) => Some(false),
-				},
-				right: match (
-					keyboard_input.pressed(KeyCode::D),
-					keyboard_input.pressed(KeyCode::A),
-				) {
-					(true, true) | (false, false) => None,
-					(true, false) => Some(true),
-					(false, true) => Some(false),
-				},
-				..default()
-			},
-			true => Thrust {
-				turn_left: match (
-					keyboard_input.pressed(KeyCode::A),
-					keyboard_input.pressed(KeyCode::D),
-				) {
-					(true, true) | (false, false) => None,
-					(true, false) => Some(true),
-					(false, true) => Some(false),
-				},
-				tilt_up: match (
-					keyboard_input.pressed(KeyCode::S),
-					keyboard_input.pressed(KeyCode::W),
-				) {
-					(true, true) | (false, false) => None,
-					(true, false) => Some(true),
-					(false, true) => Some(false),
-				},
-				roll_left: match (
-					keyboard_input.pressed(KeyCode::Q),
-					keyboard_input.pressed(KeyCode::E),
-				) {
-					(true, true) | (false, false) => None,
-					(true, false) => Some(true),
-					(false, true) => Some(false),
-				},
-				..default()
-			},
-		})
+		Some(ThrustType::gather_flags(&keyboard_input))
 	}
 }
 
