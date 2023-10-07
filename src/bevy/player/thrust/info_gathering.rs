@@ -8,7 +8,7 @@ impl ThrustType {
 			ThrustType::Right => (KeyCode::S, KeyCode::H),
 			ThrustType::Up => (KeyCode::Y, KeyCode::W),
 
-			ThrustType::TurnLeft => (KeyCode::D, KeyCode::G),
+			ThrustType::TurnRight => (KeyCode::G, KeyCode::D),
 			ThrustType::TiltUp => (KeyCode::T, KeyCode::E),
 			ThrustType::RollLeft => (KeyCode::X, KeyCode::B),
 		}
@@ -60,7 +60,7 @@ pub fn get_base_normal_vectors(
 		up,
 		right: forward.cross(up),
 
-		turn_left: up,
+		turn_right: -up,
 		tilt_up: forward.cross(up),
 		roll_left: -forward,
 		_stage: PhantomData,
@@ -79,7 +79,7 @@ pub(super) fn max_velocity_magnitudes() -> Thrust<MaxAllowableVelocityMagnitudes
 		right: MainPlayer::MAX_LINEAR_VELOCITY,
 
 		tilt_up: MainPlayer::MAX_ANGULAR_VELOCITY * 2.,
-		turn_left: MainPlayer::MAX_ANGULAR_VELOCITY,
+		turn_right: MainPlayer::MAX_ANGULAR_VELOCITY,
 		roll_left: MainPlayer::MAX_ANGULAR_VELOCITY,
 		_stage: PhantomData,
 	}
@@ -96,7 +96,7 @@ pub(super) const fn force_factors() -> Thrust<ForceFactors> {
 		up: MainPlayer::MOVE_FACTOR,
 		right: MainPlayer::MOVE_FACTOR,
 
-		turn_left: MainPlayer::TURN_FACTOR,
+		turn_right: MainPlayer::TURN_FACTOR,
 		tilt_up: MainPlayer::TURN_FACTOR,
 		roll_left: MainPlayer::TURN_FACTOR,
 		_stage: PhantomData,

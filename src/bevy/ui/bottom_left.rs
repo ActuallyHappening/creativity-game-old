@@ -50,7 +50,7 @@ impl ThrustType {
 
 			ThrustType::TiltUp => (0, 1),
 			ThrustType::RollLeft => (1, 1),
-			ThrustType::TurnLeft => (0, 2),
+			ThrustType::TurnRight => (0, 2),
 		}
 	}
 }

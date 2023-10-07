@@ -13,7 +13,7 @@ pub struct ThrusterFlags {
 	pub right_left: Option<bool>,
 
 	#[builder(default)]
-	pub turn_left: Option<bool>,
+	pub turn_right: Option<bool>,
 	#[builder(default)]
 	pub tilt_up: Option<bool>,
 	#[builder(default)]
@@ -29,7 +29,7 @@ impl ThrusterFlags {
 impl Reflection for ThrusterFlags {
 	fn reflect_horizontally(mut self) -> Self {
 		self.right_left = self.right_left.map(|v| !v);
-		self.turn_left = self.turn_left.map(|v| !v);
+		self.turn_right = self.turn_right.map(|v| !v);
 		self.roll_left = self.roll_left.map(|v| !v);
 		self
 	}
@@ -53,7 +53,7 @@ impl std::ops::Index<ThrustType> for ThrusterFlags {
 
 			ThrustType::TiltUp => &self.tilt_up,
 			ThrustType::RollLeft => &self.roll_left,
-			ThrustType::TurnLeft => &self.turn_left,
+			ThrustType::TurnRight => &self.turn_right,
 		}
 	}
 }

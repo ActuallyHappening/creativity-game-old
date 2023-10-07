@@ -47,7 +47,7 @@ pub fn get_relative_strengths(
 
 		tilt_up: factor_allowed_forwards(aimed.tilt_up, max.tilt_up, angvel),
 		roll_left: factor_allowed_forwards(aimed.roll_left, max.roll_left, angvel),
-		turn_left: factor_allowed_forwards(aimed.turn_left, max.turn_left, angvel),
+		turn_right: factor_allowed_forwards(aimed.turn_right, max.turn_right, angvel),
 		_stage: PhantomData,
 	}
 }
@@ -68,11 +68,11 @@ pub fn calculate_relative_velocity_magnitudes(
 		up: velocity.linvel.vector_project(&base.up).signed_length() / max.up,
 		right: velocity.linvel.vector_project(&base.right).signed_length() / max.right,
 
-		turn_left: velocity
+		turn_right: velocity
 			.angvel
-			.vector_project(&base.turn_left)
+			.vector_project(&base.turn_right)
 			.signed_length()
-			/ max.turn_left,
+			/ max.turn_right,
 		tilt_up: velocity
 			.angvel
 			.vector_project(&base.tilt_up)

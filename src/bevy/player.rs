@@ -80,7 +80,7 @@ lazy_static! {
 		(PixelVariant::PlayerSteel, (0, 1, 1)), // surrounding engine above
 	]).with([
 		(Thruster::new(Direction::Up, ThrusterFlags::builder().up_down(false).tilt_up(true).roll_left(true).build().unwrap()), (-1, 1, 1)),
-		(Thruster::new(Direction::Left, ThrusterFlags::builder().right_left(true).turn_left(false).roll_left(false).build().unwrap()), (-1, 1, 1)),
+		(Thruster::new(Direction::Left, ThrusterFlags::builder().right_left(true).turn_right(false).roll_left(false).build().unwrap()), (-1, 1, 1)),
 		(Thruster::new(Direction::Backward, ThrusterFlags::builder().forward_back(true).build().unwrap()), (-1, 0, 2)),
 		(Thruster::new(Direction::Forward, ThrusterFlags::builder().forward_back(false).build().unwrap()), (-1, 0, -1)),
 	]).with([
