@@ -10,6 +10,7 @@ mod setup;
 mod ui;
 
 pub use player::types;
+pub use player::WeaponFlags;
 
 pub struct MainPlugin;
 impl Plugin for MainPlugin {

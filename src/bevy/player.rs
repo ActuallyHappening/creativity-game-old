@@ -14,7 +14,7 @@ pub use thrust::{
 };
 
 mod weapons;
-use weapons::*;
+pub use weapons::WeaponFlags;
 
 pub struct PlayerPlugin;
 
