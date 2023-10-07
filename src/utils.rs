@@ -36,6 +36,7 @@ pub use std::{
 pub use strum::*;
 pub use std::collections::HashMap;
 pub use std::num::*;
+pub use std::time::Duration;
 
 #[cfg(feature = "hanabi_particles")]
 mod particles;

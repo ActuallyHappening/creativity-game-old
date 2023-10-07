@@ -10,7 +10,9 @@ pub struct WeaponFlags {
 }
 
 #[derive(Component, Debug)]
-pub struct Bullet;
+pub struct Bullet {
+	timer: Timer
+}
 
 pub fn should_fire_this_frame(keyboard: Res<Input<KeyCode>>) -> bool {
 	keyboard.just_pressed(KeyCode::F)
@@ -41,7 +43,7 @@ pub fn handle_firing(
 							transform,
 							..default()
 						}
-						.insert(Bullet),
+						.insert(Bullet::default()),
 					)
 					.with_children(|parent| {
 						parent.spawn(PbrBundle {
@@ -71,11 +73,23 @@ pub fn handle_firing(
 	}
 }
 
-pub fn move_bullets(mut bullets: Query<(&mut Transform, &Bullet)>) {
-	for (mut transform, _) in bullets.iter_mut() {
+pub fn update_bullets(mut bullets: Query<(Entity, &mut Transform, &mut Bullet)>, time: Res<Time>, mut commands: Commands) {
+	for (entity, mut transform, mut bullet) in bullets.iter_mut() {
 		let translation = transform.translation;
 		let forward = transform.forward();
 
 		transform.translation = translation + forward * 10.;
+		bullet.timer.tick(time.delta());
+		if bullet.timer.finished() {
+			commands.entity(entity).despawn_recursive();
+		}
+	}
+}
+
+impl Default for Bullet {
+	fn default() -> Self {
+		Self {
+			timer: Timer::new(Duration::from_secs(5), TimerMode::Once)
+		}
 	}
 }
