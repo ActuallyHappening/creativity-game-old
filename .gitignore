@@ -2,3 +2,4 @@ target
 dist/
 example_images
 bevy_text_mesh
+bevy

@@ -23,13 +23,24 @@ pub fn toggle_fire(In(should_fire): In<bool>, player: Query<&mut MainPlayer>, mu
 	}
 }
 
-pub fn handle_firing(mut weapons: Query<(&mut Weapon, &GlobalTransform)>) {
+pub fn handle_firing(mut weapons: Query<(&mut Weapon, &GlobalTransform)>, mut commands: Commands, mut mma: MM) {
 	for (mut weapon, transform) in weapons.iter_mut() {
 		if let Some(try_fire) = weapon.flags.try_fire_this_frame {
 			weapon.flags.try_fire_this_frame = None;
 			if try_fire {
 				let transform = transform.reparented_to(&GlobalTransform::IDENTITY);
 				info!("Firing weapon at: {:?}", transform);
+
+				commands.spawn(PbrBundle {
+					transform,
+					material: mma.mats.add(Color::RED.into()),
+					mesh: mma.meshs.add(shape::Capsule {
+						radius: PIXEL_SIZE / 2.,
+						depth: PIXEL_SIZE * 1.5,
+						..default()
+					}.into()),
+					..default()
+				});
 			}
 		}
 	}
