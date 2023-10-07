@@ -1,6 +1,6 @@
 use crate::core::PlayerInventory;
 
-use self::weapons::{should_fire_this_frame, toggle_fire, handle_firing};
+use self::weapons::{should_fire_this_frame, toggle_fire, handle_firing, move_bullets};
 
 use super::camera::handle_camera_movement;
 use crate::utils::*;
@@ -40,6 +40,7 @@ impl Plugin for PlayerPlugin {
 					handle_camera_movement,
 					handle_player_mined_px,
 					should_fire_this_frame.pipe(toggle_fire).pipe(handle_firing),
+					move_bullets,
 					join2(
 						sequence(
 							get_base_normal_vectors,
