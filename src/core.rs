@@ -1,6 +1,7 @@
 mod events;
 mod pixels;
 mod player;
+mod states;
 
 pub use events::*;
 pub use pixels::*;
