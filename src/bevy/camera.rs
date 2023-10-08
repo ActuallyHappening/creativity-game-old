@@ -12,7 +12,6 @@ use super::player::MainPlayer;
 use crate::utils::*;
 
 mod dolly_rig;
-mod orbit;
 use dolly_rig::*;
 
 pub struct CameraPlugin;
@@ -60,7 +59,7 @@ impl CameraPlugin {
 				// 		.tracking_smoothness(0.),
 				// )
 				.with(RotationArm::<1>::new(*INITIAL_ROT))
-				// .with(RotationAccumulator::new(Quat::IDENTITY))
+				.with(RotationAccumulator::new(Quat::IDENTITY))
 				// .with(Smooth::new_position(0.75).predictive(true))
 				.build(),
 			// RenderLayers::all(),
@@ -80,12 +79,12 @@ pub fn handle_camera_movement(
 	let player = player.single();
 	let mut rig = camera.single_mut();
 
-	let mut scroll_x = 0.;
-	let mut scroll_y = 0.;
+	let mut orbit_x = 0.;
+	let mut orbit_y = 0.;
 	let should_reset_orbit = if mouse.pressed(MouseButton::Right) {
 		for ev in scroll.iter() {
-			scroll_x += ev.delta.x / -100.;
-			scroll_y += ev.delta.y / 100.;
+			orbit_x += ev.delta.x / -100.;
+			orbit_y += ev.delta.y / 100.;
 		}
 
 		// restricts movement if not a majority in one direction
@@ -107,7 +106,7 @@ pub fn handle_camera_movement(
 
 	rig
 		.driver_mut::<OrbitArm>()
-		.orbit(player.up(), player.forward(), scroll_x, scroll_y)
+		.orbit(player.up(), player.forward(), orbit_x, orbit_y)
 		.reset_percentage(if should_reset_orbit { 0.1 } else { 0. });
 
 	scroll.clear();
