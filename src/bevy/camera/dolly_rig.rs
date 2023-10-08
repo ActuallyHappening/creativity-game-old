@@ -100,10 +100,11 @@ impl OrbitArm {
 		self.offset = self.offset.normalize() * new;
 	}
 
-	#[allow(dead_code)]
 	pub fn reset(&mut self) {
 		self.total_temporary_sideways_rot = 0.;
 		self.total_temporary_vertical_rot = 0.;
+		self.permanent_sidways_rot = 0.;
+		self.permanent_vertical_rot = 0.;
 	}
 	pub fn reset_percentage(&mut self, percentage: f32) {
 		let percent = 1. - percentage;

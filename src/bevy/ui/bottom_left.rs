@@ -6,7 +6,7 @@ use crate::bevy::player::{
 const FULL_CIRCLE_RADIUS: f32 = 40.;
 const BORDER_CIRCLE_RADIUS: f32 = FULL_CIRCLE_RADIUS - 4.;
 const SMALLER_CIRCLE_RADIUS: f32 = FULL_CIRCLE_RADIUS - 5.;
-const TINY_CIRCLE_RADIUS: f32 = 7.;
+const TINY_CIRCLE_RADIUS: f32 = 8.;
 const PRIMARY_TEXT_SIZE: f32 = 15.;
 const KEYCODE_TEXT_SIZE: f32 = 18.;
 

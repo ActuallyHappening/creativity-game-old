@@ -2,7 +2,10 @@
 
 use bevy::{
 	core_pipeline::{clear_color::ClearColorConfig, tonemapping::Tonemapping},
-	input::mouse::{MouseMotion, MouseWheel},
+	input::{
+		keyboard,
+		mouse::{MouseMotion, MouseWheel},
+	},
 	prelude::*,
 };
 use bevy_dolly::prelude::*;
@@ -77,6 +80,9 @@ pub fn handle_camera_movement(
 	mut mouse_movements: EventReader<MouseMotion>,
 	mouse_clicks: Res<Input<MouseButton>>,
 	mut scroll: EventReader<MouseWheel>,
+
+	mut middle_button_timer: Local<Option<Timer>>,
+	time: Res<Time>,
 ) {
 	let player = player.single();
 	let mut rig = camera.single_mut();
@@ -118,8 +124,27 @@ pub fn handle_camera_movement(
 			.orbit(player.up(), player.forward(), 0., 0.)
 			.reset_percentage(0.1);
 	} else {
-		orbit_arm
-			.orbit(player.up(), player.forward(), orbit_x, orbit_y);
+		orbit_arm.orbit(player.up(), player.forward(), orbit_x, orbit_y);
+	}
+
+	if let Some(timer) = middle_button_timer.as_mut() {
+		if timer.tick(time.delta()).just_finished() {
+			*middle_button_timer = None;
+		}
+	}
+	if mouse_clicks.just_pressed(MouseButton::Middle) {
+		match middle_button_timer.as_mut() {
+			Some(_) => {
+				// timer is still ticking and middle button was pressed again
+				// reset orbit
+				orbit_arm.reset();
+				*middle_button_timer = None;
+			}
+			None => {
+				// start timer
+				*middle_button_timer = Some(Timer::from_seconds(0.5, TimerMode::Once));
+			}
+		}
 	}
 
 	mouse_movements.clear();
