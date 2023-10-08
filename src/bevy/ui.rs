@@ -49,7 +49,7 @@ use super::player::{
 };
 
 fn setup_camera<T: CamType>(mut commands: Commands) {
-	commands.spawn(UiCamera::<T>::get_camera_bundle().pickable_camera());
+	commands.spawn(UiCamera::<T>::get_camera_bundle().pickable_camera().insert(T::default()));
 }
 
 fn update_camera<T: CamType>(

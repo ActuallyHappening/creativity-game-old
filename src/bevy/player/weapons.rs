@@ -14,8 +14,8 @@ pub struct Bullet {
 	timer: Timer
 }
 
-pub fn should_fire_this_frame(keyboard: Res<Input<KeyCode>>) -> bool {
-	keyboard.just_pressed(KeyCode::F)
+pub fn should_fire_this_frame(mouse: Res<Input<MouseButton>>) -> bool {
+	mouse.just_pressed(MouseButton::Left)
 }
 
 pub fn toggle_fire(In(should_fire): In<bool>, mut weapons: Query<&mut Weapon>) {

@@ -1,9 +1,7 @@
 use super::*;
 use crate::bevy::player::{
 	MainPlayer, RelativeStrength, RelativeVelocityMagnitudes, Thrust, ThrustReactions,
-	ThrustReactionsStage,
 };
-use crate::utils::Text2dBundle;
 
 const FULL_CIRCLE_RADIUS: f32 = 40.;
 const BORDER_CIRCLE_RADIUS: f32 = FULL_CIRCLE_RADIUS - 4.;
@@ -79,7 +77,14 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, mma: &mut MM2)
 		.insert(On::<Pointer<Down>>::run(
 			|event: Res<ListenerInput<Pointer<Down>>>,
 			 mut player: Query<&mut MainPlayer>,
-			 this: Query<&BorderHitbox>| {
+			 this: Query<&BorderHitbox>, expexted_cam: Query<Entity, With<BottomLeft>>| {
+				let cam = expexted_cam.single();
+				let actual_cam = event.event.hit.camera;
+				if cam != actual_cam {
+					// warn!("Registering hit from camera {:?} but this was not the expected camera {:?}", actual_cam, cam);
+					return;
+				}
+
 				let mut player = player.single_mut();
 				let this = this.get(event.target).unwrap();
 
@@ -298,7 +303,7 @@ pub fn update_bottom_left_camera(
 			{
 				thrust_responses
 					.get_from_type(*thrust_type)
-					.into_colour(*is_right)
+					.get_colour(*is_right)
 			}
 			.into(),
 		);
@@ -321,7 +326,7 @@ pub fn update_bottom_left_camera(
 }
 
 impl ThrustReactions {
-	fn into_colour(&self, is_right: bool) -> Color {
+	fn get_colour(&self, is_right: bool) -> Color {
 		match self {
 			ThrustReactions::Normal { input } => match (input, is_right) {
 				(Some(true), true) | (Some(false), false) => USER_ENABLED_COL,
