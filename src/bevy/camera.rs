@@ -2,7 +2,7 @@
 
 use bevy::{
 	core_pipeline::{clear_color::ClearColorConfig, tonemapping::Tonemapping},
-	input::mouse::MouseMotion,
+	input::mouse::{MouseMotion, MouseWheel},
 	prelude::*,
 };
 use bevy_dolly::prelude::*;
@@ -52,6 +52,7 @@ impl CameraPlugin {
 			Rig::builder()
 				.with(Position::new(Vec3::ZERO))
 				.with(Rotation::new(*INITIAL_ROT))
+				.with(RotationAccumulator::new(Quat::IDENTITY))
 				.with(OrbitArm::new_from_arm(ARM))
 				// .with(
 				// 	LookAt::new(Vec3::ZERO)
@@ -59,12 +60,12 @@ impl CameraPlugin {
 				// 		.tracking_smoothness(0.),
 				// )
 				.with(RotationArm::<1>::new(*INITIAL_ROT))
-				.with(RotationAccumulator::new(Quat::IDENTITY))
 				// .with(Smooth::new_position(0.75).predictive(true))
 				.build(),
 			// RenderLayers::all(),
 			MainCamera,
-		).named("Main Camera")
+		)
+			.named("Main Camera")
 	}
 }
 
@@ -73,41 +74,53 @@ pub fn handle_camera_movement(
 	player: Query<&Transform, (With<MainPlayer>, Without<MainCamera>)>,
 	mut camera: Query<&mut Rig, (With<MainCamera>, Without<MainPlayer>)>,
 
-	mut scroll: EventReader<MouseMotion>,
-	mouse: Res<Input<MouseButton>>,
+	mut mouse_movements: EventReader<MouseMotion>,
+	mouse_clicks: Res<Input<MouseButton>>,
+	mut scroll: EventReader<MouseWheel>,
 ) {
 	let player = player.single();
 	let mut rig = camera.single_mut();
 
 	let mut orbit_x = 0.;
 	let mut orbit_y = 0.;
-	let should_reset_orbit = if mouse.pressed(MouseButton::Right) {
-		for ev in scroll.iter() {
-			orbit_x += ev.delta.x / -100.;
-			orbit_y += ev.delta.y / 100.;
-		}
 
-		// restricts movement if not a majority in one direction
-		// if scroll_y.abs() < scroll_x.abs() {
-		// 	scroll_y = 0.;
-		// } else if scroll_x.abs() < scroll_y.abs() {
-		// 	scroll_x = 0.;
-		// }
+	for ev in mouse_movements.iter() {
+		orbit_x += ev.delta.x / -100.;
+		orbit_y += ev.delta.y / 100.;
+	}
 
-		false
-	} else {
-		true
-	};
+	let should_reset_orbit = !mouse_clicks.pressed(MouseButton::Right);
+	let scroll: f32 = scroll.iter().map(|e| e.y).sum();
 
-	rig.driver_mut::<Position>().position = player.translation;
+	// base pos
+	rig.driver_mut::<Position>().position = player.translation + Vec3::Y * PIXEL_SIZE;
+
 	if should_reset_orbit {
+		// if not right-click orbitting
 		rig.driver_mut::<Rotation>().rotation = player.rotation;
 	}
 
+	// zoom
 	rig
 		.driver_mut::<OrbitArm>()
-		.orbit(player.up(), player.forward(), orbit_x, orbit_y)
-		.reset_percentage(if should_reset_orbit { 0.1 } else { 0. });
+		.adjust_arm_length(scroll / 100.);
 
-	scroll.clear();
+	// orbitting
+	let orbit_arm = rig.driver_mut::<OrbitArm>();
+
+	if mouse_clicks.pressed(MouseButton::Middle) {
+		orbit_arm
+			.orbit(player.up(), player.forward(), 0., 0.)
+			.permanent_orbit_horizontal(orbit_x)
+			.permanent_orbit_vertical(orbit_y);
+	} else if should_reset_orbit {
+		orbit_arm
+			.orbit(player.up(), player.forward(), 0., 0.)
+			.reset_percentage(0.1);
+	} else {
+		orbit_arm
+			.orbit(player.up(), player.forward(), orbit_x, orbit_y);
+	}
+
+	mouse_movements.clear();
 }

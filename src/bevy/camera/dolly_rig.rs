@@ -41,8 +41,11 @@ pub struct OrbitArm {
 
 	local_up_forward: Option<(Vec3, Vec3)>,
 
-	total_sideways_rot: f32,
-	total_vertical_rot: f32,
+	total_temporary_sideways_rot: f32,
+	permanent_sidways_rot: f32,
+
+	total_temporary_vertical_rot: f32,
+	permanent_vertical_rot: f32,
 }
 
 impl OrbitArm {
@@ -50,17 +53,21 @@ impl OrbitArm {
 		Self {
 			offset,
 			local_up_forward: None,
-			total_sideways_rot: 0.,
-			total_vertical_rot: 0.,
+			total_temporary_sideways_rot: 0.,
+			total_temporary_vertical_rot: 0.,
+			permanent_sidways_rot: 0.,
+			permanent_vertical_rot: 0.,
 		}
 	}
 
-	fn orbit_horizontal(&mut self, angle: f32) {
-		self.total_sideways_rot += angle;
+	fn orbit_horizontal(&mut self, angle: f32) -> &mut Self {
+		self.total_temporary_sideways_rot += angle;
+		self
 	}
 
-	fn orbit_vertical(&mut self, angle: f32) {
-		self.total_vertical_rot += angle;
+	fn orbit_vertical(&mut self, angle: f32) -> &mut Self {
+		self.total_temporary_vertical_rot += angle;
+		self
 	}
 
 	pub fn orbit(
@@ -78,15 +85,30 @@ impl OrbitArm {
 		self
 	}
 
+	pub fn permanent_orbit_horizontal(&mut self, angle: f32) -> &mut Self {
+		self.permanent_sidways_rot += angle;
+		self
+	}
+	pub fn permanent_orbit_vertical(&mut self, angle: f32) -> &mut Self {
+		self.permanent_vertical_rot += angle;
+		self
+	}
+
+	pub fn adjust_arm_length(&mut self, delta: f32) {
+		let current = self.offset.length();
+		let new = current.add(delta).clamp(0.1, 100.);
+		self.offset = self.offset.normalize() * new;
+	}
+
 	#[allow(dead_code)]
 	pub fn reset(&mut self) {
-		self.total_sideways_rot = 0.;
-		self.total_vertical_rot = 0.;
+		self.total_temporary_sideways_rot = 0.;
+		self.total_temporary_vertical_rot = 0.;
 	}
 	pub fn reset_percentage(&mut self, percentage: f32) {
 		let percent = 1. - percentage;
-		self.total_sideways_rot *= percent;
-		self.total_vertical_rot *= percent;
+		self.total_temporary_sideways_rot *= percent;
+		self.total_temporary_vertical_rot *= percent;
 	}
 }
 
@@ -101,8 +123,8 @@ impl RigDriver for OrbitArm {
 				let mut transform = *params.parent;
 
 				// let rot = Quat::from_rotation_y();
-				transform.rotate_axis(up, self.total_sideways_rot);
-				transform.rotate_axis(up.cross(forward), self.total_vertical_rot);
+				transform.rotate_axis(up, self.total_temporary_sideways_rot + self.permanent_sidways_rot);
+				transform.rotate_axis(up.cross(forward), self.total_temporary_vertical_rot + self.permanent_vertical_rot);
 
 				transform.translation += transform.rotation * self.offset; // arm
 				self.local_up_forward = None;
