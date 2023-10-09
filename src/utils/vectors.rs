@@ -44,8 +44,6 @@ impl Vec3 {
 		}
 	}
 
-	/// Seed1 between 0 and 2π
-	/// seed2 between -1 and 1
 	fn gen_random_sphere_normal(rng: &mut ThreadRng,) -> Self {
 		let phi = rng.gen_range(0. ..TAU);
 		let z = rng.gen_range(-1. ..1.);
