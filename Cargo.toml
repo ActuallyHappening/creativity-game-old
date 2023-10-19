@@ -7,7 +7,7 @@ publish = false
 
 [workspace]
 members = ["xtask"]
-exclude = ["surrealdb", "noise-rs", "bevy_editor_pls", "bevy_hanabi", "bevy_transform_gizmo", "bevy_text_mesh"]
+exclude = ["surrealdb", "noise-rs", "bevy_editor_pls", "bevy_hanabi", "bevy_transform_gizmo", "bevy_text_mesh", "ggrs", "bevy_rapier", "bevy_ggrs_rapier_example", "bevy_ggrs"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

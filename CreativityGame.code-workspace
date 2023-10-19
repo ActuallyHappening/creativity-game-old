@@ -2,6 +2,18 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "bevy_rapier"
+		},
+		{
+			"path": "ggrs"
+		},
+		{
+			"path": "bevy_ggrs_rapier_example"
+		},
+		{
+			"path": "bevy_ggrs"
 		}
 	],
 	"settings": {
