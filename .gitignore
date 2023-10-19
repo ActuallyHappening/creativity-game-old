@@ -1,5 +1,12 @@
-target
-dist/
-example_images
-bevy_text_mesh
-bevy
+*
+!.cargo
+!assets
+!src
+!.gitignore
+!.rustfmt.toml
+!Cargo.lock
+!Cargo.toml
+!CreativityGame.code-workspace
+!README.md
+!rust-toolchain.toml
+!Trunk.toml
