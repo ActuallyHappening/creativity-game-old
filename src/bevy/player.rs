@@ -5,7 +5,6 @@ use self::weapons::{handle_firing, should_fire_this_frame, toggle_fire, update_b
 use super::camera::handle_camera_movement;
 use crate::utils::*;
 use lazy_static::lazy_static;
-use std::ops::Deref;
 
 mod thrust;
 use thrust::*;
@@ -27,14 +26,10 @@ pub struct PlayerMove;
 impl Plugin for PlayerPlugin {
 	fn build(&self, app: &mut App) {
 		app
+			.init_resource::<PlayerInventory>()
 			.add_systems(
 				Startup,
-				(
-					initial_spawn_player.pipe(handle_camera_movement),
-					|mut commands: Commands| {
-						commands.insert_resource(PlayerInventory::default());
-					},
-				),
+				(initial_spawn_player,),
 			)
 			.add_systems(Update, (update_bullets,))
 			.add_systems(

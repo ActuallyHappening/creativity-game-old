@@ -4,6 +4,9 @@
 			"path": "."
 		},
 		{
+			"path": "src"
+		},
+		{
 			"path": "bevy_rapier"
 		},
 		{
@@ -14,7 +17,10 @@
 		},
 		{
 			"path": "bevy_ggrs"
-		}
+		},
+		{
+			"path": "bevy_ggrs_demo"
+		},
 	],
 	"settings": {
 		"cSpell.words": [
