@@ -8,7 +8,7 @@ mod camera;
 mod player;
 mod setup;
 mod ui;
-// mod renet;
+mod renet;
 
 pub use player::types;
 pub use player::WeaponFlags;
@@ -22,7 +22,7 @@ impl Plugin for MainPlugin {
 			PlayerPlugin,
 			CameraPlugin,
 			UiPlugin,
-			// self::renet::RenetPlugin,
+			self::renet::RenetPlugin,
 		));
 	}
 }
