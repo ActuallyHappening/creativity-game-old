@@ -30,7 +30,12 @@ impl Plugin for ServerPlugin {
 			.add_systems(OnExit(ServerConnections::Hosting), remove_netcode_network)
 			.add_systems(
 				Update,
-				update_server_visualizer.run_if(in_state(ServerConnections::Hosting)),
+				(
+					server_update_system,
+					
+					#[cfg(feature = "debugging")]
+					update_server_visualizer.run_if(in_state(ServerConnections::Hosting)),
+				),
 			);
 	}
 }
@@ -74,6 +79,8 @@ pub fn add_netcode_network(mut commands: Commands) {
 	let transport = NetcodeServerTransport::new(server_config, socket).unwrap();
 	commands.insert_resource(server);
 	commands.insert_resource(transport);
+
+	#[cfg(feature = "debugging")]
 	commands.insert_resource(RenetServerVisualizer::<200>::default());
 }
 
@@ -82,9 +89,12 @@ pub fn remove_netcode_network(mut commands: Commands) {
 
 	commands.remove_resource::<RenetServer>();
 	commands.remove_resource::<NetcodeServerTransport>();
+
+	#[cfg(feature = "debugging")]
 	commands.remove_resource::<RenetServerVisualizer<200>>();
 }
 
+#[cfg(feature = "debugging")]
 fn update_server_visualizer(
 	mut egui_contexts: bevy_egui::EguiContexts,
 	mut visualizer: ResMut<RenetServerVisualizer<200>>,
@@ -93,6 +103,22 @@ fn update_server_visualizer(
 	visualizer.update(&server);
 	let mut_ref = egui_contexts.ctx_mut();
 	visualizer.show_window(mut_ref);
+}
+
+#[allow(clippy::too_many_arguments)]
+fn server_update_system(
+	mut server_events: EventReader<ServerEvent>,
+	// mut commands: Commands,
+	// mut meshes: ResMut<Assets<Mesh>>,
+	// mut materials: ResMut<Assets<StandardMaterial>>,
+	// mut lobby: ResMut<ServerLobby>,
+	// mut server: ResMut<RenetServer>,
+	// mut visualizer: ResMut<RenetServerVisualizer<200>>,
+	// players: Query<(Entity, &Player, &Transform)>,
+) {
+	for e in server_events.into_iter() {
+		info!("Server event: {:?}", e);
+	}
 }
 
 // fn main() {
@@ -117,19 +143,19 @@ fn update_server_visualizer(
 // 	#[cfg(feature = "steam")]
 // 	add_steam_network(&mut app);
 
-// 	// app.add_systems(
-// 	// 	Update,
-// 	// 	(
-// 	// 		// server_update_system,
-// 	// 		// server_network_sync,
-// 	// 		// move_players_system,
-// 	// 		// update_projectiles_system,
-// 	// 		// update_visulizer_system,
-// 	// 		// despawn_projectile_system,
-// 	// 		// spawn_bot,
-// 	// 		// bot_autocast,
-// 	// 	),
-// 	// );
+// app.add_systems(
+// 	Update,
+// 	(
+// server_update_system,
+// server_network_sync,
+// move_players_system,
+// update_projectiles_system,
+// update_visulizer_system,
+// despawn_projectile_system,
+// spawn_bot,
+// bot_autocast,
+// 	),
+// );
 
 // 	// app.add_systems(PostUpdate, projectile_on_removal_system);
 
