@@ -25,14 +25,16 @@ pub struct ServerPlugin;
 impl Plugin for ServerPlugin {
 	fn build(&self, app: &mut App) {
 		app
-			.add_plugins(bevy_renet::RenetServerPlugin)
+			.add_plugins((
+				bevy_renet::RenetServerPlugin,
+				bevy_renet::transport::NetcodeServerPlugin,
+			))
 			.add_systems(OnEnter(ServerConnections::Hosting), add_netcode_network)
 			.add_systems(OnExit(ServerConnections::Hosting), remove_netcode_network)
 			.add_systems(
 				Update,
 				(
 					server_update_system,
-					
 					#[cfg(feature = "debugging")]
 					update_server_visualizer.run_if(in_state(ServerConnections::Hosting)),
 				),
@@ -56,7 +58,7 @@ pub struct ServerLobby {
 // struct BotId(u64);
 
 // #[cfg(feature = "transport")]
-pub fn add_netcode_network(mut commands: Commands) {
+fn add_netcode_network(mut commands: Commands) {
 	use std::{net::UdpSocket, time::SystemTime};
 
 	info!("Beginning to host");
@@ -84,9 +86,10 @@ pub fn add_netcode_network(mut commands: Commands) {
 	commands.insert_resource(RenetServerVisualizer::<200>::default());
 }
 
-pub fn remove_netcode_network(mut commands: Commands) {
+pub fn remove_netcode_network(mut commands: Commands, mut server: ResMut<RenetServer>) {
 	info!("Stopping hosting");
 
+	server.disconnect_all();
 	commands.remove_resource::<RenetServer>();
 	commands.remove_resource::<NetcodeServerTransport>();
 
