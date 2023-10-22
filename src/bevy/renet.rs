@@ -5,10 +5,12 @@ use bevy_rapier3d::prelude::*;
 use bevy_renet::renet::{ChannelConfig, ClientId, ConnectionConfig, SendType};
 use serde::{Deserialize, Serialize};
 
+mod client;
+mod server;
+
 pub struct RenetPlugin;
 impl Plugin for RenetPlugin {
 	fn build(&self, app: &mut App) {
-		println!("No segfault when initializing renet plugin");
 	}
 }
 
@@ -32,7 +34,7 @@ pub struct PlayerInput {
 
 #[derive(Debug, Serialize, Deserialize, Component, Event)]
 pub enum PlayerCommand {
-    BasicAttack { cast_at: Vec3 },
+    Shoot,
 }
 
 pub enum ClientChannel {

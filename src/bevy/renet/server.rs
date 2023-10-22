@@ -31,7 +31,7 @@ struct Bot {
 #[derive(Debug, Resource)]
 struct BotId(u64);
 
-#[cfg(feature = "transport")]
+// #[cfg(feature = "transport")]
 fn add_netcode_network(app: &mut App) {
     use bevy_renet::renet::transport::{NetcodeServerTransport, ServerAuthentication, ServerConfig};
     use bevy_renet::transport::NetcodeServerPlugin;
@@ -56,34 +56,6 @@ fn add_netcode_network(app: &mut App) {
     let transport = NetcodeServerTransport::new(server_config, socket).unwrap();
     app.insert_resource(server);
     app.insert_resource(transport);
-}
-
-#[cfg(feature = "steam")]
-fn add_steam_network(app: &mut App) {
-    use bevy_renet::steam::{AccessPermission, SteamServerConfig, SteamServerPlugin, SteamServerTransport};
-    use demo_bevy::connection_config;
-    use steamworks::SingleClient;
-
-    let (steam_client, single) = steamworks::Client::init_app(480).unwrap();
-
-    let server: RenetServer = RenetServer::new(connection_config());
-
-    let steam_transport_config = SteamServerConfig {
-        max_clients: 10,
-        access_permission: AccessPermission::Public,
-    };
-    let transport = SteamServerTransport::new(&steam_client, steam_transport_config).unwrap();
-
-    app.add_plugins(SteamServerPlugin);
-    app.insert_resource(server);
-    app.insert_non_send_resource(transport);
-    app.insert_non_send_resource(single);
-
-    fn steam_callbacks(client: NonSend<SingleClient>) {
-        client.run_callbacks();
-    }
-
-    app.add_systems(PreUpdate, steam_callbacks);
 }
 
 fn main() {

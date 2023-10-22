@@ -27,10 +27,7 @@ impl Plugin for PlayerPlugin {
 	fn build(&self, app: &mut App) {
 		app
 			.init_resource::<PlayerInventory>()
-			.add_systems(
-				Startup,
-				(initial_spawn_player,),
-			)
+			.add_systems(Startup, (initial_spawn_player,))
 			.add_systems(Update, (update_bullets,))
 			.add_systems(
 				Update,
@@ -47,8 +44,7 @@ impl Plugin for PlayerPlugin {
 					.pipe(manually_threading_player_movement)
 					.in_set(PlayerMove),
 					trigger_player_thruster_particles.after(PlayerMove),
-				)
-					.run_if(in_state(GameStates::PlayField)),
+				),
 			);
 	}
 }

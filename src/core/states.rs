@@ -1,39 +1,41 @@
 use crate::utils::*;
 
-#[derive(Default, Clone, Copy, PartialEq, Eq, Debug, Hash, States)]
-pub enum GameStates {
-	#[default]
-	PlayField,
+// #[derive(Default, Clone, Copy, PartialEq, Eq, Debug, Hash, States)]
+// pub enum GameStates {
+// 	#[default]
+// 	PlayField,
 	
-	// #[default]
-	Designing,
-}
+// 	// #[default]
+// 	Designing,
+// }
 
 /// What context to execute logic for each frame
 #[derive(Default, Clone, Copy, PartialEq, Eq, Debug, Hash, States)]
-pub enum ConnectionState {
-	/// Playing solo
-	LocalOnly,
-
-	/// Playing locally and also hosting current local session as a server
+pub enum Controlling {
+	/// Controlling a local player
 	#[default]
-	LocalServer,
+	Local,
 
-	/// Acting as a dedicated server
-	/// TODO: Add headless option
-	ServerOnly,
-
-	/// Client for server
-	Client,
+	/// Not controlling any character
+	Global
 }
 
-impl ConnectionState {
-	/// Whether to 
-	pub fn is_server(self) -> bool {
-		matches!(self, Self::LocalServer | Self::ServerOnly)
-	}
+#[derive(Default, Clone, Copy, PartialEq, Eq, Debug, Hash, States)]
+pub enum ServerConnections {
+	/// Hosting to outside world
+	#[default]
+	Hosting,
 
-	pub fn is_local(self) -> bool {
-		matches!(self, Self::LocalOnly | Self::LocalServer)
+	/// Connecting to a server and displaying server state
+	Client,
+
+	/// Not interacting with any servers,
+	/// or hosting (yet)
+	Local,
+}
+
+impl ServerConnections {
+	pub fn should_simulate(&self) -> bool {
+		matches!(self, ServerConnections::Hosting | ServerConnections::Client)
 	}
 }

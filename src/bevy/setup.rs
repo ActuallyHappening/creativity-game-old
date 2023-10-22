@@ -1,9 +1,11 @@
-use bevy::prelude::*;
+use crate::utils::*;
 use bevy_hanabi::HanabiPlugin;
 use bevy_mod_picking::{
 	prelude::{DebugPickingPlugin, DefaultHighlightingPlugin},
 	DefaultPickingPlugins,
 };
+use bevy::transform::TransformSystem;
+
 #[cfg(feature = "dev")]
 use bevy_screen_diagnostics::{ScreenDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin};
 
@@ -23,8 +25,7 @@ impl Plugin for SetupPlugin {
 			.add_plugins(
 				DefaultPickingPlugins
 					.build()
-					.disable::<DefaultHighlightingPlugin>()
-					// .disable::<DebugPickingPlugin>(),
+					.disable::<DefaultHighlightingPlugin>(), // .disable::<DebugPickingPlugin>(),
 			)
 			.add_systems(Update, blink_stars);
 
@@ -36,12 +37,34 @@ impl Plugin for SetupPlugin {
 			ScreenDiagnosticsPlugin::default(),
 		));
 
-		app.add_plugins(RapierPhysicsPlugin::<NoUserData>::default());
+		app.add_plugins(RapierPhysicsPlugin::<NoUserData>::default().with_default_system_setup(false));
 		app.add_systems(
 			Startup,
 			|mut physics_config: ResMut<RapierConfiguration>| {
 				physics_config.gravity = Vec3::ZERO;
 			},
+		);
+
+		app.configure_sets(
+			PostUpdate,
+			(
+				PhysicsSet::SyncBackend,
+				PhysicsSet::SyncBackendFlush,
+				PhysicsSet::StepSimulation,
+				PhysicsSet::Writeback,
+			)
+				.chain()
+				.before(TransformSystem::TransformPropagate),
+		);
+
+		app.add_systems(
+			PostUpdate,
+			(
+				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::SyncBackend).in_set(PhysicsSet::SyncBackend),
+				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::SyncBackendFlush).in_set(PhysicsSet::SyncBackendFlush),
+				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::StepSimulation).in_set(PhysicsSet::StepSimulation),
+				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::Writeback).in_set(PhysicsSet::Writeback),
+			).run_if(|state: Res<State<ServerConnections>>| state.should_simulate()),
 		);
 
 		#[cfg(feature = "hanabi_particles")]
