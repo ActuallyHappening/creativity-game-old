@@ -6,21 +6,27 @@
 		{
 			"path": "src"
 		},
+		// {
+		// 	"path": "bevy_rapier"
+		// },
+		// {
+		// 	"path": "ggrs"
+		// },
+		// {
+		// 	"path": "bevy_ggrs_rapier_example"
+		// },
+		// {
+		// 	"path": "bevy_ggrs"
+		// },
+		// {
+		// 	"path": "bevy_ggrs_demo"
+		// },
+		// {
+		// 	"path": "renet"
+		// },
 		{
-			"path": "bevy_rapier"
-		},
-		{
-			"path": "ggrs"
-		},
-		{
-			"path": "bevy_ggrs_rapier_example"
-		},
-		{
-			"path": "bevy_ggrs"
-		},
-		{
-			"path": "bevy_ggrs_demo"
-		},
+			"path": "renet/demo_bevy"
+		}
 	],
 	"settings": {
 		"cSpell.words": [

@@ -2,12 +2,13 @@ use bevy::prelude::*;
 
 use crate::core::CorePlugin;
 
-use self::{camera::CameraPlugin, player::PlayerPlugin, setup::SetupPlugin, ui::UiPlugin};
+use self::{camera::CameraPlugin, player::PlayerPlugin, setup::SetupPlugin, ui::UiPlugin, ggrs::GGRSPlugin};
 
 mod camera;
 mod player;
 mod setup;
 mod ui;
+mod ggrs;
 
 pub use player::types;
 pub use player::WeaponFlags;
@@ -21,6 +22,7 @@ impl Plugin for MainPlugin {
 			PlayerPlugin,
 			CameraPlugin,
 			UiPlugin,
+			GGRSPlugin,
 		));
 	}
 }
