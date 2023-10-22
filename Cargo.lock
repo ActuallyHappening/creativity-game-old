@@ -328,12 +328,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b4eb2cdb97421e01129ccb49169d8279ed21e829929144f4a22a6e54ac549ca1"
 
 [[package]]
-name = "atomic_refcell"
-version = "0.1.13"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "41e67cd8309bbd06cd603a9e693a784ac2e5d1e955f11286e355089fcab3047c"
-
-[[package]]
 name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -397,7 +391,7 @@ dependencies = [
  "bevy_render",
  "bevy_utils",
  "bevy_window",
- "egui 0.23.0",
+ "egui",
  "image 0.24.7",
  "once_cell",
  "pretty-type-name",
@@ -636,7 +630,7 @@ dependencies = [
  "bevy",
  "bevy_editor_pls_core",
  "bevy_editor_pls_default_windows",
- "egui 0.23.0",
+ "egui",
  "egui-gizmo",
 ]
 
@@ -674,7 +668,7 @@ checksum = "fb1c1f6ad293c60fd8559c4502cda5e832e92b0e0f3d994929b33f24d4352d70"
 dependencies = [
  "arboard",
  "bevy",
- "egui 0.23.0",
+ "egui",
  "thread_local",
  "webbrowser",
 ]
@@ -1194,7 +1188,7 @@ dependencies = [
 [[package]]
 name = "bevy_renet"
 version = "0.0.9"
-source = "git+https://github.com/lucaspoffo/renet.git#cb805429b35010b5ba0f152283e4aa9b62ef66a4"
+source = "git+https://github.com/Zajozor/renet.git?branch=egui-0.23#c8aa579abba0b6b2d254cae8dfaa6fbbb19fcc63"
 dependencies = [
  "bevy",
  "renet",
@@ -2172,12 +2166,6 @@ dependencies = [
 
 [[package]]
 name = "ecolor"
-version = "0.22.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2e479a7fa3f23d4e794f8b2f8b3568dd4e47886ad1b12c9c095e141cb591eb63"
-
-[[package]]
-name = "ecolor"
 version = "0.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cfdf4e52dbbb615cfd30cf5a5265335c217b5fd8d669593cea74a517d9c605af"
@@ -2187,23 +2175,12 @@ dependencies = [
 
 [[package]]
 name = "egui"
-version = "0.22.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a3aef8ec3ae1b772f340170c65bf27d5b8c28f543a0116c844d2ac08d01123e7"
-dependencies = [
- "ahash",
- "epaint 0.22.0",
- "nohash-hasher",
-]
-
-[[package]]
-name = "egui"
 version = "0.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8bd69fed5fcf4fbb8225b24e80ea6193b61e17a625db105ef0c4d71dde6eb8b7"
 dependencies = [
  "ahash",
- "epaint 0.23.0",
+ "epaint",
  "nohash-hasher",
 ]
 
@@ -2213,7 +2190,7 @@ version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f732ad247afe275d6cf901e0f134025ad735007c8f4d82e667a6871f1b4a5441"
 dependencies = [
- "egui 0.23.0",
+ "egui",
  "glam 0.24.2",
 ]
 
@@ -2224,7 +2201,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "681b082103898f874b509c0e5ed642c5001ff272bb7adcef32d3d920c26dcf08"
 dependencies = [
  "duplicate",
- "egui 0.23.0",
+ "egui",
  "paste",
 ]
 
@@ -2233,12 +2210,6 @@ name = "either"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a26ae43d7bcc3b814de94796a5e736d4029efb0ee900c12e2d54c993ad1a1e07"
-
-[[package]]
-name = "emath"
-version = "0.22.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3857d743a6e0741cdd60b622a74c7a36ea75f5f8f11b793b41d905d2c9721a4b"
 
 [[package]]
 name = "emath"
@@ -2283,21 +2254,6 @@ dependencies = [
 
 [[package]]
 name = "epaint"
-version = "0.22.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09333964d4d57f40a85338ba3ca5ed4716070ab184dcfed966b35491c5c64f3b"
-dependencies = [
- "ab_glyph",
- "ahash",
- "atomic_refcell",
- "ecolor 0.22.0",
- "emath 0.22.0",
- "nohash-hasher",
- "parking_lot 0.12.1",
-]
-
-[[package]]
-name = "epaint"
 version = "0.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "58067b840d009143934d91d8dcb8ded054d8301d7c11a517ace0a99bb1e1595e"
@@ -2305,8 +2261,8 @@ dependencies = [
  "ab_glyph",
  "ahash",
  "bytemuck",
- "ecolor 0.23.0",
- "emath 0.23.0",
+ "ecolor",
+ "emath",
  "nohash-hasher",
  "parking_lot 0.12.1",
 ]
@@ -4353,7 +4309,7 @@ checksum = "216080ab382b992234dda86873c18d4c48358f5cfcb70fd693d7f6f2131b628b"
 [[package]]
 name = "renet"
 version = "0.0.13"
-source = "git+https://github.com/lucaspoffo/renet.git#cb805429b35010b5ba0f152283e4aa9b62ef66a4"
+source = "git+https://github.com/Zajozor/renet.git?branch=egui-0.23#c8aa579abba0b6b2d254cae8dfaa6fbbb19fcc63"
 dependencies = [
  "bevy_ecs",
  "bytes",
@@ -4366,17 +4322,17 @@ dependencies = [
 [[package]]
 name = "renet_visualizer"
 version = "0.0.6"
-source = "git+https://github.com/lucaspoffo/renet.git#cb805429b35010b5ba0f152283e4aa9b62ef66a4"
+source = "git+https://github.com/Zajozor/renet.git?branch=egui-0.23#c8aa579abba0b6b2d254cae8dfaa6fbbb19fcc63"
 dependencies = [
  "bevy_ecs",
- "egui 0.22.0",
+ "egui",
  "renet",
 ]
 
 [[package]]
 name = "renetcode"
 version = "0.0.9"
-source = "git+https://github.com/lucaspoffo/renet.git#cb805429b35010b5ba0f152283e4aa9b62ef66a4"
+source = "git+https://github.com/Zajozor/renet.git?branch=egui-0.23#c8aa579abba0b6b2d254cae8dfaa6fbbb19fcc63"
 dependencies = [
  "chacha20poly1305",
  "log",

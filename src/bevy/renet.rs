@@ -13,9 +13,7 @@ pub struct RenetPlugin;
 impl Plugin for RenetPlugin {
 	fn build(&self, app: &mut App) {
 		app
-			.add_plugins(bevy_renet::RenetServerPlugin)
-			.add_plugins(bevy_renet::RenetClientPlugin)
-			.add_systems(OnEnter(ServerConnections::Hosting), server::add_netcode_network);
+		.add_plugins((client::ClientPlugin, server::ServerPlugin));
 	}
 }
 

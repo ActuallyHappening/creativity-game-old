@@ -1,10 +1,10 @@
 use crate::utils::*;
+use bevy::transform::TransformSystem;
 use bevy_hanabi::HanabiPlugin;
 use bevy_mod_picking::{
 	prelude::{DebugPickingPlugin, DefaultHighlightingPlugin},
 	DefaultPickingPlugins,
 };
-use bevy::transform::TransformSystem;
 
 #[cfg(feature = "dev")]
 use bevy_screen_diagnostics::{ScreenDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin};
@@ -45,6 +45,7 @@ impl Plugin for SetupPlugin {
 			},
 		);
 
+		// manually configures physics systems to only run when not hosting
 		app.configure_sets(
 			PostUpdate,
 			(
@@ -60,11 +61,16 @@ impl Plugin for SetupPlugin {
 		app.add_systems(
 			PostUpdate,
 			(
-				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::SyncBackend).in_set(PhysicsSet::SyncBackend),
-				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::SyncBackendFlush).in_set(PhysicsSet::SyncBackendFlush),
-				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::StepSimulation).in_set(PhysicsSet::StepSimulation),
-				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::Writeback).in_set(PhysicsSet::Writeback),
-			).run_if(|state: Res<State<ServerConnections>>| state.should_simulate()),
+				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::SyncBackend)
+					.in_set(PhysicsSet::SyncBackend),
+				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::SyncBackendFlush)
+					.in_set(PhysicsSet::SyncBackendFlush),
+				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::StepSimulation)
+					.in_set(PhysicsSet::StepSimulation),
+				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::Writeback)
+					.in_set(PhysicsSet::Writeback),
+			)
+				.run_if(|state: Res<State<ServerConnections>>| state.should_simulate()),
 		);
 
 		#[cfg(feature = "hanabi_particles")]
@@ -79,7 +85,10 @@ impl Plugin for SetupPlugin {
 		#[cfg(feature = "dev")]
 		#[cfg(feature = "debugging")]
 		app
-			.add_plugins(bevy_editor_pls::prelude::EditorPlugin::default())
+			.add_plugins((
+				bevy_editor_pls::prelude::EditorPlugin::default(),
+				// bevy_egui::EguiPlugin,
+			))
 			.insert_resource(editor_controls());
 	}
 }

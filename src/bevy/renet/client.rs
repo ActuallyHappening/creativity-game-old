@@ -15,6 +15,13 @@ use super::{
 };
 use renet_visualizer::{RenetClientVisualizer, RenetVisualizerStyle};
 
+pub struct ClientPlugin;
+impl Plugin for ClientPlugin {
+	fn build(&self, app: &mut App) {
+		app.add_plugins(bevy_renet::RenetClientPlugin);
+	}
+}
+
 // #[derive(Component)]
 // struct ControlledPlayer;
 

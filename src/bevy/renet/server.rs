@@ -1,106 +1,142 @@
+#![allow(unused_imports)]
+
 use std::{collections::HashMap, f32::consts::PI};
 
-use bevy::{
-    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
-    prelude::*,
+use super::{connection_config, PROTOCOL_ID};
+use super::{
+	setup_level, spawn_fireball, ClientChannel, NetworkedEntities, Player, PlayerCommand,
+	PlayerInput, Projectile, ServerChannel, ServerMessages,
 };
 use crate::utils::*;
+use bevy::{
+	diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
+	prelude::*,
+};
 use bevy_egui::{EguiContexts, EguiPlugin};
 use bevy_rapier3d::prelude::*;
+use bevy_renet::renet::transport::{NetcodeServerTransport, ServerAuthentication, ServerConfig};
 use bevy_renet::{
-    renet::{ClientId, RenetServer, ServerEvent},
-    RenetServerPlugin,
-};
-use super::{
-    setup_level, spawn_fireball, ClientChannel, NetworkedEntities, Player, PlayerCommand, PlayerInput, Projectile, ServerChannel,
-    ServerMessages,
+	renet::{ClientId, RenetServer, ServerEvent},
+	RenetServerPlugin,
 };
 use renet_visualizer::RenetServerVisualizer;
 
+pub struct ServerPlugin;
+impl Plugin for ServerPlugin {
+	fn build(&self, app: &mut App) {
+		app
+			.add_plugins(bevy_renet::RenetServerPlugin)
+			.add_systems(OnEnter(ServerConnections::Hosting), add_netcode_network)
+			.add_systems(OnExit(ServerConnections::Hosting), remove_netcode_network)
+			.add_systems(
+				Update,
+				update_server_visualizer.run_if(in_state(ServerConnections::Hosting)),
+			);
+	}
+}
+
 #[derive(Debug, Default, Resource)]
 pub struct ServerLobby {
-    pub players: HashMap<ClientId, Entity>,
+	pub players: HashMap<ClientId, Entity>,
 }
 
-const PLAYER_MOVE_SPEED: f32 = 5.0;
+// const PLAYER_MOVE_SPEED: f32 = 5.0;
 
-#[derive(Debug, Component)]
-struct Bot {
-    auto_cast: Timer,
-}
+// #[derive(Debug, Component)]
+// struct Bot {
+// 	auto_cast: Timer,
+// }
 
-#[derive(Debug, Resource)]
-struct BotId(u64);
+// #[derive(Debug, Resource)]
+// struct BotId(u64);
 
 // #[cfg(feature = "transport")]
 pub fn add_netcode_network(mut commands: Commands) {
-    use bevy_renet::renet::transport::{NetcodeServerTransport, ServerAuthentication, ServerConfig};
-    use bevy_renet::transport::NetcodeServerPlugin;
-    use super::{connection_config, PROTOCOL_ID};
-    use std::{net::UdpSocket, time::SystemTime};
+	use std::{net::UdpSocket, time::SystemTime};
 
-		info!("Beginning to host");
+	info!("Beginning to host");
 
-    let server = RenetServer::new(connection_config());
+	let server = RenetServer::new(connection_config());
 
-    let public_addr = "127.0.0.1:5000".parse().unwrap();
-    let socket = UdpSocket::bind(public_addr).unwrap();
-    let current_time: std::time::Duration = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();
-    let server_config = ServerConfig {
-        current_time,
-        max_clients: 64,
-        protocol_id: PROTOCOL_ID,
-        public_addresses: vec![public_addr],
-        authentication: ServerAuthentication::Unsecure,
-    };
+	let public_addr = "0.0.0.0:5000".parse().unwrap();
+	let socket = UdpSocket::bind(public_addr).unwrap();
+	let current_time: std::time::Duration = SystemTime::now()
+		.duration_since(SystemTime::UNIX_EPOCH)
+		.unwrap();
+	let server_config = ServerConfig {
+		current_time,
+		max_clients: 64,
+		protocol_id: PROTOCOL_ID,
+		public_addresses: vec![public_addr],
+		authentication: ServerAuthentication::Unsecure,
+	};
 
-    let transport = NetcodeServerTransport::new(server_config, socket).unwrap();
-    commands.insert_resource(server);
-    commands.insert_resource(transport);
+	let transport = NetcodeServerTransport::new(server_config, socket).unwrap();
+	commands.insert_resource(server);
+	commands.insert_resource(transport);
+	commands.insert_resource(RenetServerVisualizer::<200>::default());
 }
 
-fn main() {
-    let mut app = App::new();
-    app.add_plugins(DefaultPlugins);
+pub fn remove_netcode_network(mut commands: Commands) {
+	info!("Stopping hosting");
 
-    app.add_plugins(RenetServerPlugin);
-    app.add_plugins(RapierPhysicsPlugin::<NoUserData>::default());
-    app.add_plugins(RapierDebugRenderPlugin::default());
-    app.add_plugins(FrameTimeDiagnosticsPlugin);
-    app.add_plugins(LogDiagnosticsPlugin::default());
-    app.add_plugins(EguiPlugin);
-
-    app.insert_resource(ServerLobby::default());
-    app.insert_resource(BotId(0));
-
-    app.insert_resource(RenetServerVisualizer::<200>::default());
-
-    #[cfg(feature = "transport")]
-    add_netcode_network(&mut app);
-
-    #[cfg(feature = "steam")]
-    add_steam_network(&mut app);
-
-    // app.add_systems(
-    //     Update,
-    //     (
-    //         // server_update_system,
-    //         // server_network_sync,
-    //         // move_players_system,
-    //         // update_projectiles_system,
-    //         // update_visulizer_system,
-    //         // despawn_projectile_system,
-    //         // spawn_bot,
-    //         // bot_autocast,
-    //     ),
-    // );
-
-    // app.add_systems(PostUpdate, projectile_on_removal_system);
-
-    // app.add_systems(Startup, (setup_level, setup_simple_camera));
-
-    app.run();
+	commands.remove_resource::<RenetServer>();
+	commands.remove_resource::<NetcodeServerTransport>();
+	commands.remove_resource::<RenetServerVisualizer<200>>();
 }
+
+fn update_server_visualizer(
+	mut egui_contexts: bevy_egui::EguiContexts,
+	mut visualizer: ResMut<RenetServerVisualizer<200>>,
+	server: Res<RenetServer>,
+) {
+	visualizer.update(&server);
+	let mut_ref = egui_contexts.ctx_mut();
+	visualizer.show_window(mut_ref);
+}
+
+// fn main() {
+// 	let mut app = App::new();
+// 	app.add_plugins(DefaultPlugins);
+
+// 	app.add_plugins(RenetServerPlugin);
+// 	app.add_plugins(RapierPhysicsPlugin::<NoUserData>::default());
+// 	app.add_plugins(RapierDebugRenderPlugin::default());
+// 	app.add_plugins(FrameTimeDiagnosticsPlugin);
+// 	app.add_plugins(LogDiagnosticsPlugin::default());
+// 	app.add_plugins(EguiPlugin);
+
+// 	app.insert_resource(ServerLobby::default());
+// 	app.insert_resource(BotId(0));
+
+// 	app.insert_resource(RenetServerVisualizer::<200>::default());
+
+// 	#[cfg(feature = "transport")]
+// 	add_netcode_network(&mut app);
+
+// 	#[cfg(feature = "steam")]
+// 	add_steam_network(&mut app);
+
+// 	// app.add_systems(
+// 	// 	Update,
+// 	// 	(
+// 	// 		// server_update_system,
+// 	// 		// server_network_sync,
+// 	// 		// move_players_system,
+// 	// 		// update_projectiles_system,
+// 	// 		// update_visulizer_system,
+// 	// 		// despawn_projectile_system,
+// 	// 		// spawn_bot,
+// 	// 		// bot_autocast,
+// 	// 	),
+// 	// );
+
+// 	// app.add_systems(PostUpdate, projectile_on_removal_system);
+
+// 	// app.add_systems(Startup, (setup_level, setup_simple_camera));
+
+// 	app.run();
+// }
 
 // #[allow(clippy::too_many_arguments)]
 // fn server_update_system(
@@ -215,11 +251,6 @@ fn main() {
 //             commands.entity(entity).despawn();
 //         }
 //     }
-// }
-
-// fn update_visulizer_system(mut egui_contexts: EguiContexts, mut visualizer: ResMut<RenetServerVisualizer<200>>, server: Res<RenetServer>) {
-//     visualizer.update(&server);
-//     visualizer.show_window(egui_contexts.ctx_mut());
 // }
 
 // #[allow(clippy::type_complexity)]
