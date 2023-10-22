@@ -5,8 +5,15 @@ use bevy_rapier3d::prelude::*;
 use bevy_renet::renet::{ChannelConfig, ClientId, ConnectionConfig, SendType};
 use serde::{Deserialize, Serialize};
 
+pub struct RenetPlugin;
+impl Plugin for RenetPlugin {
+	fn build(&self, app: &mut App) {
+		println!("No segfault when initializing renet plugin");
+	}
+}
+
 #[cfg(feature = "transport")]
-pub const PRIVATE_KEY: &[u8; bevy_renet::renet::transport::NETCODE_KEY_BYTES] = b"an example very very secret key."; // 32-bytes
+pub const PRIVATE_KEY: &[u8; bevy_renet::renet::transport::NETCODE_KEY_BYTES] = b"un example sehr tres secret key."; // 32-bytes
 #[cfg(feature = "transport")]
 pub const PROTOCOL_ID: u64 = 7;
 
@@ -15,7 +22,7 @@ pub struct Player {
     pub id: ClientId,
 }
 
-#[derive(Debug, Default, Clone, Copy, Serialize, Deserialize, Component, Resource)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, Component, Resource)]
 pub struct PlayerInput {
     pub up: bool,
     pub down: bool,

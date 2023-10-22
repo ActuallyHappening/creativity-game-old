@@ -7,7 +7,20 @@ publish = false
 
 [workspace]
 members = ["xtask"]
-exclude = ["surrealdb", "noise-rs", "bevy_editor_pls", "bevy_hanabi", "bevy_transform_gizmo", "bevy_text_mesh", "ggrs", "bevy_rapier", "bevy_ggrs_rapier_example", "bevy_ggrs", "bevy_ggrs_demo", "renet"]
+exclude = [
+	"surrealdb",
+	"noise-rs",
+	"bevy_editor_pls",
+	"bevy_hanabi",
+	"bevy_transform_gizmo",
+	"bevy_text_mesh",
+	"ggrs",
+	"bevy_rapier",
+	"bevy_ggrs_rapier_example",
+	"bevy_ggrs",
+	"bevy_ggrs_demo",
+	"renet",
+]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -29,9 +42,9 @@ default = ["dev", "debugging", "desktop"]
 dev = [
 	"bevy/dynamic_linking",
 	"dep:bevy_editor_pls",
-	"static_assertions/nightly",
+	# "static_assertions/nightly",
 	# "bevy_rapier3d/simd-nightly"
-	"bevy_rapier3d/simd-stable"
+	"bevy_rapier3d/simd-stable",
 ]
 
 ### feature specific items
@@ -50,7 +63,7 @@ bevy_dolly = "0.0.1"
 # bevy_matchbox = { version = "0.7.0", features = [] }
 bevy_mod_picking = "0.15.0"
 bevy_rapier3d = "0.22.0"
-bevy_renet = "0.0.9"
+# bevy_renet = "0.0.9"
 bevy_screen_diagnostics = "0.3.0"
 bevycheck = { version = "0.5.2", optional = true }
 derive_builder = { version = "0.12.0", features = ["clippy"] }
@@ -76,10 +89,15 @@ tracing-subscriber = { version = "0.3.17", features = ["time"] }
 version = "0.7.0"
 optional = true
 default-features = false
-features = [ "3d", ]
+features = ["3d"]
 
 # [dependencies.surrealdb]
 # version = "1.0.0"
+
+# [dependencies.bevy_renet]
+# git = "https://github.com/lucaspoffo/renet.git"
+# # version = "0.0.9"
+# features = ["serde"]
 
 [dependencies.bevy_editor_pls]
 git = "https://github.com/jakobhellermann/bevy_editor_pls.git"
@@ -92,4 +110,4 @@ tracing-web = "0.1.2"
 getrandom = { version = "0.2.9", features = ["js"] }
 console_error_panic_hook = "0.1.7"
 tracing-wasm = "0.2.1"
-bevy_ggrs = { version = "0.13", features=["wasm-bindgen"]}
+bevy_ggrs = { version = "0.13", features = ["wasm-bindgen"] }

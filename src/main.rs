@@ -2,6 +2,9 @@ use bevy::{log::LogPlugin, prelude::*, window::WindowMode};
 use creativity_game::*;
 
 fn main() {
+
+	println!("No segfault at start of main");
+	
 	let mut app = App::new();
 
 	app

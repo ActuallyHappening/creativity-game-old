@@ -10,7 +10,7 @@ pub trait CamType: Component + std::fmt::Debug + Send + Sync + Default + Sealed 
 
 	fn get_camera_order() -> isize;
 }
-trait Sealed {}
+pub trait Sealed {}
 
 macro_rules! impl_cam_sticky {
 		($(pub struct $name:ident; half_width = $w:literal%, half_height = $h:literal %, order = $order:literal, render_layer = $layer:literal,)*) => {
