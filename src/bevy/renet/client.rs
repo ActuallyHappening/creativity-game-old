@@ -1,9 +1,5 @@
 use std::collections::HashMap;
 
-use super::{
-	connection_config, setup_level, ClientChannel, NetworkedEntities, PlayerCommand, PlayerInput,
-	ServerChannel, ServerMessages,
-};
 use crate::utils::*;
 use bevy::{
 	diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
@@ -37,7 +33,7 @@ impl Plugin for ClientPlugin {
 				(panic_on_error_system, update_visulizer_system)
 					.run_if(in_state(ServerConnections::Client)),
 			)
-			.add_systems(OnEnter(ServerConnections::Client), add_netcode_network)
+			.add_systems(OnEnter(ServerConnections::Client), add_netcode_client_network)
 			.add_systems(OnExit(ServerConnections::Client), remove_netcode_network);
 	}
 }
@@ -66,7 +62,7 @@ struct CurrentClientId(u64);
 struct Connected;
 
 // #[cfg(feature = "transport")]
-fn add_netcode_network(mut commands: Commands) {
+fn add_netcode_client_network(mut commands: Commands) {
 	use super::PROTOCOL_ID;
 	use std::{net::UdpSocket, time::SystemTime};
 
