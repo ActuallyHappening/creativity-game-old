@@ -1,3 +1,5 @@
+use std::net::Ipv4Addr;
+
 use crate::utils::*;
 
 #[derive(Default, Clone, Copy, PartialEq, Eq, Debug, Hash, States)]
@@ -45,5 +47,20 @@ pub enum ServerConnections {
 impl ServerConnections {
 	pub fn should_simulate(&self) -> bool {
 		matches!(self, ServerConnections::Hosting | ServerConnections::Client)
+	}
+}
+
+#[derive(Debug, PartialEq, Eq, Hash, Resource)]
+pub struct SavedHostingInfo {
+	pub join_ip: Ipv4Addr,
+	pub host_ip: Ipv4Addr,
+}
+
+impl Default for SavedHostingInfo {
+	fn default() -> Self {
+		SavedHostingInfo {
+			join_ip: Ipv4Addr::LOCALHOST,
+			host_ip: Ipv4Addr::LOCALHOST
+		}
 	}
 }
