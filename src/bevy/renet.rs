@@ -3,30 +3,31 @@ use crate::utils::*;
 
 use bevy::prelude::{shape::Icosphere, *};
 use bevy_rapier3d::prelude::*;
-use bevy_renet::renet::{ChannelConfig, ClientId, ConnectionConfig, SendType};
+// use bevy_renet::renet::{ChannelConfig, ClientId, ConnectionConfig, SendType};
+use bevy_replicon::ReplicationPlugins;
 use serde::{Deserialize, Serialize};
 
-// mod client;
-// mod server;
+mod client;
+mod server;
 
 pub struct RenetPlugin;
 impl Plugin for RenetPlugin {
 	fn build(&self, app: &mut App) {
-		app;
-		// .add_plugins((client::ClientPlugin, server::ServerPlugin));
+		app.add_plugins(ReplicationPlugins)
+		.add_plugins((client::ClientPlugin, server::ServerPlugin));
 	}
 }
 
 // #[cfg(feature = "transport")]
-pub const PRIVATE_KEY: &[u8; bevy_renet::renet::transport::NETCODE_KEY_BYTES] =
-	b"un example sehr tres secret key."; // 32-bytes
+// pub const PRIVATE_KEY: &[u8; bevy_renet::renet::transport::NETCODE_KEY_BYTES] =
+	// b"un example sehr tres secret key."; // 32-bytes
 // #[cfg(feature = "transport")]
 pub const PROTOCOL_ID: u64 = 7;
 
-#[derive(Debug, Component)]
-pub struct Player {
-	pub id: ClientId,
-}
+// #[derive(Debug, Component)]
+// pub struct Player {
+// 	pub id: ClientId,
+// }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, Component, Resource)]
 pub struct PlayerInput {

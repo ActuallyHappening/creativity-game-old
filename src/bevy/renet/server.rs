@@ -1,8 +1,13 @@
 #![allow(unused_imports)]
 
-use std::{collections::HashMap, f32::consts::PI};
+use std::{
+	collections::HashMap,
+	f32::consts::PI,
+	net::{Ipv4Addr, SocketAddr},
+	time::SystemTime,
+};
 
-use super::{PROTOCOL_ID};
+use super::PROTOCOL_ID;
 
 use crate::utils::*;
 use bevy::{
@@ -11,38 +16,80 @@ use bevy::{
 };
 use bevy_egui::{EguiContexts, EguiPlugin};
 use bevy_rapier3d::prelude::*;
-use bevy_renet::renet::transport::{NetcodeServerTransport, ServerAuthentication, ServerConfig};
-use bevy_renet::{
-	renet::{ClientId, RenetServer, ServerEvent},
-	RenetServerPlugin,
-};
-use renet_visualizer::RenetServerVisualizer;
+// use bevy_renet::renet::transport::{NetcodeServerTransport, ServerAuthentication, ServerConfig};
+// use bevy_renet::{
+// 	renet::{ClientId, RenetServer, ServerEvent},
+// 	RenetServerPlugin,
+// };
+// use renet_visualizer::RenetServerVisualizer;
 
 pub struct ServerPlugin;
 impl Plugin for ServerPlugin {
 	fn build(&self, app: &mut App) {
 		app
-			.add_plugins((
-				bevy_renet::RenetServerPlugin,
-				bevy_renet::transport::NetcodeServerPlugin,
-			))
-			.add_systems(OnEnter(ServerConnections::Hosting), add_netcode_network)
-			.add_systems(OnExit(ServerConnections::Hosting), remove_netcode_network)
-			.add_systems(
-				Update,
-				(
-					server_update_system,
-					#[cfg(feature = "debugging")]
-					update_server_visualizer.run_if(in_state(ServerConnections::Hosting)),
-				),
-			);
+			.add_systems(OnEnter(ServerConnections::Hosting), add_server)
+			.add_systems(OnExit(ServerConnections::Hosting), disconnect_server)
+			// .add_systems(
+			// 	Update,
+			// 	(
+			// 		server_update_system,
+			// 		#[cfg(feature = "debugging")]
+			// 		update_server_visualizer.run_if(in_state(ServerConnections::Hosting)),
+			// 	),
+			// );
+			;
 	}
 }
 
-#[derive(Debug, Default, Resource)]
-pub struct ServerLobby {
-	pub players: HashMap<ClientId, Entity>,
+fn add_server(
+	mut commands: Commands,
+	network_channels: Res<NetworkChannels>,
+	config: Res<SavedHostingInfo>,
+) {
+	let server_channels_config = network_channels.server_channels();
+	let client_channels_config = network_channels.client_channels();
+
+	let server = RenetServer::new(renet::ConnectionConfig {
+		server_channels_config,
+		client_channels_config,
+		..Default::default()
+	});
+
+	let current_time = SystemTime::now()
+		.duration_since(SystemTime::UNIX_EPOCH)
+		.unwrap();
+	let public_addr = SocketAddr::new(config.host_ip, config.host_port);
+	let socket = UdpSocket::bind(public_addr).expect("Couldn't bind to socket");
+	let server_config = renet::transport::ServerConfig {
+		max_clients: 10,
+		protocol_id: PROTOCOL_ID,
+		public_addr,
+		authentication: transport::ServerAuthentication::Unsecure,
+	};
+	let transport = transport::NetcodeServerTransport::new(current_time, server_config, socket)
+		.expect("Failed to start server");
+
+	commands.insert_resource(server);
+	commands.insert_resource(transport);
+
+	commands.spawn(TextBundle::from_section(
+		"Server",
+		TextStyle {
+			font_size: 30.0,
+			color: Color::WHITE,
+			..default()
+		},
+	));
+	
+	// commands.spawn(PlayerBundle::new(SERVER_ID, Vec2::ZERO, Color::GREEN));
 }
+
+fn disconnect_server() {}
+
+// #[derive(Debug, Default, Resource)]
+// pub struct ServerLobby {
+// 	pub players: HashMap<ClientId, Entity>,
+// }
 
 // const PLAYER_MOVE_SPEED: f32 = 5.0;
 
@@ -55,71 +102,71 @@ pub struct ServerLobby {
 // struct BotId(u64);
 
 // #[cfg(feature = "transport")]
-fn add_netcode_network(mut commands: Commands) {
-	use std::{net::UdpSocket, time::SystemTime};
+// fn add_netcode_network(mut commands: Commands) {
+// 	use std::{net::UdpSocket, time::SystemTime};
 
-	info!("Beginning to host");
+// 	info!("Beginning to host");
 
-	let server = RenetServer::new(connection_config());
+// 	let server = RenetServer::new(connection_config());
 
-	let public_addr = "0.0.0.0:5000".parse().unwrap();
-	let socket = UdpSocket::bind(public_addr).unwrap();
-	let current_time: std::time::Duration = SystemTime::now()
-		.duration_since(SystemTime::UNIX_EPOCH)
-		.unwrap();
-	let server_config = ServerConfig {
-		current_time,
-		max_clients: 64,
-		protocol_id: PROTOCOL_ID,
-		public_addresses: vec![public_addr],
-		authentication: ServerAuthentication::Unsecure,
-	};
+// 	let public_addr = "0.0.0.0:5000".parse().unwrap();
+// 	let socket = UdpSocket::bind(public_addr).unwrap();
+// 	let current_time: std::time::Duration = SystemTime::now()
+// 		.duration_since(SystemTime::UNIX_EPOCH)
+// 		.unwrap();
+// 	let server_config = ServerConfig {
+// 		current_time,
+// 		max_clients: 64,
+// 		protocol_id: PROTOCOL_ID,
+// 		public_addresses: vec![public_addr],
+// 		authentication: ServerAuthentication::Unsecure,
+// 	};
 
-	let transport = NetcodeServerTransport::new(server_config, socket).unwrap();
-	commands.insert_resource(server);
-	commands.insert_resource(transport);
+// 	let transport = NetcodeServerTransport::new(server_config, socket).unwrap();
+// 	commands.insert_resource(server);
+// 	commands.insert_resource(transport);
 
-	#[cfg(feature = "debugging")]
-	commands.insert_resource(RenetServerVisualizer::<200>::default());
-}
+// 	#[cfg(feature = "debugging")]
+// 	commands.insert_resource(RenetServerVisualizer::<200>::default());
+// }
 
-pub fn remove_netcode_network(mut commands: Commands, mut server: ResMut<RenetServer>) {
-	info!("Stopping hosting");
+// pub fn remove_netcode_network(mut commands: Commands, mut server: ResMut<RenetServer>) {
+// 	info!("Stopping hosting");
 
-	server.disconnect_all();
-	commands.remove_resource::<RenetServer>();
-	commands.remove_resource::<NetcodeServerTransport>();
+// 	server.disconnect_all();
+// 	commands.remove_resource::<RenetServer>();
+// 	commands.remove_resource::<NetcodeServerTransport>();
 
-	#[cfg(feature = "debugging")]
-	commands.remove_resource::<RenetServerVisualizer<200>>();
-}
+// 	#[cfg(feature = "debugging")]
+// 	commands.remove_resource::<RenetServerVisualizer<200>>();
+// }
 
-#[cfg(feature = "debugging")]
-fn update_server_visualizer(
-	mut egui_contexts: bevy_egui::EguiContexts,
-	mut visualizer: ResMut<RenetServerVisualizer<200>>,
-	server: Res<RenetServer>,
-) {
-	visualizer.update(&server);
-	let mut_ref = egui_contexts.ctx_mut();
-	visualizer.show_window(mut_ref);
-}
+// #[cfg(feature = "debugging")]
+// fn update_server_visualizer(
+// 	mut egui_contexts: bevy_egui::EguiContexts,
+// 	mut visualizer: ResMut<RenetServerVisualizer<200>>,
+// 	server: Res<RenetServer>,
+// ) {
+// 	visualizer.update(&server);
+// 	let mut_ref = egui_contexts.ctx_mut();
+// 	visualizer.show_window(mut_ref);
+// }
 
-#[allow(clippy::too_many_arguments)]
-fn server_update_system(
-	mut server_events: EventReader<ServerEvent>,
-	// mut commands: Commands,
-	// mut meshes: ResMut<Assets<Mesh>>,
-	// mut materials: ResMut<Assets<StandardMaterial>>,
-	// mut lobby: ResMut<ServerLobby>,
-	// mut server: ResMut<RenetServer>,
-	// mut visualizer: ResMut<RenetServerVisualizer<200>>,
-	// players: Query<(Entity, &Player, &Transform)>,
-) {
-	for e in server_events.into_iter() {
-		info!("Server event: {:?}", e);
-	}
-}
+// #[allow(clippy::too_many_arguments)]
+// fn server_update_system(
+// 	mut server_events: EventReader<ServerEvent>,
+// 	// mut commands: Commands,
+// 	// mut meshes: ResMut<Assets<Mesh>>,
+// 	// mut materials: ResMut<Assets<StandardMaterial>>,
+// 	// mut lobby: ResMut<ServerLobby>,
+// 	// mut server: ResMut<RenetServer>,
+// 	// mut visualizer: ResMut<RenetServerVisualizer<200>>,
+// 	// players: Query<(Entity, &Player, &Transform)>,
+// ) {
+// 	for e in server_events.into_iter() {
+// 		info!("Server event: {:?}", e);
+// 	}
+// }
 
 // fn main() {
 // 	let mut app = App::new();

@@ -15,6 +15,7 @@ impl bevy::prelude::Plugin for CorePlugin {
 			.add_event::<PlayerMinedPixel>()
 			.add_state::<Controlling>()
 			.add_state::<ServerConnections>()
-			.add_state::<ScreenState>();
+			.add_state::<ScreenState>()
+			.init_resource::<SavedHostingInfo>();
 	}
 }

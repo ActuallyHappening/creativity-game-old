@@ -1199,16 +1199,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "384b2082138eac1ff62f90bf31774c439bdeace11e64b70c3454ebd83b38b1eb"
 dependencies = [
  "bevy",
- "renet 0.0.13 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "bevy_renet"
-version = "0.0.9"
-source = "git+https://github.com/Zajozor/renet.git?branch=egui-0.23#c8aa579abba0b6b2d254cae8dfaa6fbbb19fcc63"
-dependencies = [
- "bevy",
- "renet 0.0.13 (git+https://github.com/Zajozor/renet.git?branch=egui-0.23)",
+ "renet",
 ]
 
 [[package]]
@@ -1217,7 +1208,7 @@ version = "0.15.1"
 dependencies = [
  "anyhow",
  "bevy",
- "bevy_renet 0.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bevy_renet",
  "bincode",
  "clap",
  "criterion",
@@ -1235,7 +1226,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0a723168084bf139fbde8ee29eb0efb0e762010938dbaf353592f404b3888659"
 dependencies = [
  "bevy",
- "bevy_renet 0.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bevy_renet",
  "bincode",
  "ordered-multimap",
  "serde",
@@ -2018,7 +2009,6 @@ dependencies = [
  "bevy_hanabi",
  "bevy_mod_picking",
  "bevy_rapier3d",
- "bevy_renet 0.0.9 (git+https://github.com/Zajozor/renet.git?branch=egui-0.23)",
  "bevy_replicon 0.15.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "bevy_screen_diagnostics",
  "bevycheck",
@@ -2034,7 +2024,7 @@ dependencies = [
  "once_cell",
  "rand 0.8.5",
  "rand_derive",
- "renet_visualizer",
+ "renet",
  "serde",
  "static_assertions",
  "strum",
@@ -4525,30 +4515,7 @@ dependencies = [
  "bytes",
  "log",
  "octets",
- "renetcode 0.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "renet"
-version = "0.0.13"
-source = "git+https://github.com/Zajozor/renet.git?branch=egui-0.23#c8aa579abba0b6b2d254cae8dfaa6fbbb19fcc63"
-dependencies = [
- "bevy_ecs",
- "bytes",
- "log",
- "octets",
- "renetcode 0.0.9 (git+https://github.com/Zajozor/renet.git?branch=egui-0.23)",
- "serde",
-]
-
-[[package]]
-name = "renet_visualizer"
-version = "0.0.6"
-source = "git+https://github.com/Zajozor/renet.git?branch=egui-0.23#c8aa579abba0b6b2d254cae8dfaa6fbbb19fcc63"
-dependencies = [
- "bevy_ecs",
- "egui",
- "renet 0.0.13 (git+https://github.com/Zajozor/renet.git?branch=egui-0.23)",
+ "renetcode",
 ]
 
 [[package]]
@@ -4556,15 +4523,6 @@ name = "renetcode"
 version = "0.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ed06c64c06cd7d80c61d6049c7dea9cc39bbf685b73ef9a6c5d01fada276094f"
-dependencies = [
- "chacha20poly1305",
- "log",
-]
-
-[[package]]
-name = "renetcode"
-version = "0.0.9"
-source = "git+https://github.com/Zajozor/renet.git?branch=egui-0.23#c8aa579abba0b6b2d254cae8dfaa6fbbb19fcc63"
 dependencies = [
  "chacha20poly1305",
  "log",

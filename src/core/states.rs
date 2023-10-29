@@ -53,15 +53,22 @@ impl ServerConnections {
 
 #[derive(Debug, PartialEq, Eq, Hash, Resource)]
 pub struct SavedHostingInfo {
-	pub join_ip: Ipv4Addr,
-	pub host_ip: Ipv4Addr,
+	pub join_ip: IpAddr,
+	pub join_port: u16,
+
+	pub host_ip: IpAddr,
+	pub host_port: u16,
 }
 
 impl Default for SavedHostingInfo {
 	fn default() -> Self {
+		const PORT: u16 = 5069;
 		SavedHostingInfo {
-			join_ip: Ipv4Addr::LOCALHOST,
-			host_ip: Ipv4Addr::LOCALHOST
+			join_ip: Ipv4Addr::LOCALHOST.into(),
+			join_port: PORT,
+
+			host_ip: Ipv4Addr::LOCALHOST.into(),
+			host_port: PORT,
 		}
 	}
 }
