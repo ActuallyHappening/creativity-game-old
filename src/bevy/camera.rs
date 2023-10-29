@@ -84,67 +84,70 @@ pub fn handle_camera_movement(
 	mut middle_button_timer: Local<Option<Timer>>,
 	time: Res<Time>,
 ) {
-	let player = player.single();
-	let mut rig = camera.single_mut();
+	if let Ok(player) = player.get_single() {
+		let mut rig = camera.single_mut();
 
-	let mut orbit_x = 0.;
-	let mut orbit_y = 0.;
+		let mut orbit_x = 0.;
+		let mut orbit_y = 0.;
 
-	for ev in mouse_movements.iter() {
-		orbit_x += ev.delta.x / -100.;
-		orbit_y += ev.delta.y / 100.;
-	}
-
-	let should_reset_orbit = !mouse_clicks.pressed(MouseButton::Right);
-	let scroll: f32 = scroll.iter().map(|e| e.y).sum();
-
-	// base pos
-	rig.driver_mut::<Position>().position = player.translation + Vec3::Y * PIXEL_SIZE;
-
-	if should_reset_orbit {
-		// if not right-click orbitting
-		rig.driver_mut::<Rotation>().rotation = player.rotation;
-	}
-
-	// zoom
-	rig
-		.driver_mut::<OrbitArm>()
-		.adjust_arm_length(scroll / 100.);
-
-	// orbitting
-	let orbit_arm = rig.driver_mut::<OrbitArm>();
-
-	if mouse_clicks.pressed(MouseButton::Middle) {
-		orbit_arm
-			.orbit(player.up(), player.forward(), 0., 0.)
-			.permanent_orbit_horizontal(orbit_x)
-			.permanent_orbit_vertical(orbit_y);
-	} else if should_reset_orbit {
-		orbit_arm
-			.orbit(player.up(), player.forward(), 0., 0.)
-			.reset_percentage(0.1);
-	} else {
-		orbit_arm.orbit(player.up(), player.forward(), orbit_x, orbit_y);
-	}
-
-	if let Some(timer) = middle_button_timer.as_mut() {
-		if timer.tick(time.delta()).just_finished() {
-			*middle_button_timer = None;
+		for ev in mouse_movements.iter() {
+			orbit_x += ev.delta.x / -100.;
+			orbit_y += ev.delta.y / 100.;
 		}
-	}
-	if mouse_clicks.just_pressed(MouseButton::Middle) {
-		match middle_button_timer.as_mut() {
-			Some(_) => {
-				// timer is still ticking and middle button was pressed again
-				// reset orbit
-				orbit_arm.reset();
+
+		let should_reset_orbit = !mouse_clicks.pressed(MouseButton::Right);
+		let scroll: f32 = scroll.iter().map(|e| e.y).sum();
+
+		// base pos
+		rig.driver_mut::<Position>().position = player.translation + Vec3::Y * PIXEL_SIZE;
+
+		if should_reset_orbit {
+			// if not right-click orbitting
+			rig.driver_mut::<Rotation>().rotation = player.rotation;
+		}
+
+		// zoom
+		rig
+			.driver_mut::<OrbitArm>()
+			.adjust_arm_length(scroll / 100.);
+
+		// orbitting
+		let orbit_arm = rig.driver_mut::<OrbitArm>();
+
+		if mouse_clicks.pressed(MouseButton::Middle) {
+			orbit_arm
+				.orbit(player.up(), player.forward(), 0., 0.)
+				.permanent_orbit_horizontal(orbit_x)
+				.permanent_orbit_vertical(orbit_y);
+		} else if should_reset_orbit {
+			orbit_arm
+				.orbit(player.up(), player.forward(), 0., 0.)
+				.reset_percentage(0.1);
+		} else {
+			orbit_arm.orbit(player.up(), player.forward(), orbit_x, orbit_y);
+		}
+
+		if let Some(timer) = middle_button_timer.as_mut() {
+			if timer.tick(time.delta()).just_finished() {
 				*middle_button_timer = None;
 			}
-			None => {
-				// start timer
-				*middle_button_timer = Some(Timer::from_seconds(0.5, TimerMode::Once));
+		}
+		if mouse_clicks.just_pressed(MouseButton::Middle) {
+			match middle_button_timer.as_mut() {
+				Some(_) => {
+					// timer is still ticking and middle button was pressed again
+					// reset orbit
+					orbit_arm.reset();
+					*middle_button_timer = None;
+				}
+				None => {
+					// start timer
+					*middle_button_timer = Some(Timer::from_seconds(0.5, TimerMode::Once));
+				}
 			}
 		}
+	} else {
+		warn!("No player found for camera to follow!");
 	}
 
 	mouse_movements.clear();

@@ -8,7 +8,7 @@ use bevy_replicon::ReplicationPlugins;
 use serde::{Deserialize, Serialize};
 
 mod client;
-mod server;
+pub mod server;
 
 /// Steps physics, done by server
 #[derive(SystemSet, Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -26,8 +26,7 @@ impl Plugin for RenetPlugin {
 			.add_plugins(ReplicationPlugins)
 			.add_plugins((client::ClientPlugin, server::ServerPlugin))
 			.configure_set(Update, AuthoritativeUpdate.run_if(has_authority()))
-			.configure_set(Update, ClientUpdate.run_if(in_state(ScreenState::InGame)))
-			.configure_set(Update, ClientUpdate);
+			.configure_set(Update, ClientUpdate.run_if(in_state(ScreenState::InGame)));
 	}
 }
 
@@ -42,14 +41,14 @@ pub const PROTOCOL_ID: u64 = 7;
 // 	pub id: ClientId,
 // }
 
-#[derive(Debug, Default, Clone, Serialize, Deserialize, Component, Resource)]
-pub struct PlayerInput {
-	forward: bool,
-	// pub up: bool,
-	// pub down: bool,
-	// pub left: bool,
-	// pub right: bool,
-}
+// #[derive(Debug, Default, Clone, Serialize, Deserialize, Component, Resource)]
+// pub struct PlayerInput {
+// 	forward: bool,
+// 	// pub up: bool,
+// 	// pub down: bool,
+// 	// pub left: bool,
+// 	// pub right: bool,
+// }
 
 // fn cli_system(
 //         mut commands: Commands,

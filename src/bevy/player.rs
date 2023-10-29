@@ -2,16 +2,15 @@ use crate::core::PlayerInventory;
 
 use self::weapons::{handle_firing, should_fire_this_frame, toggle_fire, update_bullets};
 
-use super::{camera::handle_camera_movement, renet::AuthoritativeUpdate};
+use super::{camera::handle_camera_movement, renet::{AuthoritativeUpdate, ClientUpdate}};
 use crate::utils::*;
 use lazy_static::lazy_static;
 
 mod thrust;
 use thrust::*;
 pub use thrust::{
-	calculate_relative_velocity_magnitudes, get_base_normal_vectors,
-	types, RelativeStrength, RelativeVelocityMagnitudes, Thrust, ThrustReactions,
-	ThrustReactionsStage,
+	calculate_relative_velocity_magnitudes, get_base_normal_vectors, types, RelativeStrength,
+	RelativeVelocityMagnitudes, Thrust, ThrustReactions, ThrustReactionsStage,
 };
 
 mod weapons;
@@ -32,7 +31,7 @@ impl Plugin for PlayerPlugin {
 			.add_systems(
 				Update,
 				(
-					handle_camera_movement,
+					handle_camera_movement.in_set(ClientUpdate),
 					// should_fire_this_frame.pipe(toggle_fire).pipe(handle_firing),
 					// join2(
 					// 	sequence(
@@ -85,6 +84,7 @@ lazy_static! {
 }
 
 fn initial_spawn_player(
+	In((comp, transform)): In<(ControllablePlayer, Transform)>,
 	mut commands: Commands,
 	mut mma: MMA,
 	effects: ResMut<Assets<EffectAsset>>,
@@ -97,12 +97,12 @@ fn initial_spawn_player(
 		.spawn(
 			(
 				PbrBundle {
-					transform: Transform::from_xyz(0., PIXEL_SIZE * 7., 0.),
+					transform,
 					..default()
 				},
-				ControllablePlayer::default(),
 			)
-				.named("Main Player")
+				.named(format!("Player {}", comp.network_id))
+				.insert(comp)
 				.physics_dynamic()
 				.insert(collider)
 				// .physics_collider_ball(10.)

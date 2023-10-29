@@ -21,7 +21,7 @@ impl Plugin for SetupPlugin {
 	fn build(&self, app: &mut App) {
 		app
 			.insert_resource(Msaa::default())
-			.add_systems(Startup, (setup, spawn_initial_world))
+			.add_systems(Startup, (setup,))
 			.add_plugins(
 				DefaultPickingPlugins
 					.build()
