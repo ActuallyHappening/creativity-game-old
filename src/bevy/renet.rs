@@ -26,6 +26,7 @@ impl Plugin for RenetPlugin {
 			.add_plugins(ReplicationPlugins)
 			.add_plugins((client::ClientPlugin, server::ServerPlugin))
 			.configure_set(Update, AuthoritativeUpdate.run_if(has_authority()))
+			.configure_set(Update, ClientUpdate.run_if(in_state(ScreenState::InGame)))
 			.configure_set(Update, ClientUpdate);
 	}
 }

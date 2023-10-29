@@ -20,16 +20,16 @@ pub enum ScreenState {
 // 	Designing,
 // }
 
-/// What context to execute logic for each frame
-#[derive(Default, Clone, Copy, PartialEq, Eq, Debug, Hash, States)]
-pub enum Controlling {
-	/// Controlling a local player
-	#[default]
-	Local,
+// /// What context to execute logic for each frame
+// #[derive(Default, Clone, Copy, PartialEq, Eq, Debug, Hash, States)]
+// pub enum Controlling {
+// 	/// Controlling a local player
+// 	#[default]
+// 	Local,
 
-	/// Not controlling any character
-	Global
-}
+// 	/// Not controlling any character
+// 	Global
+// }
 
 #[derive(Default, Clone, Copy, PartialEq, Eq, Debug, Hash, States)]
 pub enum ServerConnections {
@@ -52,6 +52,8 @@ impl ServerConnections {
 	pub fn should_simulate(&self) -> bool {
 		matches!(self, ServerConnections::Hosting | ServerConnections::Client)
 	}
+
+	
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Resource)]
