@@ -2,7 +2,7 @@
 
 #![allow(dead_code)]
 
-use bevy::ecs::system::SystemParam;
+use bevy::{ecs::system::SystemParam, asset::AssetPath};
 use bevy_mod_picking::{
 	prelude::{Pickable, RaycastPickTarget},
 	PickableBundle,
@@ -190,6 +190,12 @@ impl Font {
 		match self {
 			Self::Medium => "fonts/FiraMono-Medium.ttf",
 		}
+	}
+}
+
+impl From<Font> for AssetPath<'_> {
+	fn from(font: Font) -> Self {
+		font.into_path().into()
 	}
 }
 

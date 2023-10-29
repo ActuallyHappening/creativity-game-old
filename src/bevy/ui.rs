@@ -4,6 +4,7 @@ pub struct UiPlugin;
 impl Plugin for UiPlugin {
 	fn build(&self, app: &mut App) {
 		app
+			.add_plugins(StartScreenPlugin)
 			.add_systems(
 				Startup,
 				(
@@ -42,6 +43,9 @@ mod camtype;
 pub use camtype::*;
 mod bottom_left;
 use bottom_left::*;
+mod startscreen;
+
+use self::startscreen::StartScreenPlugin;
 
 use super::player::{
 	calculate_relative_velocity_magnitudes, get_base_normal_vectors, get_current_relative_strengths,
@@ -49,7 +53,11 @@ use super::player::{
 };
 
 fn setup_camera<T: CamType>(mut commands: Commands) {
-	commands.spawn(UiCamera::<T>::get_camera_bundle().pickable_camera().insert(T::default()));
+	commands.spawn(
+		UiCamera::<T>::get_camera_bundle()
+			.pickable_camera()
+			.insert(T::default()),
+	);
 }
 
 fn update_camera<T: CamType>(
