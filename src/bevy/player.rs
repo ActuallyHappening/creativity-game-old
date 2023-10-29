@@ -2,7 +2,10 @@ use crate::core::PlayerInventory;
 
 use self::weapons::{handle_firing, should_fire_this_frame, toggle_fire, update_bullets};
 
-use super::{camera::handle_camera_movement, renet::{AuthoritativeUpdate, ClientUpdate}};
+use super::{
+	camera::handle_camera_movement,
+	renet::{server::SpawnPlayer, AuthoritativeUpdate, ClientUpdate},
+};
 use crate::utils::*;
 use lazy_static::lazy_static;
 
@@ -19,13 +22,14 @@ pub use weapons::WeaponFlags;
 pub struct PlayerPlugin;
 
 /// After player thrusts and movement have been handled
-#[derive(Hash, Debug, PartialEq, Eq, Clone, SystemSet)]
+#[derive(SystemSet, Hash, Debug, PartialEq, Eq, Clone,)]
 pub struct PlayerMove;
 
 impl Plugin for PlayerPlugin {
 	fn build(&self, app: &mut App) {
 		app
 			.init_resource::<PlayerInventory>()
+			.add_server_event(policy)
 			// .add_systems(Startup, (initial_spawn_player,))
 			// .add_systems(Update, (update_bullets,).in_set(AuthoritativeUpdate))
 			.add_systems(
@@ -84,36 +88,38 @@ lazy_static! {
 }
 
 fn initial_spawn_player(
-	In((comp, transform)): In<(ControllablePlayer, Transform)>,
+	mut spawn_player: EventReader<SpawnPlayer>,
 	mut commands: Commands,
 	mut mma: MMA,
-	effects: ResMut<Assets<EffectAsset>>,
+	mut effects: ResMut<Assets<EffectAsset>>,
 ) {
-	info!("Spawning player");
+	for player in spawn_player.iter() {
+		info!("Spawning player");
 
-	let (collider, player_parts) = PLAYER_STRUCTURE.compute_bevy_bundles(&mut mma, Some(effects));
+		let (collider, player_parts) = PLAYER_STRUCTURE.compute_bevy_bundles(&mut mma, Some(&mut effects));
 
-	commands
-		.spawn(
-			(
-				PbrBundle {
-					transform,
+		commands
+			.spawn(
+				(PbrBundle {
+					transform: player.pos,
 					..default()
-				},
+				},)
+					.named(format!("Player {}", player.id))
+					.insert(ControllablePlayer {
+						network_id: player.id,
+					})
+					.physics_dynamic()
+					.insert(collider)
+					// .physics_collider_ball(10.)
+					.physics_zero_force()
+					.physics_zero_velocity()
+					.physics_zero_damping()
+					.physics_never_sleep(),
 			)
-				.named(format!("Player {}", comp.network_id))
-				.insert(comp)
-				.physics_dynamic()
-				.insert(collider)
-				// .physics_collider_ball(10.)
-				.physics_zero_force()
-				.physics_zero_velocity()
-				.physics_zero_damping()
-				.physics_never_sleep(),
-		)
-		.with_children(|parent| {
-			for part in player_parts {
-				part.default_spawn_to_parent(parent);
-			}
-		});
+			.with_children(|parent| {
+				for part in player_parts {
+					part.default_spawn_to_parent(parent);
+				}
+			});
+	}
 }

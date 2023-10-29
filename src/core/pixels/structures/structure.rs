@@ -32,7 +32,7 @@ impl Structure {
 	pub fn compute_bevy_bundles(
 		&self,
 		mma: &mut MMA,
-		mut effects: Option<ResMut<Assets<EffectAsset>>>,
+		mut effects: Option<&mut Assets<EffectAsset>>,
 	) -> (Collider, Vec<StructureBundle>) {
 		(
 			self.compute_collider(),

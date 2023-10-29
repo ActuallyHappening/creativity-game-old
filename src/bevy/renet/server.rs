@@ -82,8 +82,8 @@ fn disconnect_server() {}
 
 #[derive(Event)]
 pub struct SpawnPlayer {
-	pos: Transform,
-	id: u64,
+	pub pos: Transform,
+	pub id: u64,
 }
 
 /// Logs server events and spawns a new player whenever a client connects.
