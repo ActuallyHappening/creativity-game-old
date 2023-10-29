@@ -2,6 +2,7 @@ use std::net::Ipv4Addr;
 
 use crate::utils::*;
 
+/// For UI purposes
 #[derive(Default, Clone, Copy, PartialEq, Eq, Debug, Hash, States)]
 pub enum ScreenState {
 	#[default]

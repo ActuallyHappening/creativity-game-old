@@ -5,6 +5,7 @@ impl Plugin for StartScreenPlugin {
 	fn build(&self, app: &mut App) {
 		app
 			.add_state::<StartScreens>()
+			.add_systems(OnExit(ScreenState::StartScreen), cleanup_ui)
 			.add_systems(OnEnter(StartScreens::Default), setup_default_ui)
 			.add_systems(OnExit(StartScreens::Default), cleanup_ui)
 			.add_systems(
@@ -148,10 +149,11 @@ fn setup_host_controls_ui(mut commands: Commands, ass: ResMut<AssetServer>) {
 
 fn handle_host_controls_ui(
 	btn: Query<&Interaction, (With<HostControlsBtn>, Changed<Interaction>)>,
-	mut start_game: ResMut<NextState<ServerConnections>>,
+	mut start_game: ResMut<NextState<ServerConnections>>, mut in_game: ResMut<NextState<ScreenState>>
 ) {
 	if let Some(Interaction::Pressed) = btn.iter().next() {
-		start_game.0 = Some(ServerConnections::Hosting)
+		start_game.0 = Some(ServerConnections::Hosting);
+		in_game.0 = Some(ScreenState::InGame);
 	}
 }
 
