@@ -15,7 +15,8 @@ impl Plugin for StartScreenPlugin {
 				)
 					.run_if(in_state(ScreenState::StartScreen)),
 			)
-			.add_systems(OnEnter(StartScreens::HostControls), setup_host_controls_ui);
+			.add_systems(OnEnter(StartScreens::HostControls), setup_host_controls_ui)
+			.add_systems(OnExit(StartScreens::HostControls), cleanup_ui);
 	}
 }
 
@@ -33,9 +34,6 @@ struct StartScreenUi;
 
 #[derive(Component)]
 struct DefaultBtn(ServerConnections);
-
-#[derive(Component)]
-struct HostControlsBtn;
 
 #[derive(Component)]
 struct ClientControlsBtn;
@@ -95,19 +93,16 @@ fn handle_default_ui(
 	for (btn, interaction) in btns.iter() {
 		if interaction == &Interaction::Pressed {
 			match btn.0 {
-				ServerConnections::Local => {
-					start_game.0 = Some(ServerConnections::Local)
-				}
-				ServerConnections::Client => {
-					next_screen.0 = Some(StartScreens::ClientControls)	
-				}
-				ServerConnections::Hosting => {
-					next_screen.0 = Some(StartScreens::HostControls)
-				}
+				ServerConnections::Local => start_game.0 = Some(ServerConnections::Local),
+				ServerConnections::Client => next_screen.0 = Some(StartScreens::ClientControls),
+				ServerConnections::Hosting => next_screen.0 = Some(StartScreens::HostControls),
 			}
 		}
 	}
 }
+
+#[derive(Component)]
+struct HostControlsBtn;
 
 fn setup_host_controls_ui(mut commands: Commands, ass: ResMut<AssetServer>) {
 	info!("- Host Controls UI");
@@ -125,38 +120,40 @@ fn setup_host_controls_ui(mut commands: Commands, ass: ResMut<AssetServer>) {
 		})
 		.insert(StartScreenUi)
 		.with_children(|parent| {
-			let btn = |name: &'static str, btn_type: ServerConnections, parent: &mut ChildBuilder| {
-				parent
-					.spawn(ButtonBundle {
-						style: Style {
-							width: Val::Px(400.),
-							height: Val::Px(50.),
-							justify_content: JustifyContent::Center,
-							align_items: AlignItems::Center,
-							..default()
-						},
-						background_color: Color::BLACK.into(),
+			parent
+				.spawn(ButtonBundle {
+					style: Style {
+						width: Val::Px(400.),
+						height: Val::Px(50.),
+						justify_content: JustifyContent::Center,
+						align_items: AlignItems::Center,
 						..default()
-					})
-					.insert(DefaultBtn(btn_type))
-					.with_children(|parent| {
-						parent.spawn(TextBundle::from_section(
-							name,
-							TextStyle {
-								font: ass.load(Font::Medium),
-								font_size: 30.,
-								color: Color::WHITE,
-							},
-						));
-					});
-			};
-			btn("Host Public Game", ServerConnections::Hosting, parent);
-			// btn("Start Private Game", ServerConnections::Local, parent);
-			// btn("Join hosted Game", ServerConnections::Client, parent);
+					},
+					background_color: Color::BLACK.into(),
+					..default()
+				})
+				.insert(HostControlsBtn)
+				.with_children(|parent| {
+					parent.spawn(TextBundle::from_section(
+						"Host Public Game",
+						TextStyle {
+							font: ass.load(Font::Medium),
+							font_size: 30.,
+							color: Color::WHITE,
+						},
+					));
+				});
 		});
 }
 
-fn handle_host_controls_ui() {}
+fn handle_host_controls_ui(
+	btn: Query<&Interaction, (With<HostControlsBtn>, Changed<Interaction>)>,
+	mut start_game: ResMut<NextState<ServerConnections>>,
+) {
+	if let Some(Interaction::Pressed) = btn.iter().next() {
+		start_game.0 = Some(ServerConnections::Hosting)
+	}
+}
 
 fn cleanup_ui(mut commands: Commands, ui: Query<Entity, With<StartScreenUi>>) {
 	commands.entity(ui.single()).despawn_recursive();
