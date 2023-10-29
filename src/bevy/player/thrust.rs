@@ -6,12 +6,13 @@
 
 use crate::utils::*;
 
-use super::MainPlayer;
+use super::ControllablePlayer;
 
 mod helpers;
 use helpers::*;
 
 mod stages;
+use serde::{Serialize, Deserialize, de::DeserializeOwned};
 pub use stages::*;
 
 mod info_gathering;
@@ -25,7 +26,7 @@ pub use thrust_reactions::*;
 
 pub mod types;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Thrust<S: ThrustStage> {
 	/// Positive is forward obviously
 	pub forward: <S as self::ThrustStage>::DimensionType,
@@ -46,7 +47,7 @@ pub struct Thrust<S: ThrustStage> {
 }
 
 pub trait ThrustStage {
-	type DimensionType: std::fmt::Debug + Clone;
+	type DimensionType: std::fmt::Debug + Clone + Serialize + DeserializeOwned;
 }
 
 impl<D, T> Default for Thrust<D>
@@ -78,14 +79,15 @@ pub fn save_thrust_stages(
 		Thrust<ForceFactors>,
 		Thrust<ThrustReactionsStage>,
 	)>,
-	mut player_data: Query<&mut MainPlayer, With<MainPlayer>>,
+	mut player_data: Query<&mut ControllablePlayer, With<ControllablePlayer>>,
 ) -> Thrust<FinalVectors> {
 	let final_vectors = normal_vectors * relative_strength.clone() * max;
 
 	let mut player = player_data.single_mut();
 
-	player.relative_strength = relative_strength;
-	player.thrust_responses = thrust_responses;
+	// todo! Save thrust stages here!
+	// player.relative_strength = relative_strength;
+	// player.thrust_responses = thrust_responses;
 
 	final_vectors
 }
@@ -96,11 +98,11 @@ pub fn manually_threading_player_movement(
 		Thrust<ArtificialFrictionFlags>,
 	)>,
 	keyboard_input: Res<Input<KeyCode>>,
-	player_transform: Query<&Transform, With<MainPlayer>>,
-	player_velocity: Query<&Velocity, With<MainPlayer>>,
-	player_data: Query<&mut MainPlayer, With<MainPlayer>>,
+	player_transform: Query<&Transform, With<ControllablePlayer>>,
+	player_velocity: Query<&Velocity, With<ControllablePlayer>>,
+	player_data: Query<&mut ControllablePlayer, With<ControllablePlayer>>,
 	time: Res<Time>,
-	player_physics: Query<&mut ExternalForce, With<MainPlayer>>,
+	player_physics: Query<&mut ExternalForce, With<ControllablePlayer>>,
 ) {
 	let base_normal = get_base_normal_vectors(player_transform);
 

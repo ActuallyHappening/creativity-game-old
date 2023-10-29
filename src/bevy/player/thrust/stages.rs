@@ -1,11 +1,12 @@
 use super::*;
+use serde::{Serialize, Deserialize};
 
 macro_rules! thrust_stage {
 	($(#[$($attrss:tt)*])* $(pub)? struct $name:ident; type = $type:ty) => {
 		#[doc = concat!("Dimension type = ", stringify!($type), "\n")]
 		$(#[$($attrss)*])*
 
-		#[derive(Debug, Clone,)]
+		#[derive(Debug, Clone, Serialize, Deserialize)]
 		pub struct $name;
 		impl ThrustStage for $name {
 			type DimensionType = $type;

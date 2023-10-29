@@ -1,6 +1,6 @@
 use crate::utils::*;
 
-use super::MainPlayer;
+use super::ControllablePlayer;
 
 /// Not used directly as a Component, see [Weapon]
 #[derive(Debug, Default, Component, Clone)]

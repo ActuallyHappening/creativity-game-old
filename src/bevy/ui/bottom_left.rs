@@ -1,6 +1,6 @@
 use super::*;
 use crate::bevy::player::{
-	MainPlayer, RelativeStrength, RelativeVelocityMagnitudes, Thrust, ThrustReactions,
+	ControllablePlayer, RelativeStrength, RelativeVelocityMagnitudes, Thrust, ThrustReactions,
 };
 
 const FULL_CIRCLE_RADIUS: f32 = 40.;
@@ -76,7 +76,7 @@ fn init_ah_circle(parent: &mut Commands, thrust_type: ThrustType, mma: &mut MM2)
 		.pickable()
 		.insert(On::<Pointer<Down>>::run(
 			|event: Res<ListenerInput<Pointer<Down>>>,
-			 mut player: Query<&mut MainPlayer>,
+			 mut player: Query<&mut ControllablePlayer>,
 			 this: Query<&BorderHitbox>, expexted_cam: Query<Entity, With<BottomLeft>>| {
 				let cam = expexted_cam.single();
 				let actual_cam = event.event.hit.camera;
@@ -255,7 +255,7 @@ pub fn update_bottom_left_camera(
 		Query<(&BorderCircle, &mut Handle<ColorMaterial>)>,
 	)>,
 
-	player: Query<&MainPlayer>,
+	player: Query<&ControllablePlayer>,
 
 	mut mma: MM2,
 ) {

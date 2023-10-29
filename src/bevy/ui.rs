@@ -9,7 +9,7 @@ impl Plugin for UiPlugin {
 				Startup,
 				(
 					setup_camera::<BottomLeft>, //.in_set(BottomLeft),
-					setup_bottom_left_cam,      //.after(BottomLeft),
+					// setup_bottom_left_cam,      //.after(BottomLeft),
 					setup_camera::<TopLeft>.in_set(TopLeft),
 					setup_top_left_cam.after(TopLeft),
 					setup_camera::<TopRight>.in_set(TopRight),
@@ -22,15 +22,15 @@ impl Plugin for UiPlugin {
 				Update,
 				(
 					update_camera::<BottomLeft>.in_set(BottomLeft),
-					join2(
-						sequence(
-							get_base_normal_vectors,
-							calculate_relative_velocity_magnitudes,
-						),
-						get_current_relative_strengths,
-					)
-					.pipe(update_bottom_left_camera)
-					.after(PlayerMove),
+					// join2(
+					// 	sequence(
+					// 		get_base_normal_vectors,
+					// 		calculate_relative_velocity_magnitudes,
+					// 	),
+					// 	get_current_relative_strengths,
+					// )
+					// .pipe(update_bottom_left_camera)
+					// .after(PlayerMove),
 					update_camera::<TopLeft>,
 					update_camera::<TopRight>,
 					update_camera::<BottomRight>,
@@ -41,14 +41,14 @@ impl Plugin for UiPlugin {
 
 mod camtype;
 pub use camtype::*;
-mod bottom_left;
-use bottom_left::*;
+// mod bottom_left;
+// use bottom_left::*;
 mod startscreen;
 
 use self::startscreen::StartScreenPlugin;
 
 use super::player::{
-	calculate_relative_velocity_magnitudes, get_base_normal_vectors, get_current_relative_strengths,
+	calculate_relative_velocity_magnitudes, get_base_normal_vectors,
 	PlayerMove,
 };
 

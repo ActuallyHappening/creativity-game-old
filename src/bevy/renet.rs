@@ -1,5 +1,5 @@
-use std::{f32::consts::PI, time::Duration};
 use crate::utils::*;
+use std::{f32::consts::PI, time::Duration};
 
 use bevy::prelude::{shape::Icosphere, *};
 use bevy_rapier3d::prelude::*;
@@ -10,17 +10,29 @@ use serde::{Deserialize, Serialize};
 mod client;
 mod server;
 
+/// Steps physics, done by server
+#[derive(SystemSet, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct AuthoritativeUpdate;
+
+/// Handles effects, renders graphics, done by client
+/// Semantic only, might change if 'headless' servers are needed
+#[derive(SystemSet, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct ClientUpdate;
+
 pub struct RenetPlugin;
 impl Plugin for RenetPlugin {
 	fn build(&self, app: &mut App) {
-		app.add_plugins(ReplicationPlugins)
-		.add_plugins((client::ClientPlugin, server::ServerPlugin));
+		app
+			.add_plugins(ReplicationPlugins)
+			.add_plugins((client::ClientPlugin, server::ServerPlugin))
+			.configure_set(Update, AuthoritativeUpdate.run_if(has_authority()))
+			.configure_set(Update, ClientUpdate);
 	}
 }
 
 // #[cfg(feature = "transport")]
 // pub const PRIVATE_KEY: &[u8; bevy_renet::renet::transport::NETCODE_KEY_BYTES] =
-	// b"un example sehr tres secret key."; // 32-bytes
+// b"un example sehr tres secret key."; // 32-bytes
 // #[cfg(feature = "transport")]
 pub const PROTOCOL_ID: u64 = 7;
 

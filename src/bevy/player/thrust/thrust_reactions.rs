@@ -78,7 +78,7 @@ fn counteract(current: f32) -> Option<bool> {
 
 /// For each dimension, how to decide what [GenericInputFlags] should be emitted?
 /// Also used for UI
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ThrustReactions {
 	/// Enact the inputs received from the player as normal
 	Normal { input: Option<bool> },

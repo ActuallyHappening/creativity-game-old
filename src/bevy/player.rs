@@ -2,14 +2,14 @@ use crate::core::PlayerInventory;
 
 use self::weapons::{handle_firing, should_fire_this_frame, toggle_fire, update_bullets};
 
-use super::camera::handle_camera_movement;
+use super::{camera::handle_camera_movement, renet::AuthoritativeUpdate};
 use crate::utils::*;
 use lazy_static::lazy_static;
 
 mod thrust;
 use thrust::*;
 pub use thrust::{
-	calculate_relative_velocity_magnitudes, get_base_normal_vectors, get_current_relative_strengths,
+	calculate_relative_velocity_magnitudes, get_base_normal_vectors,
 	types, RelativeStrength, RelativeVelocityMagnitudes, Thrust, ThrustReactions,
 	ThrustReactionsStage,
 };
@@ -27,23 +27,23 @@ impl Plugin for PlayerPlugin {
 	fn build(&self, app: &mut App) {
 		app
 			.init_resource::<PlayerInventory>()
-			.add_systems(Startup, (initial_spawn_player,))
-			.add_systems(Update, (update_bullets,))
+			// .add_systems(Startup, (initial_spawn_player,))
+			// .add_systems(Update, (update_bullets,).in_set(AuthoritativeUpdate))
 			.add_systems(
 				Update,
 				(
 					handle_camera_movement,
-					should_fire_this_frame.pipe(toggle_fire).pipe(handle_firing),
-					join2(
-						sequence(
-							get_base_normal_vectors,
-							calculate_relative_velocity_magnitudes,
-						),
-						get_current_af_flags,
-					)
-					.pipe(manually_threading_player_movement)
-					.in_set(PlayerMove),
-					trigger_player_thruster_particles.after(PlayerMove),
+					// should_fire_this_frame.pipe(toggle_fire).pipe(handle_firing),
+					// join2(
+					// 	sequence(
+					// 		get_base_normal_vectors,
+					// 		calculate_relative_velocity_magnitudes,
+					// 	),
+					// 	get_current_af_flags,
+					// )
+					// .pipe(manually_threading_player_movement)
+					// .in_set(PlayerMove),
+					// trigger_player_thruster_particles.after(PlayerMove),
 				),
 			);
 	}
@@ -51,13 +51,14 @@ impl Plugin for PlayerPlugin {
 
 /// Denotes the main, controllable player
 #[derive(Component, Default)]
-pub struct MainPlayer {
-	/// Current relative strength, used for UI
-	pub relative_strength: Thrust<RelativeStrength>,
-	/// Current inputs including braking info, used for UI
-	pub thrust_responses: Thrust<ThrustReactionsStage>,
-	/// Optional artificial friction flags, starts all enabled
-	pub artificial_friction_flags: Thrust<ArtificialFrictionFlags>,
+pub struct ControllablePlayer {
+	pub network_id: u64,
+	// /// Current relative strength, used for UI
+	// pub relative_strength: Thrust<RelativeStrength>,
+	// /// Current inputs including braking info, used for UI
+	// pub thrust_responses: Thrust<ThrustReactionsStage>,
+	// /// Optional artificial friction flags, starts all enabled
+	// pub artificial_friction_flags: Thrust<ArtificialFrictionFlags>,
 }
 
 lazy_static! {
@@ -99,7 +100,7 @@ fn initial_spawn_player(
 					transform: Transform::from_xyz(0., PIXEL_SIZE * 7., 0.),
 					..default()
 				},
-				MainPlayer::default(),
+				ControllablePlayer::default(),
 			)
 				.named("Main Player")
 				.physics_dynamic()

@@ -7,7 +7,7 @@ pub fn get_relative_strengths(
 		Thrust<FlaggedPositionNormalVectors>,
 		Thrust<MaxAllowableVelocityMagnitudes>,
 	)>,
-	player_velocity: Query<&Velocity, With<MainPlayer>>,
+	player_velocity: Query<&Velocity, With<ControllablePlayer>>,
 ) -> Thrust<RelativeStrength> {
 	let Velocity {
 		ref linvel,
@@ -57,7 +57,7 @@ pub fn get_relative_strengths(
 
 pub fn calculate_relative_velocity_magnitudes(
 	In(base): In<Thrust<BasePositionNormalVectors>>,
-	velocity: Query<&Velocity, With<MainPlayer>>,
+	velocity: Query<&Velocity, With<ControllablePlayer>>,
 ) -> Thrust<RelativeVelocityMagnitudes> {
 	let max = max_velocity_magnitudes();
 	let velocity = velocity.single();

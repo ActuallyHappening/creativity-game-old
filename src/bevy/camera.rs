@@ -11,7 +11,7 @@ use bevy::{
 use bevy_dolly::prelude::*;
 use bevy_mod_picking::prelude::RaycastPickCamera;
 
-use super::player::MainPlayer;
+use super::player::ControllablePlayer;
 use crate::utils::*;
 
 mod dolly_rig;
@@ -74,8 +74,8 @@ impl CameraPlugin {
 
 /// Added to world in `PlayerPlugin` after player movement system
 pub fn handle_camera_movement(
-	player: Query<&Transform, (With<MainPlayer>, Without<MainCamera>)>,
-	mut camera: Query<&mut Rig, (With<MainCamera>, Without<MainPlayer>)>,
+	player: Query<&Transform, (With<ControllablePlayer>, Without<MainCamera>)>,
+	mut camera: Query<&mut Rig, (With<MainCamera>, Without<ControllablePlayer>)>,
 
 	mut mouse_movements: EventReader<MouseMotion>,
 	mouse_clicks: Res<Input<MouseButton>>,

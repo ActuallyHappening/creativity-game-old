@@ -1,3 +1,5 @@
+use serde::{Serialize, de::DeserializeOwned};
+
 use crate::utils::*;
 
 #[extension(pub trait Vec3Ext)]
@@ -45,7 +47,7 @@ impl f32 {
 	}
 }
 
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
 pub enum Signed<T>
 where
 	T: Default + Clone + Copy + Default,

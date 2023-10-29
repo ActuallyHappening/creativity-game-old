@@ -47,7 +47,7 @@ pub(super) fn gather_input_flags(
 }
 
 pub fn get_base_normal_vectors(
-	player_transform: Query<&Transform, With<MainPlayer>>,
+	player_transform: Query<&Transform, With<ControllablePlayer>>,
 ) -> Thrust<BasePositionNormalVectors> {
 	let player = player_transform.single();
 
@@ -68,52 +68,52 @@ pub fn get_base_normal_vectors(
 }
 
 pub(super) fn max_velocity_magnitudes() -> Thrust<MaxAllowableVelocityMagnitudes> {
-	impl MainPlayer {
+	impl ControllablePlayer {
 		const MAX_LINEAR_VELOCITY: f32 = 10.;
 		const MAX_ANGULAR_VELOCITY: f32 = 0.2;
 	}
 
 	Thrust::<MaxAllowableVelocityMagnitudes> {
 		forward: 20.,
-		up: MainPlayer::MAX_LINEAR_VELOCITY,
-		right: MainPlayer::MAX_LINEAR_VELOCITY,
+		up: ControllablePlayer::MAX_LINEAR_VELOCITY,
+		right: ControllablePlayer::MAX_LINEAR_VELOCITY,
 
-		tilt_up: MainPlayer::MAX_ANGULAR_VELOCITY * 2.,
-		turn_right: MainPlayer::MAX_ANGULAR_VELOCITY,
-		roll_right: MainPlayer::MAX_ANGULAR_VELOCITY,
+		tilt_up: ControllablePlayer::MAX_ANGULAR_VELOCITY * 2.,
+		turn_right: ControllablePlayer::MAX_ANGULAR_VELOCITY,
+		roll_right: ControllablePlayer::MAX_ANGULAR_VELOCITY,
 		_stage: PhantomData,
 	}
 }
 
 pub(super) const fn force_factors() -> Thrust<ForceFactors> {
-	impl MainPlayer {
+	impl ControllablePlayer {
 		const MOVE_FACTOR: f32 = 5_000_000.;
 		const TURN_FACTOR: f32 = 5_000_000.;
 	}
 
 	Thrust::<ForceFactors> {
-		forward: MainPlayer::MOVE_FACTOR,
-		up: MainPlayer::MOVE_FACTOR,
-		right: MainPlayer::MOVE_FACTOR,
+		forward: ControllablePlayer::MOVE_FACTOR,
+		up: ControllablePlayer::MOVE_FACTOR,
+		right: ControllablePlayer::MOVE_FACTOR,
 
-		turn_right: MainPlayer::TURN_FACTOR,
-		tilt_up: MainPlayer::TURN_FACTOR,
-		roll_right: MainPlayer::TURN_FACTOR,
+		turn_right: ControllablePlayer::TURN_FACTOR,
+		tilt_up: ControllablePlayer::TURN_FACTOR,
+		roll_right: ControllablePlayer::TURN_FACTOR,
 		_stage: PhantomData,
 	}
 }
 
-/// Should be ran after [PlayerMovement] system set
+// Should be ran after [PlayerMovement] system set
 // pub fn get_current_final_vectors(player: Query<&MainPlayer>) -> Thrust<FinalVectors> {
 // 	player.single().final_vectors.clone()
 // }
 
-pub fn get_current_relative_strengths(player: Query<&MainPlayer>) -> Thrust<RelativeStrength> {
-	player.single().relative_strength.clone()
-}
+// pub fn get_current_relative_strengths(player: Query<&ControllablePlayer>) -> Thrust<RelativeStrength> {
+// 	player.single().relative_strength.clone()
+// }
 
-pub fn get_current_af_flags(
-	player: Query<&MainPlayer>,
-) -> Thrust<ArtificialFrictionFlags> {
-	player.single().artificial_friction_flags.clone()
-}
+// pub fn get_current_af_flags(
+// 	player: Query<&ControllablePlayer>,
+// ) -> Thrust<ArtificialFrictionFlags> {
+// 	player.single().artificial_friction_flags.clone()
+// }
