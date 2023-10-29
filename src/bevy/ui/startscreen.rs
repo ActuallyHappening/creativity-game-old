@@ -100,6 +100,7 @@ fn handle_default_ui(
 				ServerConnections::Local => start_game.0 = Some(ServerConnections::Local),
 				ServerConnections::Client => next_screen.0 = Some(StartScreens::ClientControls),
 				ServerConnections::Hosting => next_screen.0 = Some(StartScreens::HostControls),
+				_ => {}
 			}
 		}
 	}

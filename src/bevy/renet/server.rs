@@ -28,6 +28,7 @@ impl Plugin for ServerPlugin {
 		app
 			.add_systems(OnEnter(ServerConnections::Hosting), add_server)
 			.add_systems(OnExit(ServerConnections::Hosting), disconnect_server)
+			.add_systems(Update, server_event_system.run_if(has_authority()))
 			// .add_systems(
 			// 	Update,
 			// 	(
@@ -72,11 +73,34 @@ fn add_server(
 	commands.insert_resource(transport);
 
 	info!("Acting as a server");
-	
+
 	// commands.spawn(PlayerBundle::new(SERVER_ID, Vec2::ZERO, Color::GREEN));
 }
 
 fn disconnect_server() {}
+
+/// Logs server events and spawns a new player whenever a client connects.
+fn server_event_system(mut commands: Commands, mut server_event: EventReader<ServerEvent>) {
+	for event in &mut server_event {
+		match event {
+			ServerEvent::ClientConnected { client_id } => {
+				info!("player: {client_id} Connected");
+				// Generate pseudo random color from client id.
+				// let r = ((client_id % 23) as f32) / 23.0;
+				// let g = ((client_id % 27) as f32) / 27.0;
+				// let b = ((client_id % 39) as f32) / 39.0;
+				// commands.spawn(PlayerBundle::new(
+				// 	*client_id,
+				// 	Vec2::ZERO,
+				// 	Color::rgb(r, g, b),
+				// ));
+			}
+			ServerEvent::ClientDisconnected { client_id, reason } => {
+				info!("client {client_id} disconnected: {reason}");
+			}
+		}
+	}
+}
 
 // #[derive(Debug, Default, Resource)]
 // pub struct ServerLobby {

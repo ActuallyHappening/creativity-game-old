@@ -36,7 +36,7 @@ pub use std::{
 pub use strum::*;
 pub use std::collections::HashMap;
 pub use std::num::*;
-pub use std::time::Duration;
+pub use std::time::*;
 pub use std::net::*;
 pub use bevy_replicon::prelude::*;
 pub use renet::*;

@@ -34,7 +34,7 @@ pub enum Controlling {
 #[derive(Default, Clone, Copy, PartialEq, Eq, Debug, Hash, States)]
 pub enum ServerConnections {
 	/// Hosting to outside world
-	#[default]
+	// #[default]
 	Hosting,
 
 	/// Connecting to a server and displaying server state
@@ -43,6 +43,9 @@ pub enum ServerConnections {
 	/// Not interacting with any servers,
 	/// or hosting (yet)
 	Local,
+
+	#[default]
+	NotPlaying,
 }
 
 impl ServerConnections {

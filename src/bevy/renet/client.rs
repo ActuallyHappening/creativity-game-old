@@ -7,6 +7,8 @@ use bevy::{
 	window::PrimaryWindow,
 };
 use bevy_egui::{EguiContexts, EguiPlugin};
+
+use super::PROTOCOL_ID;
 // use bevy_renet::renet::transport::{
 // 	ClientAuthentication, NetcodeClientTransport, NetcodeTransportError,
 // };
@@ -19,6 +21,7 @@ use bevy_egui::{EguiContexts, EguiPlugin};
 pub struct ClientPlugin;
 impl Plugin for ClientPlugin {
 	fn build(&self, app: &mut App) {
+		app.add_systems(OnEnter(ServerConnections::Client), add_client);
 		// app
 		// 	.add_plugins((
 		// 		bevy_renet::RenetClientPlugin,
@@ -36,6 +39,47 @@ impl Plugin for ClientPlugin {
 		// 	.add_systems(OnEnter(ServerConnections::Client), add_netcode_client_network)
 		// 	.add_systems(OnExit(ServerConnections::Client), remove_netcode_network);
 	}
+}
+
+fn add_client(
+	mut commands: Commands,
+	network_channels: Res<NetworkChannels>,
+	config: Res<SavedHostingInfo>,
+) {
+	let server_channels_config = network_channels.server_channels();
+	let client_channels_config = network_channels.client_channels();
+
+	let client = RenetClient::new(ConnectionConfig {
+		server_channels_config,
+		client_channels_config,
+		..Default::default()
+	});
+
+	let current_time = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();
+	let client_id = current_time.as_millis() as u64;
+	let server_addr = SocketAddr::new(config.join_ip, config.join_port);
+	let socket = UdpSocket::bind((config.join_ip, 0)).expect("Couldn't bind to socket");
+	let authentication = transport::ClientAuthentication::Unsecure {
+		client_id,
+		protocol_id: PROTOCOL_ID,
+		server_addr,
+		user_data: None,
+	};
+	let transport = transport::NetcodeClientTransport::new(current_time, authentication, socket).expect("Couldn't join to server");
+
+	commands.insert_resource(client);
+	commands.insert_resource(transport);
+
+	commands.spawn(TextBundle::from_section(
+		format!("Client: {client_id:?}"),
+		TextStyle {
+			font_size: 30.0,
+			color: Color::WHITE,
+			..default()
+		},
+	));
+
+	info!("Acting as client");
 }
 
 // #[derive(Component)]
