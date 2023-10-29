@@ -13,11 +13,17 @@ impl Plugin for StartScreenPlugin {
 				(
 					handle_default_ui.run_if(in_state(StartScreens::Default)),
 					handle_host_controls_ui.run_if(in_state(StartScreens::HostControls)),
+					handle_client_controls_ui.run_if(in_state(StartScreens::ClientControls)),
 				)
 					.run_if(in_state(ScreenState::StartScreen)),
 			)
 			.add_systems(OnEnter(StartScreens::HostControls), setup_host_controls_ui)
-			.add_systems(OnExit(StartScreens::HostControls), cleanup_ui);
+			.add_systems(OnExit(StartScreens::HostControls), cleanup_ui)
+			.add_systems(
+				OnEnter(StartScreens::ClientControls),
+				setup_client_controls_ui,
+			)
+			.add_systems(OnExit(StartScreens::ClientControls), cleanup_ui);
 	}
 }
 
@@ -35,9 +41,6 @@ struct StartScreenUi;
 
 #[derive(Component)]
 struct DefaultBtn(ServerConnections);
-
-#[derive(Component)]
-struct ClientControlsBtn;
 
 fn setup_default_ui(mut commands: Commands, ass: ResMut<AssetServer>) {
 	info!("Start screen");
@@ -149,10 +152,67 @@ fn setup_host_controls_ui(mut commands: Commands, ass: ResMut<AssetServer>) {
 
 fn handle_host_controls_ui(
 	btn: Query<&Interaction, (With<HostControlsBtn>, Changed<Interaction>)>,
-	mut start_game: ResMut<NextState<ServerConnections>>, mut in_game: ResMut<NextState<ScreenState>>
+	mut start_game: ResMut<NextState<ServerConnections>>,
+	mut in_game: ResMut<NextState<ScreenState>>,
 ) {
 	if let Some(Interaction::Pressed) = btn.iter().next() {
 		start_game.0 = Some(ServerConnections::Hosting);
+		in_game.0 = Some(ScreenState::InGame);
+	}
+}
+
+#[derive(Component)]
+struct ClientControlsBtn;
+
+fn setup_client_controls_ui(mut commands: Commands, ass: ResMut<AssetServer>) {
+	info!("- Client Controls UI");
+	commands
+		.spawn(NodeBundle {
+			style: Style {
+				width: Val::Percent(100.),
+				height: Val::Percent(100.),
+				justify_content: JustifyContent::Center,
+				align_items: AlignItems::Center,
+				flex_direction: FlexDirection::Column,
+				..default()
+			},
+			..default()
+		})
+		.insert(StartScreenUi)
+		.with_children(|parent| {
+			parent
+				.spawn(ButtonBundle {
+					style: Style {
+						width: Val::Px(400.),
+						height: Val::Px(50.),
+						justify_content: JustifyContent::Center,
+						align_items: AlignItems::Center,
+						..default()
+					},
+					background_color: Color::BLACK.into(),
+					..default()
+				})
+				.insert(ClientControlsBtn)
+				.with_children(|parent| {
+					parent.spawn(TextBundle::from_section(
+						"Join Machine-Local Game",
+						TextStyle {
+							font: ass.load(Font::Medium),
+							font_size: 30.,
+							color: Color::WHITE,
+						},
+					));
+				});
+		});
+}
+
+fn handle_client_controls_ui(
+	btn: Query<&Interaction, (With<ClientControlsBtn>, Changed<Interaction>)>,
+	mut start_game: ResMut<NextState<ServerConnections>>,
+	mut in_game: ResMut<NextState<ScreenState>>,
+) {
+	if let Some(Interaction::Pressed) = btn.iter().next() {
+		start_game.0 = Some(ServerConnections::Client);
 		in_game.0 = Some(ScreenState::InGame);
 	}
 }

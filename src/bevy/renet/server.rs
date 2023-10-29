@@ -15,7 +15,6 @@ use bevy::{
 	prelude::*,
 };
 use bevy_egui::{EguiContexts, EguiPlugin};
-use bevy_rapier3d::prelude::*;
 // use bevy_renet::renet::transport::{NetcodeServerTransport, ServerAuthentication, ServerConfig};
 // use bevy_renet::{
 // 	renet::{ClientId, RenetServer, ServerEvent},
@@ -72,14 +71,7 @@ fn add_server(
 	commands.insert_resource(server);
 	commands.insert_resource(transport);
 
-	commands.spawn(TextBundle::from_section(
-		"Server",
-		TextStyle {
-			font_size: 30.0,
-			color: Color::WHITE,
-			..default()
-		},
-	));
+	info!("Acting as a server");
 	
 	// commands.spawn(PlayerBundle::new(SERVER_ID, Vec2::ZERO, Color::GREEN));
 }
