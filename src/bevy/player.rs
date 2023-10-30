@@ -7,9 +7,11 @@ use super::{
 	renet::{AuthoritativeUpdate, ClientUpdate},
 };
 use crate::utils::*;
+use bevy::ecs::system::SystemParam;
 use lazy_static::lazy_static;
 
 mod thrust;
+use renet::transport::NetcodeClientTransport;
 use thrust::*;
 pub use thrust::{
 	calculate_relative_velocity_magnitudes, get_base_normal_vectors, types, RelativeStrength,
@@ -173,7 +175,7 @@ fn hydrate_player(
 pub fn authoritative_spawn_initial_player(mut commands: Commands) {
 	commands.spawn(AuthorityPlayerBundle::new(
 		ControllablePlayer {
-			network_id: 0,
+			network_id: SERVER_ID,
 			// relative_strength: Thrust::default(),
 			// thrust_responses: Thrust::default(),
 			// artificial_friction_flags: Thrust::default(),
@@ -181,4 +183,15 @@ pub fn authoritative_spawn_initial_player(mut commands: Commands) {
 		PLAYER_STRUCTURE.clone(),
 		Transform::from_translation(Vec3::new(0., 0., 0.)),
 	));
+}
+
+#[derive(SystemParam)]
+struct ClientID<'w> {
+	res: Option<Res<'w, NetcodeClientTransport>>,
+}
+
+impl ClientID<'_> {
+	pub fn id(&self) -> u64 {
+		self.res.as_ref().map(|client| client.client_id()).unwrap_or(SERVER_ID)
+	}
 }

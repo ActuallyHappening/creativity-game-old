@@ -60,9 +60,12 @@ pub fn spawn_initial_world(mut commands: Commands, mut mma: MMA) {
 			approx_radius: NonZeroU8::new(rng.gen_range(1..=10)).unwrap(),
 		};
 
-		let (collider, bundles) = object_type
-			.generate_structure()
-			.compute_bevy_bundles(&mut mma, None);
+		let structure = object_type.generate_structure();
+
+		let (collider, bundles) = (
+			structure.compute_collider(),
+			structure.compute_bundles(&mut mma, None),
+		);
 
 		commands
 			.spawn(
