@@ -2012,6 +2012,7 @@ dependencies = [
  "bevy_replicon 0.15.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "bevy_screen_diagnostics",
  "bevycheck",
+ "clap",
  "console_error_panic_hook",
  "derive_builder",
  "derive_more",

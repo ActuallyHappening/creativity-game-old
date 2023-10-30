@@ -68,6 +68,7 @@ bevy_replicon = "0.15.1"
 # bevy_renet = "0.0.9"
 bevy_screen_diagnostics = "0.3.0"
 bevycheck = { version = "0.5.2", optional = true }
+clap = "4.4.7"
 derive_builder = { version = "0.12.0", features = ["clippy"] }
 derive_more = "0.99.17"
 extension-traits = "1.0.1"
