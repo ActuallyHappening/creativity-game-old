@@ -9,7 +9,10 @@ use std::{
 
 use super::PROTOCOL_ID;
 
-use crate::{bevy::player::authoritative_spawn_initial_player, utils::*};
+use crate::{
+	bevy::player::{authoritative_spawn_initial_player, AuthorityPlayerBundle, ControllablePlayer, PLAYER_STRUCTURE},
+	utils::*,
+};
 use bevy::{
 	diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
 	prelude::*,
@@ -80,7 +83,7 @@ fn add_server(
 fn disconnect_server() {}
 
 /// Logs server events and spawns a new player whenever a client connects.
-fn server_event_system(mut server_event: EventReader<ServerEvent>) {
+fn server_event_system(mut server_event: EventReader<ServerEvent>, mut commands: Commands) {
 	for event in &mut server_event {
 		match event {
 			ServerEvent::ClientConnected { client_id } => {
@@ -98,6 +101,13 @@ fn server_event_system(mut server_event: EventReader<ServerEvent>) {
 				// 	pos: Transform::from_xyz(0., 0., 0.),
 				// 	id: *client_id,
 				// });
+				commands.spawn(AuthorityPlayerBundle::new(
+					ControllablePlayer {
+						network_id: *client_id,
+					},
+					PLAYER_STRUCTURE.clone(),
+					Transform::from_xyz(0., 100., 0.),
+				));
 			}
 			ServerEvent::ClientDisconnected { client_id, reason } => {
 				info!("client {client_id} disconnected: {reason}");

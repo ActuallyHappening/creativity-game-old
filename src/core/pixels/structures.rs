@@ -52,7 +52,7 @@ pub fn hydrate_structure(
 			Option<&ComputedVisibility>,
 			Option<&GlobalTransform>,
 		),
-		(Added<SpawnChildStructure>, With<Replication>),
+		Added<SpawnChildStructure>,
 	>,
 ) {
 	for (entity, structure, computed_visibility, global_transform) in skeleton_players.iter() {

@@ -70,14 +70,14 @@ fn add_client(
 	commands.insert_resource(client);
 	commands.insert_resource(transport);
 
-	commands.spawn(TextBundle::from_section(
-		format!("Client: {client_id:?}"),
-		TextStyle {
-			font_size: 30.0,
-			color: Color::WHITE,
-			..default()
-		},
-	));
+	// commands.spawn(TextBundle::from_section(
+	// 	format!("Client: {client_id:?}"),
+	// 	TextStyle {
+	// 		font_size: 30.0,
+	// 		color: Color::WHITE,
+	// 		..default()
+	// 	},
+	// ));
 
 	info!("Acting as client");
 }

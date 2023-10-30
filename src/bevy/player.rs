@@ -69,7 +69,7 @@ pub struct ControllablePlayer {
 }
 
 lazy_static! {
-	static ref PLAYER_STRUCTURE: Structure = Structure::new([
+	pub static ref PLAYER_STRUCTURE: Structure = Structure::new([
 		(PixelVariant::PlayerSteel, (0, 0, 0)), // center
 		(PixelVariant::PlayerSteel, (0, 0, -1)), // front 1
 		(PixelVariant::PlayerSteel, (0, 0, -2)), // front 2
