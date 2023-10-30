@@ -154,7 +154,7 @@ pub fn handle_camera_movement(
 			}
 		}
 	} else {
-		warn!("No player found for camera to follow!");
+		// warn!("No player found for camera to follow!");
 	}
 
 	mouse_movements.clear();

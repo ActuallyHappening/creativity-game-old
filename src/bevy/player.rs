@@ -165,6 +165,7 @@ fn hydrate_player(
 	skeleton_players: Query<(Entity, &SpawnChildStructure), Added<SpawnChildStructure>>,
 ) {
 	for (entity, structure) in skeleton_players.iter() {
+		info!("Hydrating player");
 		commands.entity(entity).with_children(|parent| {
 			for part in structure.compute_bundles(&mut mma, Some(&mut effects)) {
 				part.default_spawn_to_parent(parent);
