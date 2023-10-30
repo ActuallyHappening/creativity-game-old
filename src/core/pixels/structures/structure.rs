@@ -25,71 +25,68 @@ impl Structure {
 			.collect()
 	}
 
-	fn compute_collider(&self) -> Collider {
+	pub fn compute_collider(&self) -> Collider {
 		Collider::compound(self.compute_shape())
 	}
 
-	pub fn compute_bevy_bundles(
+	pub fn compute_bundles(
 		&self,
 		mma: &mut MMA,
 		mut effects: Option<&mut Assets<EffectAsset>>,
-	) -> (Collider, Vec<StructureBundle>) {
-		(
-			self.compute_collider(),
-			self
-				.parts
-				.clone()
-				.into_iter()
-				.map(|p| match p {
-					StructurePart::Thruster {
-						thrust,
-						relative_location,
-					} => StructureBundle::Thruster {
-						visual: PbrBundle {
-							material: mma.mats.add(Color::ORANGE_RED.into()),
-							transform: Transform::from_translation(
-								relative_location.into_world_vector()
-									- (PIXEL_SIZE / 3.) * thrust.facing.into_direction_vector(),
-							),
-							mesh: mma.meshs.add(shape::Cube::new(PIXEL_SIZE / 2.).into()),
-							..default()
-						},
-						particles: {
-							let mut particles = gen_particles(effects.as_mut().unwrap());
-							particles.transform = Transform::from_rotation(thrust.facing.into_rotation());
-							particles
-						},
-						data: thrust,
+	) -> Vec<StructureBundle> {
+		self
+			.parts
+			.clone()
+			.into_iter()
+			.map(|p| match p {
+				StructurePart::Thruster {
+					thrust,
+					relative_location,
+				} => StructureBundle::Thruster {
+					visual: PbrBundle {
+						material: mma.mats.add(Color::ORANGE_RED.into()),
+						transform: Transform::from_translation(
+							relative_location.into_world_vector()
+								- (PIXEL_SIZE / 3.) * thrust.facing.into_direction_vector(),
+						),
+						mesh: mma.meshs.add(shape::Cube::new(PIXEL_SIZE / 2.).into()),
+						..default()
 					},
-					StructurePart::Weapon {
-						weapon,
-						relative_location,
-					} => StructureBundle::Weapon {
-						visual: PbrBundle {
-							material: mma.mats.add(Color::RED.into()),
-							transform: Transform::from_translation(
-								relative_location.into_world_vector()
-									- (PIXEL_SIZE / 2.) * weapon.facing.into_direction_vector(),
-							),
-							mesh: mma.meshs.add(shape::Cube::new(PIXEL_SIZE / 3.).into()),
-							..default()
-						},
-						data: weapon,
+					particles: {
+						let mut particles = gen_particles(effects.as_mut().unwrap());
+						particles.transform = Transform::from_rotation(thrust.facing.into_rotation());
+						particles
 					},
-					StructurePart::Pixel {
-						px,
-						relative_location,
-					} => StructureBundle::Pixel {
-						visual: PbrBundle {
-							material: mma.mats.add(px.clone().into()),
-							transform: Transform::from_translation(relative_location.into_world_vector()),
-							mesh: mma.meshs.add(shape::Cube::new(PIXEL_SIZE).into()),
-							..default()
-						},
+					data: thrust,
+				},
+				StructurePart::Weapon {
+					weapon,
+					relative_location,
+				} => StructureBundle::Weapon {
+					visual: PbrBundle {
+						material: mma.mats.add(Color::RED.into()),
+						transform: Transform::from_translation(
+							relative_location.into_world_vector()
+								- (PIXEL_SIZE / 2.) * weapon.facing.into_direction_vector(),
+						),
+						mesh: mma.meshs.add(shape::Cube::new(PIXEL_SIZE / 3.).into()),
+						..default()
 					},
-				})
-				.collect(),
-		)
+					data: weapon,
+				},
+				StructurePart::Pixel {
+					px,
+					relative_location,
+				} => StructureBundle::Pixel {
+					visual: PbrBundle {
+						material: mma.mats.add(px.clone().into()),
+						transform: Transform::from_translation(relative_location.into_world_vector()),
+						mesh: mma.meshs.add(shape::Cube::new(PIXEL_SIZE).into()),
+						..default()
+					},
+				},
+			})
+			.collect()
 	}
 }
 

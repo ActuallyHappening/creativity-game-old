@@ -4,7 +4,7 @@ use self::weapons::{handle_firing, should_fire_this_frame, toggle_fire, update_b
 
 use super::{
 	camera::handle_camera_movement,
-	renet::{server::SpawnPlayer, AuthoritativeUpdate, ClientUpdate},
+	renet::{AuthoritativeUpdate, ClientUpdate},
 };
 use crate::utils::*;
 use lazy_static::lazy_static;
@@ -22,14 +22,13 @@ pub use weapons::WeaponFlags;
 pub struct PlayerPlugin;
 
 /// After player thrusts and movement have been handled
-#[derive(SystemSet, Hash, Debug, PartialEq, Eq, Clone,)]
+#[derive(SystemSet, Hash, Debug, PartialEq, Eq, Clone)]
 pub struct PlayerMove;
 
 impl Plugin for PlayerPlugin {
 	fn build(&self, app: &mut App) {
 		app
 			.init_resource::<PlayerInventory>()
-			.add_server_event(policy)
 			// .add_systems(Startup, (initial_spawn_player,))
 			// .add_systems(Update, (update_bullets,).in_set(AuthoritativeUpdate))
 			.add_systems(
@@ -48,7 +47,8 @@ impl Plugin for PlayerPlugin {
 					// .in_set(PlayerMove),
 					// trigger_player_thruster_particles.after(PlayerMove),
 				),
-			);
+			)
+			.add_systems(PreUpdate, hydrate_player.after(ClientSet::Receive));
 	}
 }
 
@@ -87,39 +87,98 @@ lazy_static! {
 	.reflect_vertically();
 }
 
-fn initial_spawn_player(
-	mut spawn_player: EventReader<SpawnPlayer>,
+#[derive(Component, Constructor, Deref)]
+pub struct SpawnChildStructure {
+	pub structure: Structure,
+}
+
+#[derive(Bundle)]
+pub struct AuthorityPlayerBundle {
+	controllable_player: ControllablePlayer,
+	pbr: PbrBundle,
+	name: Name,
+	physics: PhysicsBundle,
+	to_spawn: SpawnChildStructure,
+	replicate: Replication,
+}
+
+impl AuthorityPlayerBundle {
+	pub fn new(
+		controllable_player: ControllablePlayer,
+		structure: Structure,
+		transform: Transform,
+	) -> Self {
+		AuthorityPlayerBundle {
+			name: Name::new(format!("Player {}", controllable_player.network_id)),
+			controllable_player,
+			pbr: PbrBundle {
+				transform,
+				..default()
+			},
+			physics: PhysicsBundle::new(structure.compute_collider()),
+			to_spawn: SpawnChildStructure::new(structure),
+			replicate: Replication,
+		}
+	}
+}
+
+#[derive(Bundle)]
+pub struct PhysicsBundle {
+	collider: Collider,
+	rigid_body: RigidBody,
+	velocity: Velocity,
+	damping: Damping,
+	external_force: ExternalForce,
+	sleeping: Sleeping,
+}
+
+impl PhysicsBundle {
+	fn new(collider: Collider) -> Self {
+		PhysicsBundle {
+			collider,
+			rigid_body: RigidBody::Dynamic,
+			velocity: Velocity {
+				linvel: Vec3::ZERO,
+				angvel: Vec3::ZERO,
+			},
+			damping: Damping {
+				linear_damping: 0.,
+				angular_damping: 0.,
+			},
+			external_force: ExternalForce {
+				force: Vec3::ZERO,
+				torque: Vec3::ZERO,
+			},
+			sleeping: Sleeping::disabled(),
+		}
+	}
+}
+
+fn hydrate_player(
 	mut commands: Commands,
 	mut mma: MMA,
 	mut effects: ResMut<Assets<EffectAsset>>,
+	skeleton_players: Query<(Entity, &SpawnChildStructure), Added<SpawnChildStructure>>,
 ) {
-	for player in spawn_player.iter() {
-		info!("Spawning player");
-
-		let (collider, player_parts) = PLAYER_STRUCTURE.compute_bevy_bundles(&mut mma, Some(&mut effects));
-
-		commands
-			.spawn(
-				(PbrBundle {
-					transform: player.pos,
-					..default()
-				},)
-					.named(format!("Player {}", player.id))
-					.insert(ControllablePlayer {
-						network_id: player.id,
-					})
-					.physics_dynamic()
-					.insert(collider)
-					// .physics_collider_ball(10.)
-					.physics_zero_force()
-					.physics_zero_velocity()
-					.physics_zero_damping()
-					.physics_never_sleep(),
-			)
-			.with_children(|parent| {
-				for part in player_parts {
-					part.default_spawn_to_parent(parent);
-				}
-			});
+	for (entity, structure) in skeleton_players.iter() {
+		commands.entity(entity).with_children(|parent| {
+			for part in structure.compute_bundles(&mut mma, Some(&mut effects)) {
+				part.default_spawn_to_parent(parent);
+			}
+		});
 	}
+}
+
+/// Spawns the initial player
+pub fn authoritative_spawn_initial_player(mut commands: Commands) {
+	commands.spawn(AuthorityPlayerBundle::new(
+		ControllablePlayer {
+			network_id: 0,
+			// relative_strength: Thrust::default(),
+			// thrust_responses: Thrust::default(),
+			// artificial_friction_flags: Thrust::default(),
+		},
+		PLAYER_STRUCTURE.clone(),
+		Transform::from_translation(Vec3::new(0., 0., 0.)),
+	));
 }

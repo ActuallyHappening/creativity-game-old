@@ -9,7 +9,7 @@ use std::{
 
 use super::PROTOCOL_ID;
 
-use crate::utils::*;
+use crate::{bevy::player::authoritative_spawn_initial_player, utils::*};
 use bevy::{
 	diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
 	prelude::*,
@@ -26,10 +26,9 @@ pub struct ServerPlugin;
 impl Plugin for ServerPlugin {
 	fn build(&self, app: &mut App) {
 		app
-			.add_systems(OnEnter(ServerConnections::Hosting), (add_server, spawn_initial_world))
+			.add_systems(OnEnter(ServerConnections::Hosting), (add_server, spawn_initial_world, authoritative_spawn_initial_player))
 			.add_systems(OnExit(ServerConnections::Hosting), disconnect_server)
 			.add_systems(Update, server_event_system.run_if(has_authority()))
-			.add_event::<SpawnPlayer>()
 			// .add_systems(
 			// 	Update,
 			// 	(
@@ -80,17 +79,8 @@ fn add_server(
 
 fn disconnect_server() {}
 
-#[derive(Event)]
-pub struct SpawnPlayer {
-	pub pos: Transform,
-	pub id: u64,
-}
-
 /// Logs server events and spawns a new player whenever a client connects.
-fn server_event_system(
-	mut server_event: EventReader<ServerEvent>,
-	mut spawn_player: EventWriter<SpawnPlayer>,
-) {
+fn server_event_system(mut server_event: EventReader<ServerEvent>) {
 	for event in &mut server_event {
 		match event {
 			ServerEvent::ClientConnected { client_id } => {
@@ -104,10 +94,10 @@ fn server_event_system(
 				// 	Vec2::ZERO,
 				// 	Color::rgb(r, g, b),
 				// ));
-				spawn_player.send(SpawnPlayer {
-					pos: Transform::from_xyz(0., 0., 0.),
-					id: *client_id,
-				});
+				// spawn_player.send(SpawnPlayer {
+				// 	pos: Transform::from_xyz(0., 0., 0.),
+				// 	id: *client_id,
+				// });
 			}
 			ServerEvent::ClientDisconnected { client_id, reason } => {
 				info!("client {client_id} disconnected: {reason}");
