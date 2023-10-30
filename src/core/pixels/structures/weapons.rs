@@ -2,7 +2,7 @@ use crate::bevy::WeaponFlags;
 
 use super::*;
 
-#[derive(Debug, Clone, Component,)]
+#[derive(Debug, Clone, Component, Serialize, Deserialize)]
 pub struct Weapon {
 	pub facing: Direction,
 	pub flags: WeaponFlags,

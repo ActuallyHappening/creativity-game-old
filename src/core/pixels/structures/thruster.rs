@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Debug, Clone, Component)]
+#[derive(Debug, Clone, Component, Serialize, Deserialize)]
 pub struct Thruster {
 	pub facing: Direction,
 	pub flags: ThrusterFlags,

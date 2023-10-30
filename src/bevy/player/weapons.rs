@@ -3,7 +3,7 @@ use crate::utils::*;
 use super::ControllablePlayer;
 
 /// Not used directly as a Component, see [Weapon]
-#[derive(Debug, Default, Component, Clone)]
+#[derive(Debug, Default, Component, Clone, Serialize, Deserialize)]
 pub struct WeaponFlags {
 	/// edited from systems
 	pub(self) try_fire_this_frame: Option<bool>,

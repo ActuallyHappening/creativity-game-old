@@ -2,8 +2,8 @@ macro_rules! pixel_type {
 	($self:ident, name: $name:literal, description: $description:literal, colour: $colour:expr, collectable: $collectable:expr, naturally_spawning: $naturally_spawning:expr, ) => {
 		(
 			Pixel {
-				name: $name,
-				description: $description,
+				name: $name.into(),
+				description: $description.into(),
 				colour: $colour,
 				variant: $self,
 			},

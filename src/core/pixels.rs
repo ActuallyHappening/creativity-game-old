@@ -12,10 +12,10 @@ pub use world_gen::*;
 /// spawning default pixels does not imply that all default pixels are the same,
 /// even though all of the information contained within this struct would imply that
 /// [PartialEq] they are equal.
-#[derive(Component, Debug, Clone)]
+#[derive(Component, Debug, Clone, Serialize, Deserialize)]
 pub struct Pixel {
-	pub name: &'static str,
-	pub description: &'static str,
+	pub name: Cow<'static, str>,
+	pub description: Cow<'static, str>,
 	pub colour: Color,
 	pub variant: PixelVariant,
 }
@@ -32,7 +32,7 @@ pub struct Collect {
 	pub amount_multiplier: u8,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumIter)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumIter, Serialize, Deserialize)]
 pub enum PixelVariant {
 	Dirt,
 	Copper,
@@ -51,7 +51,7 @@ pub struct PixelVariantInfo {
 
 impl PixelVariant {
 	// todo: maybe put this info in a lazy_static and reference it instead of re-constructing it everywhere?
-	const fn default_hardcoded(self) -> (Pixel, PixelVariantInfo) {
+	fn default_hardcoded(self) -> (Pixel, PixelVariantInfo) {
 		type PV = PixelVariant;
 		match self {
 			PV::Dirt => pixel_type! {self,
@@ -99,7 +99,7 @@ impl PixelVariant {
 	}
 
 	/// From/Into also implemented, but prefer explicit methods
-	pub const fn get_default_pixel(self) -> Pixel {
+	pub fn get_default_pixel(self) -> Pixel {
 		impl From<PixelVariant> for Pixel {
 			fn from(variant: PixelVariant) -> Self {
 				variant.get_default_pixel()
@@ -110,7 +110,7 @@ impl PixelVariant {
 	}
 
 	/// From/Into also implemented, but prefer explicit methods
-	pub const fn get_variant_info(self) -> PixelVariantInfo {
+	pub fn get_variant_info(self) -> PixelVariantInfo {
 		impl From<PixelVariant> for PixelVariantInfo {
 			fn from(variant: PixelVariant) -> Self {
 				variant.get_variant_info()

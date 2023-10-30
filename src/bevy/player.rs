@@ -32,6 +32,7 @@ impl Plugin for PlayerPlugin {
 		app
 			.init_resource::<PlayerInventory>()
 			.replicate::<ControllablePlayer>()
+			.replicate::<SpawnChildStructure>()
 			// .add_systems(Startup, (initial_spawn_player,))
 			// .add_systems(Update, (update_bullets,).in_set(AuthoritativeUpdate))
 			.add_systems(
@@ -90,7 +91,7 @@ lazy_static! {
 	.reflect_vertically();
 }
 
-#[derive(Component, Constructor, Deref)]
+#[derive(Component, Constructor, Deref, Serialize, Deserialize)]
 pub struct SpawnChildStructure {
 	pub structure: Structure,
 }

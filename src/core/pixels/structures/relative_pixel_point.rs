@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Debug, Clone, PartialEq, Eq, Default, Mul)]
+#[derive(Debug, Clone, PartialEq, Eq, Default, Mul, Serialize, Deserialize)]
 pub struct RelativePixelPoint {
 	pub x: i32,
 	pub y: i32,
