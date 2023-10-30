@@ -33,6 +33,7 @@ impl Plugin for PlayerPlugin {
 			.init_resource::<PlayerInventory>()
 			.replicate::<ControllablePlayer>()
 			.replicate::<SpawnChildStructure>()
+			.replicate::<Transform>()
 			// .add_systems(Startup, (initial_spawn_player,))
 			// .add_systems(Update, (update_bullets,).in_set(AuthoritativeUpdate))
 			.add_systems(
@@ -52,7 +53,7 @@ impl Plugin for PlayerPlugin {
 					// trigger_player_thruster_particles.after(PlayerMove),
 				),
 			)
-			.add_systems(PreUpdate, hydrate_player.after(ClientSet::Receive));
+			.add_systems(PreUpdate, hydrate_structure.after(ClientSet::Receive));
 	}
 }
 
@@ -99,7 +100,9 @@ pub struct SpawnChildStructure {
 #[derive(Bundle)]
 pub struct AuthorityPlayerBundle {
 	controllable_player: ControllablePlayer,
-	pbr: PbrBundle,
+	transform: Transform,
+	computed_visibility: ComputedVisibility,
+	visibility: Visibility,
 	name: Name,
 	physics: PhysicsBundle,
 	to_spawn: SpawnChildStructure,
@@ -115,10 +118,9 @@ impl AuthorityPlayerBundle {
 		AuthorityPlayerBundle {
 			name: Name::new(format!("Player {}", controllable_player.network_id)),
 			controllable_player,
-			pbr: PbrBundle {
-				transform,
-				..default()
-			},
+			transform,
+			computed_visibility: ComputedVisibility::default(),
+			visibility: Visibility::Inherited,
 			physics: PhysicsBundle::new(structure.compute_collider()),
 			to_spawn: SpawnChildStructure::new(structure),
 			replicate: Replication,
@@ -158,15 +160,34 @@ impl PhysicsBundle {
 	}
 }
 
-fn hydrate_player(
+fn hydrate_structure(
 	mut commands: Commands,
 	mut mma: MMA,
 	mut effects: ResMut<Assets<EffectAsset>>,
-	skeleton_players: Query<(Entity, &SpawnChildStructure), Added<SpawnChildStructure>>,
+	skeleton_players: Query<
+		(
+			Entity,
+			&SpawnChildStructure,
+			Option<&ComputedVisibility>,
+			Option<&GlobalTransform>,
+		),
+		Added<SpawnChildStructure>,
+	>,
 ) {
-	for (entity, structure) in skeleton_players.iter() {
-		info!("Hydrating player");
-		commands.entity(entity).with_children(|parent| {
+	for (entity, structure, computed_visibility, global_transform) in skeleton_players.iter() {
+		info!("Hydrating structure");
+
+		let mut parent = commands.entity(entity);
+
+		if computed_visibility.is_none() {
+			parent.insert(ComputedVisibility::default());
+		}
+		if global_transform.is_none() {
+			parent.insert(GlobalTransform::default());
+		}
+
+		// spawn structure
+		parent.with_children(|parent| {
 			for part in structure.compute_bundles(&mut mma, Some(&mut effects)) {
 				part.default_spawn_to_parent(parent);
 			}
