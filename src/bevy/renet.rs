@@ -1,10 +1,11 @@
 use crate::utils::*;
 use std::{f32::consts::PI, time::Duration};
 
-use bevy::prelude::{shape::Icosphere, *};
+use bevy::{prelude::{shape::Icosphere, *}, ecs::system::SystemParam};
 use bevy_rapier3d::prelude::*;
 // use bevy_renet::renet::{ChannelConfig, ClientId, ConnectionConfig, SendType};
 use bevy_replicon::ReplicationPlugins;
+use renet::transport::NetcodeClientTransport;
 use serde::{Deserialize, Serialize};
 
 mod client;
@@ -35,6 +36,21 @@ impl Plugin for RenetPlugin {
 // b"un example sehr tres secret key."; // 32-bytes
 // #[cfg(feature = "transport")]
 pub const PROTOCOL_ID: u64 = 7;
+
+#[derive(SystemParam)]
+pub struct ClientID<'w> {
+	res: Option<Res<'w, NetcodeClientTransport>>,
+}
+
+impl ClientID<'_> {
+	pub fn id(&self) -> u64 {
+		self
+			.res
+			.as_ref()
+			.map(|client| client.client_id())
+			.unwrap_or(SERVER_ID)
+	}
+}
 
 // #[derive(Debug, Component)]
 // pub struct Player {

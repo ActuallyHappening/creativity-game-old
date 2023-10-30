@@ -11,7 +11,7 @@ use bevy::{
 use bevy_dolly::prelude::*;
 use bevy_mod_picking::prelude::RaycastPickCamera;
 
-use super::player::ControllablePlayer;
+use super::{player::ControllablePlayer, ClientID};
 use crate::utils::*;
 
 mod dolly_rig;
@@ -73,9 +73,12 @@ impl CameraPlugin {
 }
 
 /// Added to world in `PlayerPlugin` after player movement system
+#[allow(clippy::too_many_arguments)]
 pub fn handle_camera_movement(
-	player: Query<&Transform, (With<ControllablePlayer>, Without<MainCamera>)>,
-	mut camera: Query<&mut Rig, (With<MainCamera>, Without<ControllablePlayer>)>,
+	player: Query<(&Transform, &ControllablePlayer), Without<MainCamera>>,
+	mut camera: Query<&mut Rig, With<MainCamera>>,
+
+	client_id: ClientID,
 
 	mut mouse_movements: EventReader<MouseMotion>,
 	mouse_clicks: Res<Input<MouseButton>>,
@@ -84,7 +87,11 @@ pub fn handle_camera_movement(
 	mut middle_button_timer: Local<Option<Timer>>,
 	time: Res<Time>,
 ) {
-	if let Ok(player) = player.get_single() {
+	if let Some(player) = player
+		.iter()
+		.find(|(_, player)| player.network_id == client_id.id())
+		.map(|(t, _)| t)
+	{
 		let mut rig = camera.single_mut();
 
 		let mut orbit_x = 0.;
