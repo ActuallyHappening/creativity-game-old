@@ -19,9 +19,9 @@ pub struct MainPlugin;
 impl Plugin for MainPlugin {
 	fn build(&self, app: &mut App) {
 		app.add_plugins((
+			self::renet::RenetPlugin,
 			CorePlugin,
 			SetupPlugin,
-			self::renet::RenetPlugin,
 			PlayerPlugin,
 			CameraPlugin,
 			UiPlugin,

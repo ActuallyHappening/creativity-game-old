@@ -32,7 +32,6 @@ impl Plugin for PlayerPlugin {
 		app
 			.init_resource::<PlayerInventory>()
 			.replicate::<ControllablePlayer>()
-			.replicate::<SpawnChildStructure>()
 			.replicate::<Transform>()
 			// .add_systems(Startup, (initial_spawn_player,))
 			// .add_systems(Update, (update_bullets,).in_set(AuthoritativeUpdate))
@@ -53,7 +52,7 @@ impl Plugin for PlayerPlugin {
 					// trigger_player_thruster_particles.after(PlayerMove),
 				),
 			)
-			.add_systems(PreUpdate, hydrate_structure.after(ClientSet::Receive));
+			;
 	}
 }
 
@@ -92,10 +91,7 @@ lazy_static! {
 	.reflect_vertically();
 }
 
-#[derive(Component, Constructor, Deref, Serialize, Deserialize)]
-pub struct SpawnChildStructure {
-	pub structure: Structure,
-}
+
 
 #[derive(Bundle)]
 pub struct AuthorityPlayerBundle {
@@ -160,40 +156,7 @@ impl PhysicsBundle {
 	}
 }
 
-fn hydrate_structure(
-	mut commands: Commands,
-	mut mma: MMA,
-	mut effects: ResMut<Assets<EffectAsset>>,
-	skeleton_players: Query<
-		(
-			Entity,
-			&SpawnChildStructure,
-			Option<&ComputedVisibility>,
-			Option<&GlobalTransform>,
-		),
-		Added<SpawnChildStructure>,
-	>,
-) {
-	for (entity, structure, computed_visibility, global_transform) in skeleton_players.iter() {
-		info!("Hydrating structure");
 
-		let mut parent = commands.entity(entity);
-
-		if computed_visibility.is_none() {
-			parent.insert(ComputedVisibility::default());
-		}
-		if global_transform.is_none() {
-			parent.insert(GlobalTransform::default());
-		}
-
-		// spawn structure
-		parent.with_children(|parent| {
-			for part in structure.compute_bundles(&mut mma, Some(&mut effects)) {
-				part.default_spawn_to_parent(parent);
-			}
-		});
-	}
-}
 
 /// Spawns the initial player
 pub fn authoritative_spawn_initial_player(mut commands: Commands) {

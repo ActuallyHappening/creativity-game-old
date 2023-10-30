@@ -29,7 +29,6 @@ impl Plugin for SetupPlugin {
 			)
 			.add_systems(Update, blink_stars);
 
-		// app.add_systems(Update, test_activate_particles);
 
 		#[cfg(feature = "dev")]
 		app.add_plugins((

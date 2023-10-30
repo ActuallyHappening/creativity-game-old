@@ -43,7 +43,7 @@ impl WorldObjectType {
 	}
 }
 
-pub fn spawn_initial_world(mut commands: Commands, mut mma: MMA) {
+pub fn spawn_initial_world(mut commands: Commands) {
 	let mut rng = rand::thread_rng();
 
 	for _ in 0..10 {
@@ -62,31 +62,29 @@ pub fn spawn_initial_world(mut commands: Commands, mut mma: MMA) {
 
 		let structure = object_type.generate_structure();
 
-		let (collider, bundles) = (
-			structure.compute_collider(),
-			structure.compute_bundles(&mut mma, None),
-		);
+		let collider = structure.compute_collider();
 
-		commands
-			.spawn(
-				(
-					collider,
-					velocity,
-					PbrBundle {
-						transform: Transform {
-							translation: pos,
-							rotation: rot,
-							scale: Vec3::ONE,
-						},
-						..default()
+		commands.spawn(
+			(
+				collider,
+				velocity,
+				PbrBundle {
+					transform: Transform {
+						translation: pos,
+						rotation: rot,
+						scale: Vec3::ONE,
 					},
-				)
-					.physics_dynamic(),
+					..default()
+				},
+				Replication,
+				SpawnChildStructure::new(structure),
 			)
-			.with_children(|parent| {
-				bundles
-					.into_iter()
-					.for_each(|b| b.default_spawn_to_parent(parent));
-			});
+				.physics_dynamic(),
+		);
+		// .with_children(|parent| {
+		// 	bundles
+		// 		.into_iter()
+		// 		.for_each(|b| b.default_spawn_to_parent(parent));
+		// });
 	}
 }
