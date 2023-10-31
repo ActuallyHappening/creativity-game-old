@@ -30,8 +30,8 @@ fn main() {
 				})
 				.build(),
 		)
-		.add_plugins(MainPlugin)
-		.add_plugins(TestPlugin)
+		// .add_plugins(MainPlugin)
+		.add_plugins((TestPlugin, bevy_editor_pls::EditorPlugin::default()))
 		.run();
 }
 
@@ -39,7 +39,7 @@ struct TestPlugin;
 impl Plugin for TestPlugin {
 	fn build(&self, app: &mut App) {
 		app
-			.add_plugins((ReplicationPlugins))
+			.add_plugins(ReplicationPlugins)
 			.replicate::<DummyComponent>()
 			.add_systems(Startup, spawn_ui)
 			.add_systems(Update, cli_system.pipe(system_adapter::unwrap));
@@ -63,49 +63,71 @@ fn spawn_ui(mut commands: Commands, ass: ResMut<AssetServer>) {
 	));
 
 	commands
-		.spawn(ButtonBundle {
+		.spawn(NodeBundle {
 			style: Style {
-				width: Val::Px(100.0),
-				height: Val::Px(100.0),
+				width: Val::Percent(100.),
+				height: Val::Percent(100.),
+				align_content: AlignContent::Center,
+				align_items: AlignItems::Center,
+				justify_content: JustifyContent::Center,
+				flex_direction: FlexDirection::Column,
 				..default()
 			},
-			background_color: Color::BLACK.into(),
+			background_color: Color::GREEN.into(),
 			..default()
 		})
 		.with_children(|parent| {
 			parent
-				.spawn(TextBundle::from_section(
-					"Host",
-					TextStyle {
-						font: ass.load(creativity_game::utils::Font::Medium),
-						font_size: 20.,
-						color: Color::WHITE,
+				.spawn(ButtonBundle {
+					style: Style {
+						width: Val::Px(100.0),
+						height: Val::Px(100.0),
+						..default()
 					},
-				))
-				.insert(HostBtn);
-		});
+					background_color: Color::BLACK.into(),
+					..default()
+				})
+				.with_children(|parent| {
+					parent
+						.spawn(TextBundle::from_section(
+							"Host",
+							TextStyle {
+								font: ass.load(creativity_game::utils::Font::Medium),
+								font_size: 20.,
+								color: Color::WHITE,
+							},
+						))
+						.insert(HostBtn);
+				});
 
-	commands
-		.spawn(ButtonBundle {
-			style: Style {
-				width: Val::Px(100.0),
-				height: Val::Px(100.0),
-				..default()
-			},
-			background_color: Color::BLACK.into(),
-			..default()
-		})
-		.with_children(|parent| {
 			parent
-				.spawn(TextBundle::from_section(
-					"Join",
-					TextStyle {
-						font: ass.load(creativity_game::utils::Font::Medium),
-						font_size: 20.,
-						color: Color::WHITE,
-					},
-				))
-				.insert(JoinBtn);
+				.spawn(
+					ButtonBundle {
+						style: Style {
+							width: Val::Px(100.0),
+							height: Val::Px(100.0),
+							..default()
+						},
+						background_color: Color::BLACK.into(),
+						..default()
+					}
+					.named("Join Btn"),
+				)
+				.with_children(|parent| {
+					parent
+						.spawn(
+							TextBundle::from_section(
+								"Join",
+								TextStyle {
+									font: ass.load(creativity_game::utils::Font::Medium),
+									font_size: 20.,
+									color: Color::WHITE,
+								},
+							)
+							.named("Join"),
+						)
+						.insert(JoinBtn);
+				});
 		});
 }
 
