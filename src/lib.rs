@@ -21,15 +21,15 @@ pub fn add_server(mut commands: Commands, network_channels: Res<NetworkChannels>
 
 		info!(
 			"Setting up server resources: server: {:?}; client: {:?}",
-			network_channels.server_channels(),
-			network_channels.client_channels()
+			network_channels.get_server_configs(),
+			network_channels.get_client_configs()
 		);
 
 		use std::net::*;
 		use std::time::*;
 
-		let server_channels_config = network_channels.server_channels();
-		let client_channels_config = network_channels.client_channels();
+		let server_channels_config = network_channels.get_server_configs();
+		let client_channels_config = network_channels.get_client_configs();
 
 		let server = RenetServer::new(ConnectionConfig {
 			server_channels_config,

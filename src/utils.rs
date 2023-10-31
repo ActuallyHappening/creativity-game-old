@@ -3,10 +3,6 @@
 #![allow(dead_code)]
 
 use bevy::{ecs::system::SystemParam, asset::AssetPath};
-use bevy_mod_picking::{
-	prelude::{Pickable, RaycastPickTarget},
-	PickableBundle,
-};
 
 pub use crate::bevy::types::*;
 pub use crate::core::Direction;
@@ -120,15 +116,11 @@ impl Color {
 
 #[extension(pub trait BundleExt)]
 impl<T: Bundle> T {
-	fn pickable(self) -> (PickableBundle, RaycastPickTarget, Self) {
+	fn pickable(self) -> (PickableBundle, Self) {
 		(
 			PickableBundle::default(),
-			RaycastPickTarget::default(),
 			self,
 		)
-	}
-	fn pickable_camera(self) -> (RaycastPickCamera, Self) {
-		self.insert(RaycastPickCamera::default())
 	}
 
 	/// Does not consume click events

@@ -55,8 +55,8 @@ fn add_client(
 		*setup_already = true;
 	}
 
-	let server_channels_config = network_channels.server_channels();
-	let client_channels_config = network_channels.client_channels();
+	let server_channels_config = network_channels.get_client_configs();
+	let client_channels_config = network_channels.get_server_configs();
 
 	let client = RenetClient::new(ConnectionConfig {
 		server_channels_config,

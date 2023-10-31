@@ -63,7 +63,6 @@ use super::player::{calculate_relative_velocity_magnitudes, get_base_normal_vect
 fn setup_camera<T: CamType>(mut commands: Commands) {
 	commands.spawn(
 		UiCamera::<T>::get_camera_bundle()
-			.pickable_camera()
 			.insert(T::default()),
 	);
 }
