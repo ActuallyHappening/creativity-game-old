@@ -44,18 +44,19 @@ pub struct SpawnChildStructure {
 pub fn hydrate_structure(
 	mut commands: Commands,
 	mut mma: MMA,
-	// mut effects: ResMut<Assets<EffectAsset>>,
+	mut effects: ResMut<Assets<EffectAsset>>,
 	skeleton_players: Query<
 		(
 			Entity,
 			&SpawnChildStructure,
 			Option<&ComputedVisibility>,
 			Option<&GlobalTransform>,
+			Option<&Replication>,
 		),
 		Added<SpawnChildStructure>,
 	>,
 ) {
-	for (entity, structure, computed_visibility, global_transform) in skeleton_players.iter() {
+	for (entity, structure, computed_visibility, global_transform, rep) in skeleton_players.iter() {
 		info!("Hydrating structure");
 
 		let mut parent = commands.entity(entity);
@@ -67,9 +68,15 @@ pub fn hydrate_structure(
 			parent.insert(GlobalTransform::default());
 		}
 
+		if rep.is_none() {
+			info!("Replication does not exist on hydrating structure!");
+		} else {
+			info!("Replicating with replication");
+		}
+
 		// spawn structure
 		parent.with_children(|parent| {
-			for part in structure.compute_bundles(&mut mma, None) {
+			for part in structure.compute_bundles(&mut mma, Some(&mut effects)) {
 				part.default_spawn_to_parent(parent);
 			}
 		});

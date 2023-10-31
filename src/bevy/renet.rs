@@ -35,7 +35,7 @@ impl Plugin for RenetPlugin {
 // pub const PRIVATE_KEY: &[u8; bevy_renet::renet::transport::NETCODE_KEY_BYTES] =
 // b"un example sehr tres secret key."; // 32-bytes
 // #[cfg(feature = "transport")]
-pub const PROTOCOL_ID: u64 = 7;
+pub const PROTOCOL_ID: u64 = 0;
 
 #[derive(SystemParam)]
 pub struct ClientID<'w> {

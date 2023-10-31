@@ -79,7 +79,7 @@ pub fn spawn_initial_world(mut commands: Commands) {
 				Replication,
 				SpawnChildStructure::new(structure),
 			)
-				.physics_dynamic(),
+				.physics_dynamic().named("WorldGen Asteroid Structure"),
 		);
 		// .with_children(|parent| {
 		// 	bundles

@@ -29,22 +29,23 @@ impl bevy::prelude::Plugin for CorePlugin {
 				)
 					.after(ClientSet::Receive),
 			)
-			.replicate::<DummyComponent>()
-			.add_systems(
-				Update,
-				(
-					|comps: Query<&DummyComponent>| {
-						info!("Comps len: {}", comps.iter().len());
-					},
-					(|mut commands: Commands| {
-						commands.spawn((DummyComponent, Replication));
-						info!("Server spawned dummy component");
-					})
-					.run_if(resource_exists::<RenetServer>()),
-				),
-			);
+			// .replicate::<DummyComponent>()
+			// .add_systems(
+			// 	Update,
+			// 	(
+			// 		|comps: Query<&DummyComponent>| {
+			// 			info!("Comps len: {}", comps.iter().len());
+			// 		},
+			// 		(|mut commands: Commands,| {
+			// 			// commands.spawn((DummyComponent, Replication));
+			// 			info!("Server spawned dummy component");
+			// 		})
+			// 		.run_if(resource_exists::<RenetServer>()),
+			// 	),
+			// )
+			;
 	}
 }
 
-#[derive(Component, Default, Deserialize, Serialize)]
-pub struct DummyComponent;
+// #[derive(Component, Default, Deserialize, Serialize)]
+// pub struct DummyComponent;

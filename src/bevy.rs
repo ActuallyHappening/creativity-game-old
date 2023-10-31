@@ -23,7 +23,7 @@ impl Plugin for MainPlugin {
 			CorePlugin,
 			SetupPlugin,
 			PlayerPlugin,
-			// CameraPlugin,
+			CameraPlugin,
 			UiPlugins.build(),
 		));
 	}

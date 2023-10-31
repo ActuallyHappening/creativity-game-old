@@ -10,7 +10,9 @@ use std::{
 use super::PROTOCOL_ID;
 
 use crate::{
-	bevy::player::{authoritative_spawn_initial_player, AuthorityPlayerBundle, ControllablePlayer, PLAYER_STRUCTURE},
+	bevy::player::{
+		authoritative_spawn_initial_player, AuthorityPlayerBundle, ControllablePlayer, PLAYER_STRUCTURE,
+	},
 	utils::*,
 };
 use bevy::{
@@ -25,6 +27,9 @@ use bevy_egui::{EguiContexts, EguiPlugin};
 // };
 // use renet_visualizer::RenetServerVisualizer;
 
+#[derive(Component, Serialize, Deserialize)]
+struct DummyComponent;
+
 pub struct ServerPlugin;
 impl Plugin for ServerPlugin {
 	fn build(&self, app: &mut App) {
@@ -32,6 +37,7 @@ impl Plugin for ServerPlugin {
 			.add_systems(OnEnter(ServerConnections::Hosting), (add_server, spawn_initial_world, authoritative_spawn_initial_player))
 			.add_systems(OnExit(ServerConnections::Hosting), disconnect_server)
 			.add_systems(Update, server_event_system.run_if(has_authority()))
+.replicate::<DummyComponent>()
 			// .add_systems(
 			// 	Update,
 			// 	(
@@ -76,6 +82,8 @@ fn add_server(
 	commands.insert_resource(transport);
 
 	info!("Acting as a server");
+
+	commands.spawn((DummyComponent, Replication, Name::new("TEST")));
 
 	// commands.spawn(PlayerBundle::new(SERVER_ID, Vec2::ZERO, Color::GREEN));
 }
