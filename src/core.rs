@@ -19,16 +19,16 @@ impl bevy::prelude::Plugin for CorePlugin {
 			.add_state::<ScreenState>()
 			.init_resource::<SavedHostingInfo>()
 			.replicate::<SpawnChildStructure>()
-			.add_systems(
-				PreUpdate,
-				(
-					hydrate_structure,
-					|structures: Query<&SpawnChildStructure>| {
-						// info!("Structures len: {}", structures.iter().len());
-					},
-				)
-					.after(ClientSet::Receive),
-			)
+			// .add_systems(
+			// 	PreUpdate,
+			// 	(
+			// 		hydrate_structure,
+			// 		|structures: Query<&SpawnChildStructure>| {
+			// 			// info!("Structures len: {}", structures.iter().len());
+			// 		},
+			// 	)
+			// 		.after(ClientSet::Receive),
+			// )
 			// .replicate::<DummyComponent>()
 			// .add_systems(
 			// 	Update,

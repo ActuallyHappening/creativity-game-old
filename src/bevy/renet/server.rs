@@ -53,6 +53,7 @@ impl Plugin for ServerPlugin {
 
 fn add_server_flag() {
 	*crate::ADD_SERVER.lock().unwrap() = true;
+	info!("Setting up server flag from faulty place");
 }
 
 // fn add_server(

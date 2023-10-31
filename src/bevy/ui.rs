@@ -7,13 +7,13 @@ pub struct UiPlugins;
 impl PluginGroup for UiPlugins {
 	fn build(self) -> bevy::app::PluginGroupBuilder {
 		PluginGroupBuilder::start::<Self>()
-			.add(UiPlugins)
+			.add(UiPlugin)
 			.add(StartScreenPlugin)
 	}
 }
 
 pub struct UiPlugin;
-impl Plugin for UiPlugins {
+impl Plugin for UiPlugin {
 	fn build(&self, app: &mut App) {
 		app
 			.add_systems(

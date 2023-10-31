@@ -21,10 +21,10 @@ impl Plugin for MainPlugin {
 		app.add_plugins((
 			self::renet::RenetPlugin,
 			CorePlugin,
-			SetupPlugin,
-			PlayerPlugin,
-			CameraPlugin,
-			UiPlugins.build(),
+			// SetupPlugin,
+			// PlayerPlugin,
+			// CameraPlugin,
+			UiPlugins.build().disable::<self::ui::UiPlugin>(),
 		));
 	}
 }

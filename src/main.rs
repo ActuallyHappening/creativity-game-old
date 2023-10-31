@@ -53,7 +53,6 @@ impl Plugin for TestPlugin {
 						))
 						.run_if(resource_exists::<RenetClient>()),
 					add_btn,
-					
 				),
 			);
 	}
@@ -62,14 +61,14 @@ impl Plugin for TestPlugin {
 #[derive(Component)]
 struct HostBtn;
 
-#[derive(Component)]
-struct JoinBtn;
+// #[derive(Component)]
+// struct JoinBtn;
 
 #[derive(Component)]
 struct AddBtn;
 
 fn setup(mut commands: Commands) {
-	// commands.spawn(Camera3dBundle::default());
+	commands.spawn(Camera3dBundle::default());
 }
 
 fn spawn_ui(mut commands: Commands, ass: ResMut<AssetServer>) {
@@ -121,33 +120,33 @@ fn spawn_ui(mut commands: Commands, ass: ResMut<AssetServer>) {
 					));
 				});
 
-			parent
-				.spawn(
-					ButtonBundle {
-						style: Style {
-							width: Val::Px(100.0),
-							height: Val::Px(100.0),
-							..default()
-						},
-						background_color: Color::BLACK.into(),
-						..default()
-					}
-					.named("Join Btn")
-					.insert(JoinBtn),
-				)
-				.with_children(|parent| {
-					parent.spawn(
-						TextBundle::from_section(
-							"Join",
-							TextStyle {
-								font: ass.load(creativity_game::utils::Font::Medium),
-								font_size: 20.,
-								color: Color::WHITE,
-							},
-						)
-						.named("Join"),
-					);
-				});
+			// parent
+			// 	.spawn(
+			// 		ButtonBundle {
+			// 			style: Style {
+			// 				width: Val::Px(100.0),
+			// 				height: Val::Px(100.0),
+			// 				..default()
+			// 			},
+			// 			background_color: Color::BLACK.into(),
+			// 			..default()
+			// 		}
+			// 		.named("Join Btn")
+			// 		.insert(JoinBtn),
+			// 	)
+			// 	.with_children(|parent| {
+			// 		parent.spawn(
+			// 			TextBundle::from_section(
+			// 				"Join",
+			// 				TextStyle {
+			// 					font: ass.load(creativity_game::utils::Font::Medium),
+			// 					font_size: 20.,
+			// 					color: Color::WHITE,
+			// 				},
+			// 			)
+			// 			.named("Join"),
+			// 		);
+			// 	});
 
 			parent
 				.spawn(
@@ -197,7 +196,7 @@ fn add_btn(mut commands: Commands, add_btn: Query<&Interaction, With<AddBtn>>) {
 fn cli_system(
 	mut commands: Commands,
 	host_btn: Query<&Interaction, With<HostBtn>>,
-	join_btn: Query<&Interaction, With<JoinBtn>>,
+	// join_btn: Query<&Interaction, With<JoinBtn>>,
 	// cli: Res<Cli>,
 	network_channels: Res<NetworkChannels>,
 	mut setup_already: Local<bool>,
@@ -206,12 +205,12 @@ fn cli_system(
 	if let Interaction::Pressed = host_btn.single() {
 		cli = Some(Cli::Server { port: PORT })
 	}
-	if let Ok(Interaction::Pressed) = join_btn.get_single() {
-		cli = Some(Cli::Client {
-			ip: Ipv4Addr::LOCALHOST.into(),
-			port: PORT,
-		})
-	}
+	// if let Ok(Interaction::Pressed) = join_btn.get_single() {
+	// 	cli = Some(Cli::Client {
+	// 		ip: Ipv4Addr::LOCALHOST.into(),
+	// 		port: PORT,
+	// 	})
+	// }
 
 	if let Some(cli) = cli {
 		if *setup_already {
@@ -272,42 +271,42 @@ fn cli_system(
 				// commands.spawn(((DummyComponent, Replication), Name::new("Dummy example main.rs")));
 				// // commands.spawn(PlayerBundle::new(SERVER_ID, Vec2::ZERO, Color::GREEN));
 			}
-			Cli::Client { port, ip } => {
-				let server_channels_config = network_channels.get_client_configs();
-				let client_channels_config = network_channels.get_server_configs();
+			// Cli::Client { port, ip } => {
+			// 	let server_channels_config = network_channels.get_client_configs();
+			// 	let client_channels_config = network_channels.get_server_configs();
 
-				let client = RenetClient::new(ConnectionConfig {
-					server_channels_config,
-					client_channels_config,
-					..Default::default()
-				});
+			// 	let client = RenetClient::new(ConnectionConfig {
+			// 		server_channels_config,
+			// 		client_channels_config,
+			// 		..Default::default()
+			// 	});
 
-				let current_time = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH)?;
-				let client_id = current_time.as_millis() as u64;
-				let server_addr = SocketAddr::new(ip, port);
-				let socket =
-					UdpSocket::bind((ip, 0)).expect(&format!("Couldn't bind to UdpSocked {:?}", (ip, 0)));
-				let authentication = ClientAuthentication::Unsecure {
-					client_id,
-					protocol_id: PROTOCOL_ID,
-					server_addr,
-					user_data: None,
-				};
-				let transport = NetcodeClientTransport::new(current_time, authentication, socket)
-					.expect("Couldn't create netcode client transform");
+			// 	let current_time = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH)?;
+			// 	let client_id = current_time.as_millis() as u64;
+			// 	let server_addr = SocketAddr::new(ip, port);
+			// 	let socket =
+			// 		UdpSocket::bind((ip, 0)).expect(&format!("Couldn't bind to UdpSocked {:?}", (ip, 0)));
+			// 	let authentication = ClientAuthentication::Unsecure {
+			// 		client_id,
+			// 		protocol_id: PROTOCOL_ID,
+			// 		server_addr,
+			// 		user_data: None,
+			// 	};
+			// 	let transport = NetcodeClientTransport::new(current_time, authentication, socket)
+			// 		.expect("Couldn't create netcode client transform");
 
-				commands.insert_resource(client);
-				commands.insert_resource(transport);
+			// 	commands.insert_resource(client);
+			// 	commands.insert_resource(transport);
 
-				commands.spawn(TextBundle::from_section(
-					format!("Client: {client_id:?}"),
-					TextStyle {
-						font_size: 30.0,
-						color: Color::WHITE,
-						..default()
-					},
-				));
-			}
+			// 	commands.spawn(TextBundle::from_section(
+			// 		format!("Client: {client_id:?}"),
+			// 		TextStyle {
+			// 			font_size: 30.0,
+			// 			color: Color::WHITE,
+			// 			..default()
+			// 		},
+			// 	));
+			// }
 		}
 	}
 
@@ -351,13 +350,13 @@ enum Cli {
 		#[arg(short, long, default_value_t = PORT)]
 		port: u16,
 	},
-	Client {
-		#[arg(short, long, default_value_t = Ipv4Addr::LOCALHOST.into())]
-		ip: IpAddr,
+	// Client {
+	// 	#[arg(short, long, default_value_t = Ipv4Addr::LOCALHOST.into())]
+	// 	ip: IpAddr,
 
-		#[arg(short, long, default_value_t = PORT)]
-		port: u16,
-	},
+	// 	#[arg(short, long, default_value_t = PORT)]
+	// 	port: u16,
+	// },
 }
 
 // fn main() {
