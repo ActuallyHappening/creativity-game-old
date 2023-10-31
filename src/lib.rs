@@ -4,6 +4,7 @@ pub mod utils;
 // pub use utils::init_debug_tools;
 
 mod bevy;
+pub use bevy::renet::RenetPlugin;
 use std::sync::{Arc, Mutex};
 
 pub use bevy::MainPlugin;

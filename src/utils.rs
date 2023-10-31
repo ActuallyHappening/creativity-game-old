@@ -2,14 +2,14 @@
 
 #![allow(dead_code)]
 
-use bevy::{ecs::system::SystemParam, asset::AssetPath};
+use ::bevy::{ecs::system::SystemParam, asset::AssetPath};
 
 pub use crate::bevy::types::*;
 pub use crate::core::Direction;
 pub use crate::core::*;
-pub use bevy::prelude::*;
-pub use bevy::sprite::MaterialMesh2dBundle;
-pub use bevy::{
+pub use ::bevy::prelude::*;
+pub use ::bevy::sprite::MaterialMesh2dBundle;
+pub use ::bevy::{
 	core_pipeline::clear_color::ClearColorConfig, render::camera::Viewport, window::WindowResized,
 };
 pub use bevy_dolly::prelude::*;

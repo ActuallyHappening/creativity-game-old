@@ -6,7 +6,7 @@ use self::{camera::CameraPlugin, player::PlayerPlugin, setup::SetupPlugin, ui::U
 
 mod camera;
 mod player;
-mod renet;
+pub mod renet;
 mod setup;
 mod ui;
 

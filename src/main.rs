@@ -1,4 +1,4 @@
-use bevy::{log::LogPlugin, prelude::*, window::WindowMode};
+use ::bevy::{log::LogPlugin, prelude::*, window::WindowMode};
 use bevy_replicon::prelude::*;
 use bevy_replicon::ReplicationPlugins;
 use creativity_game::*;
@@ -37,10 +37,11 @@ fn main() {
 		.init_resource::<SavedHostingInfo>()
 		.add_plugins((
 			bevy_editor_pls::EditorPlugin::default(),
-			broken_ui::RenetPlugin,
+			// broken_ui::RenetPlugin,
+			creativity_game::MainPlugin,
 			// ReplicationPlugins,
 			test_plugin::TestPlugin,
-			broken_ui::StartScreenPlugin,
+			// broken_ui::StartScreenPlugin,
 		))
 		.run();
 }

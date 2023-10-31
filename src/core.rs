@@ -14,11 +14,11 @@ pub struct CorePlugin;
 impl bevy::prelude::Plugin for CorePlugin {
 	fn build(&self, app: &mut bevy::prelude::App) {
 		app
-			.add_event::<PlayerMinedPixel>()
+			// .add_event::<PlayerMinedPixel>()
 			.add_state::<ServerConnections>()
 			.add_state::<ScreenState>()
 			.init_resource::<SavedHostingInfo>()
-			.replicate::<SpawnChildStructure>()
+			// .replicate::<SpawnChildStructure>()
 			// .add_systems(
 			// 	PreUpdate,
 			// 	(
