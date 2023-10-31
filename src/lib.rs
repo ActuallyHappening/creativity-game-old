@@ -1,6 +1,6 @@
 // #![feature(const_trait_impl)]
 
-mod utils;
+pub mod utils;
 // pub use utils::init_debug_tools;
 
 mod bevy;

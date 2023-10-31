@@ -44,7 +44,7 @@ pub struct SpawnChildStructure {
 pub fn hydrate_structure(
 	mut commands: Commands,
 	mut mma: MMA,
-	mut effects: ResMut<Assets<EffectAsset>>,
+	// mut effects: ResMut<Assets<EffectAsset>>,
 	skeleton_players: Query<
 		(
 			Entity,
@@ -69,7 +69,7 @@ pub fn hydrate_structure(
 
 		// spawn structure
 		parent.with_children(|parent| {
-			for part in structure.compute_bundles(&mut mma, Some(&mut effects)) {
+			for part in structure.compute_bundles(&mut mma, None) {
 				part.default_spawn_to_parent(parent);
 			}
 		});

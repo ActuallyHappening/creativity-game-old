@@ -1,10 +1,21 @@
 use crate::utils::*;
 
+use bevy::app::{PluginGroup, PluginGroupBuilder};
+
+pub struct UiPlugins;
+
+impl PluginGroup for UiPlugins {
+	fn build(self) -> bevy::app::PluginGroupBuilder {
+		PluginGroupBuilder::start::<Self>()
+			.add(UiPlugins)
+			.add(StartScreenPlugin)
+	}
+}
+
 pub struct UiPlugin;
-impl Plugin for UiPlugin {
+impl Plugin for UiPlugins {
 	fn build(&self, app: &mut App) {
 		app
-			.add_plugins(StartScreenPlugin)
 			.add_systems(
 				Startup,
 				(
@@ -47,10 +58,7 @@ mod startscreen;
 
 use self::startscreen::StartScreenPlugin;
 
-use super::player::{
-	calculate_relative_velocity_magnitudes, get_base_normal_vectors,
-	PlayerMove,
-};
+use super::player::{calculate_relative_velocity_magnitudes, get_base_normal_vectors, PlayerMove};
 
 fn setup_camera<T: CamType>(mut commands: Commands) {
 	commands.spawn(
