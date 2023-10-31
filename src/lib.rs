@@ -12,13 +12,13 @@ mod core;
 
 use crate::utils::*;
 
-lazy_static::lazy_static!(
-	pub static ref ADD_SERVER: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
-);
+// lazy_static::lazy_static!(
+// 	pub static ref ADD_SERVER: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
+// );
 
 pub fn add_server(mut commands: Commands, network_channels: Res<NetworkChannels>) {
-	if *ADD_SERVER.lock().unwrap() {
-		*ADD_SERVER.lock().unwrap() = false;
+	// if *ADD_SERVER.lock().unwrap() {
+	// 	*ADD_SERVER.lock().unwrap() = false;
 
 		info!(
 			"Setting up server resources: server: {:?}; client: {:?}",
@@ -78,5 +78,5 @@ pub fn add_server(mut commands: Commands, network_channels: Res<NetworkChannels>
 		// 	Name::new("Dummy example main.rs"),
 		// ));
 		// commands.spawn(PlayerBundle::new(SERVER_ID, Vec2::ZERO, Color::GREEN));
-	}
+	// }
 }
