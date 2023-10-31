@@ -32,11 +32,11 @@ fn main() {
 		)
 		// .add_plugins(MainPlugin)
 		// .add_plugins((TestPlugin, bevy_editor_pls::EditorPlugin::default()))
-		.add_state::<ServerConnections>()
-		.add_state::<ScreenState>()
-		.init_resource::<SavedHostingInfo>()
+		// .add_state::<ServerConnections>()
+		// .add_state::<ScreenState>()
+		// .init_resource::<SavedHostingInfo>()
 		.add_plugins((
-			bevy_editor_pls::EditorPlugin::default(),
+			// bevy_editor_pls::EditorPlugin::default(),
 			// broken_ui::RenetPlugin,
 			creativity_game::MainPlugin,
 			// ReplicationPlugins,
@@ -436,7 +436,6 @@ mod broken_ui {
 }
 
 mod test_plugin {
-
 	// #region TestPlugin
 	use super::*;
 	pub struct TestPlugin;
@@ -471,7 +470,7 @@ mod test_plugin {
 	struct AddBtn;
 
 	fn setup(mut commands: Commands) {
-		commands.spawn(Camera3dBundle::default());
+		// commands.spawn(Camera3dBundle::default());
 	}
 
 	fn spawn_ui(mut commands: Commands, ass: ResMut<AssetServer>) {
