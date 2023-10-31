@@ -62,9 +62,9 @@ bevy_dolly = "0.0.1"
 bevy_egui = "0.22.0"
 # bevy_ggrs = "0.13.0"
 # bevy_matchbox = { version = "0.7.0", features = [] }
-bevy_mod_picking = "0.15.0"
+bevy_mod_picking = "0.16"
 bevy_rapier3d = "0.22.0"
-bevy_replicon = "0.15.1"
+bevy_replicon = "0.16"
 # bevy_renet = "0.0.9"
 bevy_screen_diagnostics = "0.3.0"
 bevycheck = { version = "0.5.2", optional = true }
@@ -117,10 +117,13 @@ features = ["3d"]
 # branch = "egui-0.23"
 
 [dependencies.bevy_editor_pls]
-git = "https://github.com/jakobhellermann/bevy_editor_pls.git"
-branch = "main"
+# git = "https://github.com/jakobhellermann/bevy_editor_pls.git"
+# branch = "main"
 optional = true
 features = ["default_windows"]
+version = "0.5"
+
+
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 tracing-web = "0.1.2"

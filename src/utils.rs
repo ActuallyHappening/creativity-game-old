@@ -42,6 +42,16 @@ pub use bevy_replicon::prelude::*;
 pub use renet::*;
 pub use serde::{Serialize, Deserialize, de::DeserializeOwned};
 // pub use bevy_debug_text_overlay::{screen_print, OverlayPlugin};
+pub use bevy_replicon::{
+	prelude::*,
+	renet::{
+		transport::{
+			ClientAuthentication, NetcodeClientTransport, NetcodeServerTransport, ServerAuthentication,
+			ServerConfig,
+		},
+		ConnectionConfig, ServerEvent,
+	},
+};
 
 #[cfg(feature = "hanabi_particles")]
 mod particles;

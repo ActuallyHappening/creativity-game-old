@@ -4,6 +4,7 @@ use std::{
 	collections::HashMap,
 	f32::consts::PI,
 	net::{Ipv4Addr, SocketAddr},
+	sync::{Arc, Mutex},
 	time::SystemTime,
 };
 
@@ -34,9 +35,9 @@ pub struct ServerPlugin;
 impl Plugin for ServerPlugin {
 	fn build(&self, app: &mut App) {
 		app
-			.add_systems(OnEnter(ServerConnections::Hosting), (add_server, spawn_initial_world, authoritative_spawn_initial_player))
+			.add_systems(OnEnter(ServerConnections::Hosting), (add_server_flag, spawn_initial_world, authoritative_spawn_initial_player))
 			.add_systems(OnExit(ServerConnections::Hosting), disconnect_server)
-			.add_systems(Update, server_event_system.run_if(has_authority()))
+			.add_systems(Update, (server_event_system.run_if(has_authority()), crate::add_server))
 			.replicate::<DummyComponent>()
 			// .add_systems(
 			// 	Update,
@@ -50,54 +51,53 @@ impl Plugin for ServerPlugin {
 	}
 }
 
-fn add_server(
-	mut commands: Commands,
-	network_channels: Res<NetworkChannels>,
-	config: Res<SavedHostingInfo>,
-	
-	mut setup_already: Local<bool>,
-) {
-	if *setup_already {
-		warn!("Setting up the server twice");
-		return;
-	} else {
-		*setup_already = true;
-	}
-
-	let server_channels_config = network_channels.server_channels();
-	let client_channels_config = network_channels.client_channels();
-
-	let server = RenetServer::new(renet::ConnectionConfig {
-		server_channels_config,
-		client_channels_config,
-		..Default::default()
-	});
-
-	let current_time = SystemTime::now()
-		.duration_since(SystemTime::UNIX_EPOCH)
-		.unwrap();
-	// let public_addr = SocketAddr::new(config.host_ip, config.host_port);
-	let public_addr = SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 5069);
-
-	let socket = UdpSocket::bind(public_addr).expect("Couldn't bind to socket");
-	let server_config = renet::transport::ServerConfig {
-		max_clients: 10,
-		protocol_id: PROTOCOL_ID,
-		public_addr,
-		authentication: transport::ServerAuthentication::Unsecure,
-	};
-	let transport = transport::NetcodeServerTransport::new(current_time, server_config, socket)
-		.expect("Failed to start server");
-
-	commands.insert_resource(server);
-	commands.insert_resource(transport);
-
-	info!("Acting as a server");
-
-	commands.spawn((DummyComponent, Replication, Name::new("TEST")));
-
-	// commands.spawn(PlayerBundle::new(SERVER_ID, Vec2::ZERO, Color::GREEN));
+fn add_server_flag() {
+	*crate::ADD_SERVER.lock().unwrap() = true;
 }
+
+// fn add_server(
+// 	mut commands: Commands,
+// 	network_channels: Res<NetworkChannels>,
+// 	config: Res<SavedHostingInfo>,
+
+// 	mut setup_already: Local<bool>,
+// ) {
+// 	crate::add_server(&mut commands, network_channels);
+
+// 	// let server_channels_config = network_channels.server_channels();
+// 	// let client_channels_config = network_channels.client_channels();
+
+// 	// let server = RenetServer::new(renet::ConnectionConfig {
+// 	// 	server_channels_config,
+// 	// 	client_channels_config,
+// 	// 	..Default::default()
+// 	// });
+
+// 	// let current_time = SystemTime::now()
+// 	// 	.duration_since(SystemTime::UNIX_EPOCH)
+// 	// 	.unwrap();
+// 	// // let public_addr = SocketAddr::new(config.host_ip, config.host_port);
+// 	// let public_addr = SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 5069);
+
+// 	// let socket = UdpSocket::bind(public_addr).expect("Couldn't bind to socket");
+// 	// let server_config = renet::transport::ServerConfig {
+// 	// 	max_clients: 10,
+// 	// 	protocol_id: PROTOCOL_ID,
+// 	// 	public_addr,
+// 	// 	authentication: transport::ServerAuthentication::Unsecure,
+// 	// };
+// 	// let transport = transport::NetcodeServerTransport::new(current_time, server_config, socket)
+// 	// 	.expect("Failed to start server");
+
+// 	// commands.insert_resource(server);
+// 	// commands.insert_resource(transport);
+
+// 	// info!("Acting as a server");
+
+// 	// commands.spawn((DummyComponent, Replication, Name::new("TEST")));
+
+// 	// // commands.spawn(PlayerBundle::new(SERVER_ID, Vec2::ZERO, Color::GREEN));
+// }
 
 fn disconnect_server() {}
 

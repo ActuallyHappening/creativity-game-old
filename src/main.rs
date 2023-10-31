@@ -26,7 +26,7 @@ fn main() {
 				})
 				.set(LogPlugin {
 					level: bevy::log::Level::WARN,
-					filter: "creativity_game=trace,bevy_ecs=info,bevy_replicate=debug".into(),
+					filter: "creativity_game=trace,bevy_ecs=info,bevy_replicon=debug".into(),
 				})
 				.build(),
 		)
@@ -47,8 +47,13 @@ impl Plugin for TestPlugin {
 				Update,
 				(
 					cli_system.pipe(system_adapter::unwrap),
-					test_for_replication.run_if(bevy::time::common_conditions::on_timer(Duration::from_millis(500))),
+					test_for_replication
+						.run_if(bevy::time::common_conditions::on_timer(
+							Duration::from_millis(500),
+						))
+						.run_if(resource_exists::<RenetClient>()),
 					add_btn,
+					
 				),
 			);
 	}
@@ -219,51 +224,53 @@ fn cli_system(
 			Cli::SinglePlayer => {
 				// commands.spawn(PlayerBundle::new(SERVER_ID, Vec2::ZERO, Color::GREEN));
 			}
-			Cli::Server { port } => {
-				let server_channels_config = network_channels.server_channels();
-				let client_channels_config = network_channels.client_channels();
+			Cli::Server { .. } => {
+				*creativity_game::ADD_SERVER.lock().unwrap() = true;
+				// creativity_game::add_server(&mut commands, network_channels);
+				// let server_channels_config = network_channels.server_channels();
+				// let client_channels_config = network_channels.client_channels();
 
-				let server = RenetServer::new(ConnectionConfig {
-					server_channels_config,
-					client_channels_config,
-					..Default::default()
-				});
+				// let server = RenetServer::new(ConnectionConfig {
+				// 	server_channels_config,
+				// 	client_channels_config,
+				// 	..Default::default()
+				// });
 
-				let current_time = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH)?;
-				let public_addr = SocketAddr::new(Ipv4Addr::LOCALHOST.into(), port);
+				// let current_time = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH)?;
+				// let public_addr = SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 5069);
 
-				let socket = match UdpSocket::bind(public_addr) {
-					Ok(p) => p,
-					Err(e) => {
-						panic!(
-							"Couldn't bind to port {} because of error: {:?}",
-							public_addr, e
-						);
-					}
-				};
+				// let socket = match UdpSocket::bind(public_addr) {
+				// 	Ok(p) => p,
+				// 	Err(e) => {
+				// 		panic!(
+				// 			"Couldn't bind to port {} because of error: {:?}",
+				// 			public_addr, e
+				// 		);
+				// 	}
+				// };
 
-				let server_config = ServerConfig {
-					max_clients: 10,
-					protocol_id: PROTOCOL_ID,
-					public_addr,
-					authentication: ServerAuthentication::Unsecure,
-				};
-				let transport = NetcodeServerTransport::new(current_time, server_config, socket)?;
+				// let server_config = ServerConfig {
+				// 	max_clients: 10,
+				// 	protocol_id: PROTOCOL_ID,
+				// 	public_addr,
+				// 	authentication: ServerAuthentication::Unsecure,
+				// };
+				// let transport = NetcodeServerTransport::new(current_time, server_config, socket)?;
 
-				commands.insert_resource(server);
-				commands.insert_resource(transport);
+				// commands.insert_resource(server);
+				// commands.insert_resource(transport);
 
-				commands.spawn(TextBundle::from_section(
-					"Server",
-					TextStyle {
-						font_size: 30.0,
-						color: Color::WHITE,
-						..default()
-					},
-				));
+				// commands.spawn(TextBundle::from_section(
+				// 	"Server",
+				// 	TextStyle {
+				// 		font_size: 30.0,
+				// 		color: Color::WHITE,
+				// 		..default()
+				// 	},
+				// ));
 
-				commands.spawn(((DummyComponent, Replication), Name::new("Dummy example main.rs")));
-				// commands.spawn(PlayerBundle::new(SERVER_ID, Vec2::ZERO, Color::GREEN));
+				// commands.spawn(((DummyComponent, Replication), Name::new("Dummy example main.rs")));
+				// // commands.spawn(PlayerBundle::new(SERVER_ID, Vec2::ZERO, Color::GREEN));
 			}
 			Cli::Client { port, ip } => {
 				let server_channels_config = network_channels.server_channels();
