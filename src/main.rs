@@ -26,7 +26,7 @@ fn main() {
 				})
 				.set(LogPlugin {
 					level: bevy::log::Level::WARN,
-					filter: "creativity_game=trace,bevy_ecs=info".into(),
+					filter: "creativity_game=trace,bevy_ecs=info,bevy_replicate=debug".into(),
 				})
 				.build(),
 		)
@@ -47,7 +47,7 @@ impl Plugin for TestPlugin {
 				Update,
 				(
 					cli_system.pipe(system_adapter::unwrap),
-					test_for_replication,
+					test_for_replication.run_if(bevy::time::common_conditions::on_timer(Duration::from_millis(500))),
 					add_btn,
 				),
 			);
@@ -262,7 +262,7 @@ fn cli_system(
 					},
 				));
 
-				commands.spawn((DummyComponent, Replication));
+				commands.spawn(((DummyComponent, Replication), Name::new("Dummy example main.rs")));
 				// commands.spawn(PlayerBundle::new(SERVER_ID, Vec2::ZERO, Color::GREEN));
 			}
 			Cli::Client { port, ip } => {

@@ -37,7 +37,7 @@ impl Plugin for ServerPlugin {
 			.add_systems(OnEnter(ServerConnections::Hosting), (add_server, spawn_initial_world, authoritative_spawn_initial_player))
 			.add_systems(OnExit(ServerConnections::Hosting), disconnect_server)
 			.add_systems(Update, server_event_system.run_if(has_authority()))
-.replicate::<DummyComponent>()
+			.replicate::<DummyComponent>()
 			// .add_systems(
 			// 	Update,
 			// 	(
@@ -54,7 +54,16 @@ fn add_server(
 	mut commands: Commands,
 	network_channels: Res<NetworkChannels>,
 	config: Res<SavedHostingInfo>,
+	
+	mut setup_already: Local<bool>,
 ) {
+	if *setup_already {
+		warn!("Setting up the server twice");
+		return;
+	} else {
+		*setup_already = true;
+	}
+
 	let server_channels_config = network_channels.server_channels();
 	let client_channels_config = network_channels.client_channels();
 
@@ -67,7 +76,9 @@ fn add_server(
 	let current_time = SystemTime::now()
 		.duration_since(SystemTime::UNIX_EPOCH)
 		.unwrap();
-	let public_addr = SocketAddr::new(config.host_ip, config.host_port);
+	// let public_addr = SocketAddr::new(config.host_ip, config.host_port);
+	let public_addr = SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 5069);
+
 	let socket = UdpSocket::bind(public_addr).expect("Couldn't bind to socket");
 	let server_config = renet::transport::ServerConfig {
 		max_clients: 10,

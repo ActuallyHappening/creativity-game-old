@@ -45,7 +45,16 @@ fn add_client(
 	mut commands: Commands,
 	network_channels: Res<NetworkChannels>,
 	config: Res<SavedHostingInfo>,
+
+	mut setup_already: Local<bool>,
 ) {
+	if *setup_already {
+		warn!("Client already setup");
+		return;
+	} else {
+		*setup_already = true;
+	}
+
 	let server_channels_config = network_channels.server_channels();
 	let client_channels_config = network_channels.client_channels();
 
