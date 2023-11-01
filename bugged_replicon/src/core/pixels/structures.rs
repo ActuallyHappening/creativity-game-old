@@ -36,7 +36,7 @@ impl From<Pixel> for StandardMaterial {
 	}
 }
 
-#[derive(Component, Constructor, Deref, Serialize, Deserialize)]
+#[derive(Component, Constructor, Deref, Serialize, Deserialize, Debug)]
 pub struct SpawnChildStructure {
 	pub structure: Structure,
 }

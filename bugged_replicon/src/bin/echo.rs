@@ -133,6 +133,9 @@ fn server(public_addr: SocketAddr) {
 							"Server recieved BIG struct from client {} successfully: {:?}",
 							client_id, message
 						);
+
+						let received: BIGStruct = bincode::deserialize(&message).unwrap();
+						println!("Parsed struct: {:?}", received);
 					}
 				}
 			}
