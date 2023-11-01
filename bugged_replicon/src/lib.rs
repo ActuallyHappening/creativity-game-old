@@ -9,6 +9,8 @@ use std::sync::{Arc, Mutex};
 
 pub use bevy::MainPlugin;
 mod core;
+pub use utils::SpawnChildStructure;
+pub use core::WorldObjectType;
 
 use crate::utils::*;
 

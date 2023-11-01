@@ -41,6 +41,11 @@ impl WorldObjectType {
 			)),
 		}
 	}
+
+	pub fn random_large_structure() -> Structure {
+		let approx_radius = NonZeroU8::new(rand::thread_rng().gen_range(1..=10)).unwrap();
+		WorldObjectType::Asteroid { approx_radius }.generate_structure()
+	}
 }
 
 pub fn spawn_initial_world(mut commands: Commands) {
