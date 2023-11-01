@@ -12,7 +12,6 @@ pub use ::bevy::sprite::MaterialMesh2dBundle;
 pub use ::bevy::{
 	core_pipeline::clear_color::ClearColorConfig, render::camera::Viewport, window::WindowResized,
 };
-pub use bevy_dolly::prelude::*;
 pub use bevy_mod_picking::prelude::*;
 pub use bevy_rapier3d::prelude::*;
 // pub use contracts::*;

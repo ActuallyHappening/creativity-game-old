@@ -6,9 +6,7 @@ use bevy::{
 	prelude::{shape::Icosphere, *},
 	window::PrimaryWindow,
 };
-use bevy_egui::{EguiContexts, EguiPlugin};
 
-use super::PROTOCOL_ID;
 // use bevy_renet::renet::transport::{
 // 	ClientAuthentication, NetcodeClientTransport, NetcodeTransportError,
 // };
@@ -70,7 +68,7 @@ fn add_client(
 	let socket = UdpSocket::bind((config.join_ip, 0)).expect("Couldn't bind to socket");
 	let authentication = transport::ClientAuthentication::Unsecure {
 		client_id,
-		protocol_id: PROTOCOL_ID,
+		protocol_id: 0,
 		server_addr,
 		user_data: None,
 	};

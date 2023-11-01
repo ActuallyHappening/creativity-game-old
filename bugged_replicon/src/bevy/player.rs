@@ -1,9 +1,6 @@
-use crate::core::PlayerInventory;
-
 use self::weapons::{handle_firing, should_fire_this_frame, toggle_fire, update_bullets};
 
 use super::{
-	camera::handle_camera_movement,
 	renet::{AuthoritativeUpdate, ClientUpdate},
 };
 use crate::utils::*;
@@ -31,28 +28,7 @@ impl Plugin for PlayerPlugin {
 	fn build(&self, app: &mut App) {
 		app
 			.init_resource::<PlayerInventory>()
-			.replicate::<ControllablePlayer>()
-			.replicate::<Transform>()
-			// .add_systems(Startup, (initial_spawn_player,))
-			// .add_systems(Update, (update_bullets,).in_set(AuthoritativeUpdate))
-			.add_systems(
-				Update,
-				(
-					handle_camera_movement.in_set(ClientUpdate),
-					// should_fire_this_frame.pipe(toggle_fire).pipe(handle_firing),
-					// join2(
-					// 	sequence(
-					// 		get_base_normal_vectors,
-					// 		calculate_relative_velocity_magnitudes,
-					// 	),
-					// 	get_current_af_flags,
-					// )
-					// .pipe(manually_threading_player_movement)
-					// .in_set(PlayerMove),
-					// trigger_player_thruster_particles.after(PlayerMove),
-				),
-			)
-			;
+			.replicate::<ControllablePlayer>();
 	}
 }
 

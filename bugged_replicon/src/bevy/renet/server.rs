@@ -8,8 +8,6 @@ use std::{
 	time::SystemTime,
 };
 
-use super::PROTOCOL_ID;
-
 use crate::{
 	bevy::player::{
 		authoritative_spawn_initial_player, AuthorityPlayerBundle, ControllablePlayer, PLAYER_STRUCTURE,
@@ -20,7 +18,6 @@ use bevy::{
 	diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
 	prelude::*,
 };
-use bevy_egui::{EguiContexts, EguiPlugin};
 // use bevy_renet::renet::transport::{NetcodeServerTransport, ServerAuthentication, ServerConfig};
 // use bevy_renet::{
 // 	renet::{ClientId, RenetServer, ServerEvent},
@@ -33,7 +30,6 @@ impl Plugin for ServerPlugin {
 	fn build(&self, app: &mut App) {
 		app
 			.add_systems(OnEnter(ServerConnections::Hosting), (add_server, spawn_initial_world, authoritative_spawn_initial_player))
-			.add_systems(OnExit(ServerConnections::Hosting), disconnect_server)
 			.add_systems(Update, server_event_system.run_if(has_authority()))
 			// .add_systems(
 			// 	Update,

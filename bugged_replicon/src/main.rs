@@ -30,19 +30,14 @@ fn main() {
 				})
 				.build(),
 		)
-		// .add_plugins(MainPlugin)
-		// .add_plugins((TestPlugin, bevy_editor_pls::EditorPlugin::default()))
-		// .add_state::<ServerConnections>()
-		// .add_state::<ScreenState>()
-		// .init_resource::<SavedHostingInfo>()
 		.add_plugins((
-			// bevy_editor_pls::EditorPlugin::default(),
-			// broken_ui::RenetPlugin,
+			bevy_editor_pls::EditorPlugin::default(),
 			creativity_game_bugged::MainPlugin,
-			// ReplicationPlugins,
 			test_plugin::TestPlugin,
-			// broken_ui::StartScreenPlugin,
 		))
+		.add_systems(Startup, |mut commands: Commands| {
+			commands.spawn(Camera3dBundle::default());
+		})
 		.run();
 }
 
