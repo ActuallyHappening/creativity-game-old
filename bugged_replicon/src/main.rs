@@ -26,7 +26,7 @@ fn main() {
 				})
 				.set(LogPlugin {
 					level: bevy::log::Level::WARN,
-					filter: "creativity_game_bugged=trace,bevy_ecs=info,bevy_replicon=trace".into(),
+					filter: "creativity_game_bugged=trace,bevy_ecs=info,bevy_replicon=trace,renet=trace".into(),
 				})
 				.build(),
 		)
