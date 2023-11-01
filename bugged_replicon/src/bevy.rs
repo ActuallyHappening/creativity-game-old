@@ -2,9 +2,8 @@ use bevy::prelude::*;
 
 use crate::core::CorePlugin;
 
-use self::{camera::CameraPlugin, player::PlayerPlugin, setup::SetupPlugin, ui::UiPlugins};
+use self::{player::PlayerPlugin, setup::SetupPlugin, ui::UiPlugins};
 
-mod camera;
 mod player;
 pub mod renet;
 mod setup;
@@ -22,7 +21,6 @@ impl Plugin for MainPlugin {
 			self::renet::RenetPlugin,
 			CorePlugin,
 			PlayerPlugin,
-			CameraPlugin,
 			UiPlugins.build(),
 		));
 	}

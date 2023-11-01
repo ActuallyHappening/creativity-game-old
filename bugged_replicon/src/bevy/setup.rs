@@ -13,7 +13,6 @@ mod stars;
 use stars::*;
 // mod testparticles;
 
-use super::camera::CameraPlugin;
 use crate::utils::*;
 
 pub struct SetupPlugin;
@@ -94,7 +93,7 @@ impl Plugin for SetupPlugin {
 
 pub fn setup(mut commands: Commands, mut mma: MMA) {
 	// cam
-	commands.spawn(CameraPlugin::default());
+	commands.spawn(Camera3dBundle::default());
 
 	// light
 	commands.spawn(PointLightBundle {
