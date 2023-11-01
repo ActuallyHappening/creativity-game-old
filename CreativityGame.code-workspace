@@ -6,11 +6,11 @@
 		{
 			"path": "src"
 		},
-		// {
-		// 	"path": "renet/demo_bevy"
-		// },
 		{
 			"path": "bevy_replicon"
+		},
+		{
+			"path": "bugged_replicon"
 		}
 	],
 	"settings": {

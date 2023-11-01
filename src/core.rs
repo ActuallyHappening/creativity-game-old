@@ -18,7 +18,8 @@ impl bevy::prelude::Plugin for CorePlugin {
 			.add_state::<ServerConnections>()
 			.add_state::<ScreenState>()
 			.init_resource::<SavedHostingInfo>()
-			// .replicate::<SpawnChildStructure>()
+			// todo: find out why this causes the bug?
+			.replicate::<SpawnChildStructure>()
 			// .add_systems(
 			// 	PreUpdate,
 			// 	(
