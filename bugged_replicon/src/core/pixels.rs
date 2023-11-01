@@ -14,8 +14,8 @@ pub use world_gen::*;
 /// [PartialEq] they are equal.
 #[derive(Component, Debug, Clone, Serialize, Deserialize)]
 pub struct Pixel {
-	pub name: Cow<'static, str>,
-	pub description: Cow<'static, str>,
+	pub name: String,
+	pub description: String,
 	pub colour: Color,
 	pub variant: PixelVariant,
 }
