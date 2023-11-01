@@ -129,7 +129,7 @@ fn server(public_addr: SocketAddr) {
 						received_messages.push(text);
 					}
 					Err(_) => {
-						info!(
+						println!(
 							"Server recieved BIG struct from client {} successfully: {:?}",
 							client_id, message
 						);
@@ -178,9 +178,9 @@ fn client(server_addr: SocketAddr, username: Username) {
 		if transport.is_connected() {
 			match stdin_channel.try_recv() {
 				Ok(text) => {
-					info!("Sending typed message to server ...");
+					println!("Sending typed message to server ...");
 					client.send_message(DefaultChannel::ReliableOrdered, text.as_bytes().to_vec());
-					info!("Sending BIG struct to server ...");
+					println!("Sending BIG struct to server ...");
 					let big_struct = generate_random_big_struct();
 					let data = bincode::serialize(&big_struct).unwrap();
 					client.send_message(DefaultChannel::ReliableOrdered, data)
