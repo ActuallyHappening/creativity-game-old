@@ -1290,6 +1290,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_replicon"
+version = "0.16.0"
+source = "git+https://github.com/lifescapegame/bevy_replicon.git?branch=trace-replication#bd1d0e513f041facb367fe82bb16cf4736bdb579"
+dependencies = [
+ "bevy",
+ "bevy_renet",
+ "bincode",
+ "ordered-multimap",
+ "serde",
+ "varint-rs",
+]
+
+[[package]]
 name = "bevy_scene"
 version = "0.11.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2066,6 +2079,43 @@ dependencies = [
  "bevy_mod_picking",
  "bevy_rapier3d",
  "bevy_replicon 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bevy_screen_diagnostics",
+ "bevycheck",
+ "clap",
+ "console_error_panic_hook",
+ "derive_builder",
+ "derive_more",
+ "extension-traits",
+ "getrandom 0.2.10",
+ "lazy_static",
+ "meshtext",
+ "noise",
+ "num-integer",
+ "once_cell",
+ "rand 0.8.5",
+ "rand_derive",
+ "renet",
+ "serde",
+ "static_assertions",
+ "strum",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+ "tracing-wasm",
+ "tracing-web",
+]
+
+[[package]]
+name = "creativity-game-bugged"
+version = "0.0.0"
+dependencies = [
+ "bevy",
+ "bevy_editor_pls",
+ "bevy_ggrs",
+ "bevy_hanabi",
+ "bevy_mod_picking",
+ "bevy_rapier3d",
+ "bevy_replicon 0.16.0 (git+https://github.com/lifescapegame/bevy_replicon.git?branch=trace-replication)",
  "bevy_screen_diagnostics",
  "bevycheck",
  "clap",

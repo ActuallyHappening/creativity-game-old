@@ -1,11 +1,9 @@
 pub use crate::utils::*;
 
-mod events;
 mod pixels;
 mod player;
 mod states;
 
-pub use events::*;
 pub use pixels::*;
 pub use player::*;
 pub use states::*;
