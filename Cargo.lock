@@ -2118,6 +2118,7 @@ dependencies = [
  "bevy_replicon 0.16.0 (git+https://github.com/lifescapegame/bevy_replicon.git?branch=trace-replication)",
  "bevy_screen_diagnostics",
  "bevycheck",
+ "bincode",
  "clap",
  "console_error_panic_hook",
  "derive_builder",

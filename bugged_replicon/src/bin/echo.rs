@@ -13,13 +13,13 @@ use renet::{
 	},
 	ConnectionConfig, DefaultChannel, RenetClient, RenetServer, ServerEvent,
 };
+use tracing::info;
 
 // Helper struct to pass an username in the user data
 struct Username(String);
 
 /// The BIG struct that when serialized is big
 type BIGStruct = creativity_game_bugged::SpawnChildStructure;
-
 
 fn generate_random_big_struct() -> BIGStruct {
 	BIGStruct {
@@ -121,11 +121,20 @@ fn server(public_addr: SocketAddr) {
 
 		for client_id in server.clients_id() {
 			while let Some(message) = server.receive_message(client_id, DefaultChannel::ReliableOrdered) {
-				let text = String::from_utf8(message.into()).unwrap();
-				let username = usernames.get(&client_id).unwrap();
-				println!("Client {} ({}) sent text: {}", username, client_id, text);
-				let text = format!("{}: {}", username, text);
-				received_messages.push(text);
+				match String::from_utf8(message.clone().into()) {
+					Ok(text) => {
+						let username = usernames.get(&client_id).unwrap();
+						println!("Client {} ({}) sent text: {}", username, client_id, text);
+						let text = format!("{}: {}", username, text);
+						received_messages.push(text);
+					}
+					Err(_) => {
+						info!(
+							"Server recieved BIG struct from client {} successfully: {:?}",
+							client_id, message
+						);
+					}
+				}
 			}
 		}
 
@@ -168,7 +177,14 @@ fn client(server_addr: SocketAddr, username: Username) {
 
 		if transport.is_connected() {
 			match stdin_channel.try_recv() {
-				Ok(text) => client.send_message(DefaultChannel::ReliableOrdered, text.as_bytes().to_vec()),
+				Ok(text) => {
+					info!("Sending typed message to server ...");
+					client.send_message(DefaultChannel::ReliableOrdered, text.as_bytes().to_vec());
+					info!("Sending BIG struct to server ...");
+					let big_struct = generate_random_big_struct();
+					let data = bincode::serialize(&big_struct).unwrap();
+					client.send_message(DefaultChannel::ReliableOrdered, data)
+				}
 				Err(TryRecvError::Empty) => {}
 				Err(TryRecvError::Disconnected) => panic!("Channel disconnected"),
 			}
