@@ -4,6 +4,8 @@
 
 use ::bevy::{ecs::system::SystemParam, asset::AssetPath};
 
+pub use crate::bevy::types::*;
+pub use crate::core::Direction;
 pub use crate::core::*;
 pub use ::bevy::prelude::*;
 pub use ::bevy::sprite::MaterialMesh2dBundle;

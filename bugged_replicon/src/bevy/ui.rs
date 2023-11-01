@@ -7,228 +7,84 @@ pub struct UiPlugins;
 impl PluginGroup for UiPlugins {
 	fn build(self) -> bevy::app::PluginGroupBuilder {
 		PluginGroupBuilder::start::<Self>()
+			.add(CameraUiPlugin)
 			.add(StartScreenPlugin)
 	}
 }
 
-pub struct StartScreenPlugin;
-impl Plugin for StartScreenPlugin {
+pub struct CameraUiPlugin;
+impl Plugin for CameraUiPlugin {
 	fn build(&self, app: &mut App) {
 		app
-			.add_state::<StartScreens>()
-			.add_systems(OnExit(ScreenState::StartScreen), cleanup_ui)
-			.add_systems(OnEnter(StartScreens::Default), setup_default_ui)
-			.add_systems(OnExit(StartScreens::Default), cleanup_ui)
+			.add_systems(
+				Startup,
+				(
+					setup_camera::<BottomLeft>, //.in_set(BottomLeft),
+					// setup_bottom_left_cam,      //.after(BottomLeft),
+					setup_camera::<TopLeft>.in_set(TopLeft),
+					setup_top_left_cam.after(TopLeft),
+					setup_camera::<TopRight>.in_set(TopRight),
+					setup_top_right_cam.after(TopRight),
+					setup_camera::<BottomRight>.in_set(BottomRight),
+					setup_bottom_right_cam.after(BottomRight),
+				),
+			)
 			.add_systems(
 				Update,
 				(
-					handle_default_ui.run_if(in_state(StartScreens::Default)),
-					handle_host_controls_ui.run_if(in_state(StartScreens::HostControls)),
-					handle_client_controls_ui.run_if(in_state(StartScreens::ClientControls)),
-				)
-					.run_if(in_state(ScreenState::StartScreen)),
-			)
-			.add_systems(OnEnter(StartScreens::HostControls), setup_host_controls_ui)
-			.add_systems(OnExit(StartScreens::HostControls), cleanup_ui)
-			.add_systems(
-				OnEnter(StartScreens::ClientControls),
-				setup_client_controls_ui,
-			)
-			.add_systems(OnExit(StartScreens::ClientControls), cleanup_ui);
+					update_camera::<BottomLeft>.in_set(BottomLeft),
+					// join2(
+					// 	sequence(
+					// 		get_base_normal_vectors,
+					// 		calculate_relative_velocity_magnitudes,
+					// 	),
+					// 	get_current_relative_strengths,
+					// )
+					// .pipe(update_bottom_left_camera)
+					// .after(PlayerMove),
+					update_camera::<TopLeft>,
+					update_camera::<TopRight>,
+					update_camera::<BottomRight>,
+				),
+			);
 	}
 }
 
-#[derive(Default, Clone, Copy, PartialEq, Eq, Debug, Hash, States)]
-pub enum StartScreens {
-	#[default]
-	Default,
+mod camtype;
+pub use camtype::*;
+// mod bottom_left;
+// use bottom_left::*;
+mod startscreen;
 
-	HostControls,
-	ClientControls,
+use self::startscreen::StartScreenPlugin;
+
+use super::player::{calculate_relative_velocity_magnitudes, get_base_normal_vectors, PlayerMove};
+
+fn setup_camera<T: CamType>(mut commands: Commands) {
+	commands.spawn(
+		UiCamera::<T>::get_camera_bundle()
+			.insert(T::default()),
+	);
 }
 
-#[derive(Component)]
-struct StartScreenUi;
-
-#[derive(Component)]
-struct DefaultBtn(ServerConnections);
-
-fn setup_default_ui(mut commands: Commands, ass: ResMut<AssetServer>) {
-	info!("Start screen");
-	commands
-		.spawn(NodeBundle {
-			style: Style {
-				width: Val::Percent(100.),
-				height: Val::Percent(100.),
-				justify_content: JustifyContent::Center,
-				align_items: AlignItems::Center,
-				flex_direction: FlexDirection::Column,
-				..default()
-			},
-			..default()
-		})
-		.insert(StartScreenUi)
-		.with_children(|parent| {
-			let btn = |name: &'static str, btn_type: ServerConnections, parent: &mut ChildBuilder| {
-				parent
-					.spawn(ButtonBundle {
-						style: Style {
-							width: Val::Px(400.),
-							height: Val::Px(50.),
-							justify_content: JustifyContent::Center,
-							align_items: AlignItems::Center,
-							..default()
-						},
-						background_color: Color::BLACK.into(),
-						..default()
-					})
-					.insert(DefaultBtn(btn_type))
-					.with_children(|parent| {
-						parent.spawn(TextBundle::from_section(
-							name,
-							TextStyle {
-								font: ass.load(Font::Medium),
-								font_size: 30.,
-								color: Color::WHITE,
-							},
-						));
-					});
-			};
-			btn("Start (Hosted) Game", ServerConnections::Hosting, parent);
-			btn("Start Private Game", ServerConnections::Local, parent);
-			btn("Join hosted Game", ServerConnections::Client, parent);
-		});
-}
-
-fn handle_default_ui(
-	btns: Query<(&DefaultBtn, &Interaction), Changed<Interaction>>,
-	mut next_screen: ResMut<NextState<StartScreens>>,
-	mut start_game: ResMut<NextState<ServerConnections>>,
+fn update_camera<T: CamType>(
+	windows: Query<&Window>,
+	mut resize_events: EventReader<WindowResized>,
+	mut cam: Query<&mut Transform, With<UiCamera<T>>>,
 ) {
-	for (btn, interaction) in btns.iter() {
-		if interaction == &Interaction::Pressed {
-			match btn.0 {
-				ServerConnections::Local => start_game.0 = Some(ServerConnections::Local),
-				ServerConnections::Client => next_screen.0 = Some(StartScreens::ClientControls),
-				ServerConnections::Hosting => next_screen.0 = Some(StartScreens::HostControls),
-				_ => {}
-			}
-		}
+	for ev in resize_events.iter() {
+		let window = windows.get(ev.window).unwrap();
+		let mut cam = cam.single_mut();
+
+		let width = window.resolution.width();
+		let height = window.resolution.height();
+
+		let cam_translation = T::get_cam_transform(width / 2., height / 2.);
+		// info!("Setting cam translation to {:?}", cam_translation);
+		cam.translation = Vec3::new(cam_translation.x as f32, cam_translation.y as f32, 0.);
 	}
 }
 
-#[derive(Component)]
-struct HostControlsBtn;
-
-fn setup_host_controls_ui(mut commands: Commands, ass: ResMut<AssetServer>) {
-	info!("- Host Controls UI");
-	commands
-		.spawn(NodeBundle {
-			style: Style {
-				width: Val::Percent(100.),
-				height: Val::Percent(100.),
-				justify_content: JustifyContent::Center,
-				align_items: AlignItems::Center,
-				flex_direction: FlexDirection::Column,
-				..default()
-			},
-			..default()
-		})
-		.insert(StartScreenUi)
-		.with_children(|parent| {
-			parent
-				.spawn(ButtonBundle {
-					style: Style {
-						width: Val::Px(400.),
-						height: Val::Px(50.),
-						justify_content: JustifyContent::Center,
-						align_items: AlignItems::Center,
-						..default()
-					},
-					background_color: Color::BLACK.into(),
-					..default()
-				})
-				.insert(HostControlsBtn)
-				.with_children(|parent| {
-					parent.spawn(TextBundle::from_section(
-						"Host Public Game",
-						TextStyle {
-							font: ass.load(Font::Medium),
-							font_size: 30.,
-							color: Color::WHITE,
-						},
-					));
-				});
-		});
-}
-
-fn handle_host_controls_ui(
-	btn: Query<&Interaction, (With<HostControlsBtn>, Changed<Interaction>)>,
-	mut start_game: ResMut<NextState<ServerConnections>>,
-	mut in_game: ResMut<NextState<ScreenState>>,
-) {
-	if let Some(Interaction::Pressed) = btn.iter().next() {
-		start_game.0 = Some(ServerConnections::Hosting);
-		in_game.0 = Some(ScreenState::InGame);
-	}
-}
-
-#[derive(Component)]
-struct ClientControlsBtn;
-
-fn setup_client_controls_ui(mut commands: Commands, ass: ResMut<AssetServer>) {
-	info!("- Client Controls UI");
-	commands
-		.spawn(NodeBundle {
-			style: Style {
-				width: Val::Percent(100.),
-				height: Val::Percent(100.),
-				justify_content: JustifyContent::Center,
-				align_items: AlignItems::Center,
-				flex_direction: FlexDirection::Column,
-				..default()
-			},
-			..default()
-		})
-		.insert(StartScreenUi)
-		.with_children(|parent| {
-			parent
-				.spawn(ButtonBundle {
-					style: Style {
-						width: Val::Px(400.),
-						height: Val::Px(50.),
-						justify_content: JustifyContent::Center,
-						align_items: AlignItems::Center,
-						..default()
-					},
-					background_color: Color::BLACK.into(),
-					..default()
-				})
-				.insert(ClientControlsBtn)
-				.with_children(|parent| {
-					parent.spawn(TextBundle::from_section(
-						"Join Machine-Local Game",
-						TextStyle {
-							font: ass.load(Font::Medium),
-							font_size: 30.,
-							color: Color::WHITE,
-						},
-					));
-				});
-		});
-}
-
-fn handle_client_controls_ui(
-	btn: Query<&Interaction, (With<ClientControlsBtn>, Changed<Interaction>)>,
-	mut start_game: ResMut<NextState<ServerConnections>>,
-	mut in_game: ResMut<NextState<ScreenState>>,
-) {
-	if let Some(Interaction::Pressed) = btn.iter().next() {
-		start_game.0 = Some(ServerConnections::Client);
-		in_game.0 = Some(ScreenState::InGame);
-	}
-}
-
-fn cleanup_ui(mut commands: Commands, ui: Query<Entity, With<StartScreenUi>>) {
-	commands.entity(ui.single()).despawn_recursive();
-}
+fn setup_top_left_cam() {}
+fn setup_top_right_cam() {}
+fn setup_bottom_right_cam() {}

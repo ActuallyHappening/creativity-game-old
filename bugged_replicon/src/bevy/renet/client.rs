@@ -44,6 +44,7 @@ impl Plugin for ClientPlugin {
 fn add_client(
 	mut commands: Commands,
 	network_channels: Res<NetworkChannels>,
+	config: Res<SavedHostingInfo>,
 
 	mut setup_already: Local<bool>,
 ) {
@@ -65,8 +66,8 @@ fn add_client(
 
 	let current_time = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();
 	let client_id = current_time.as_millis() as u64;
-	let server_addr = SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 5069);
-	let socket = UdpSocket::bind((Ipv4Addr::LOCALHOST, 0)).expect("Couldn't bind to socket");
+	let server_addr = SocketAddr::new(config.join_ip, config.join_port);
+	let socket = UdpSocket::bind((config.join_ip, 0)).expect("Couldn't bind to socket");
 	let authentication = transport::ClientAuthentication::Unsecure {
 		client_id,
 		protocol_id: PROTOCOL_ID,

@@ -26,7 +26,7 @@ fn main() {
 				})
 				.set(LogPlugin {
 					level: bevy::log::Level::WARN,
-					filter: "creativity_game=trace,bevy_ecs=info,bevy_replicon=debug".into(),
+					filter: "creativity_game_bugged=trace,bevy_ecs=info,bevy_replicon=debug".into(),
 				})
 				.build(),
 		)
@@ -152,7 +152,7 @@ mod test_plugin {
 				// 			TextBundle::from_section(
 				// 				"Join",
 				// 				TextStyle {
-				// 					font: ass.load(creativity_game::utils::Font::Medium),
+				// 					font: ass.load(creativity_game_bugged::utils::Font::Medium),
 				// 					font_size: 20.,
 				// 					color: Color::WHITE,
 				// 				},
@@ -237,9 +237,9 @@ mod test_plugin {
 					// commands.spawn(PlayerBundle::new(SERVER_ID, Vec2::ZERO, Color::GREEN));
 				}
 				Cli::Server { .. } => {
-					// *creativity_game::ADD_SERVER.lock().unwrap() = true;
+					// *creativity_game_bugged::ADD_SERVER.lock().unwrap() = true;
 					creativity_game_bugged::add_server(commands, network_channels);
-					// creativity_game::add_server(&mut commands, network_channels);
+					// creativity_game_bugged::add_server(&mut commands, network_channels);
 					// let server_channels_config = network_channels.server_channels();
 					// let client_channels_config = network_channels.client_channels();
 
