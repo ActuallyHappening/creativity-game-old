@@ -7,10 +7,7 @@
 			"path": "src"
 		},
 		{
-			"path": "bevy_replicon"
-		},
-		{
-			"path": "bugged_replicon"
+			"path": "./bugged_replicon"
 		}
 	],
 	"settings": {

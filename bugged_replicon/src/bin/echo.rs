@@ -1,6 +1,7 @@
 use std::{
 	collections::HashMap,
 	net::{SocketAddr, UdpSocket},
+	num::NonZeroU8,
 	sync::mpsc::{self, Receiver, TryRecvError},
 	thread,
 	time::{Duration, Instant, SystemTime},
@@ -21,9 +22,11 @@ struct Username(String);
 /// The BIG struct that when serialized is big
 type BIGStruct = creativity_game_bugged::SpawnChildStructure;
 
-fn generate_random_big_struct() -> BIGStruct {
+fn generate_big_struct() -> BIGStruct {
 	BIGStruct {
-		structure: creativity_game_bugged::WorldObjectType::random_large_structure(),
+		structure: creativity_game_bugged::WorldObjectType::Asteroid {
+			approx_radius: NonZeroU8::new(6).unwrap(),
+		}.generate_structure(),
 	}
 }
 
@@ -183,7 +186,7 @@ fn client(server_addr: SocketAddr, username: Username) {
 				Ok(text) => {
 					println!("Sending typed message to server ...");
 					client.send_message(DefaultChannel::Unreliable, text.as_bytes().to_vec());
-					let big_struct = generate_random_big_struct();
+					let big_struct = generate_big_struct();
 					let data = bincode::serialize(&big_struct).unwrap();
 					println!("Sending BIG struct to server ... Len: {}", data.len());
 					client.send_message(DefaultChannel::Unreliable, data)
