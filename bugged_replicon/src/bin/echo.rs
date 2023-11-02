@@ -120,7 +120,7 @@ fn server(public_addr: SocketAddr) {
 		}
 
 		for client_id in server.clients_id() {
-			while let Some(message) = server.receive_message(client_id, DefaultChannel::ReliableOrdered) {
+			while let Some(message) = server.receive_message(client_id, DefaultChannel::Unreliable) {
 				match String::from_utf8(message.clone().into()) {
 					Ok(text) => {
 						let username = usernames.get(&client_id).unwrap();
@@ -142,7 +142,7 @@ fn server(public_addr: SocketAddr) {
 		}
 
 		for text in received_messages.iter() {
-			server.broadcast_message(DefaultChannel::ReliableOrdered, text.as_bytes().to_vec());
+			server.broadcast_message(DefaultChannel::Unreliable, text.as_bytes().to_vec());
 		}
 
 		transport.send_packets(&mut server);
@@ -182,17 +182,17 @@ fn client(server_addr: SocketAddr, username: Username) {
 			match stdin_channel.try_recv() {
 				Ok(text) => {
 					println!("Sending typed message to server ...");
-					client.send_message(DefaultChannel::ReliableOrdered, text.as_bytes().to_vec());
-					println!("Sending BIG struct to server ...");
+					client.send_message(DefaultChannel::Unreliable, text.as_bytes().to_vec());
 					let big_struct = generate_random_big_struct();
 					let data = bincode::serialize(&big_struct).unwrap();
-					client.send_message(DefaultChannel::ReliableOrdered, data)
+					println!("Sending BIG struct to server ... Len: {}", data.len());
+					client.send_message(DefaultChannel::Unreliable, data)
 				}
 				Err(TryRecvError::Empty) => {}
 				Err(TryRecvError::Disconnected) => panic!("Channel disconnected"),
 			}
 
-			while let Some(text) = client.receive_message(DefaultChannel::ReliableOrdered) {
+			while let Some(text) = client.receive_message(DefaultChannel::Unreliable) {
 				let text = String::from_utf8(text.into()).unwrap();
 				println!("{}", text);
 			}
