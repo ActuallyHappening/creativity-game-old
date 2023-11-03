@@ -59,41 +59,41 @@ fn add_server(
 
 	mut setup_already: Local<bool>,
 ) {
-	crate::add_server(commands, network_channels);
+	// info!(
+	// 	"Setting up server resources: server: {:?}; client: {:?}",
+	// 	network_channels.get_server_configs(),
+	// 	network_channels.get_client_configs()
+	// );
 
-	// let server_channels_config = network_channels.server_channels();
-	// let client_channels_config = network_channels.client_channels();
+	use std::net::*;
+	use std::time::*;
 
-	// let server = RenetServer::new(renet::ConnectionConfig {
-	// 	server_channels_config,
-	// 	client_channels_config,
-	// 	..Default::default()
-	// });
+	let server_channels_config = network_channels.get_server_configs();
+	let client_channels_config = network_channels.get_client_configs();
 
-	// let current_time = SystemTime::now()
-	// 	.duration_since(SystemTime::UNIX_EPOCH)
-	// 	.unwrap();
-	// // let public_addr = SocketAddr::new(config.host_ip, config.host_port);
-	// let public_addr = SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 5069);
+	let server = RenetServer::new(ConnectionConfig {
+		server_channels_config,
+		client_channels_config,
+		..Default::default()
+	});
 
-	// let socket = UdpSocket::bind(public_addr).expect("Couldn't bind to socket");
-	// let server_config = renet::transport::ServerConfig {
-	// 	max_clients: 10,
-	// 	protocol_id: PROTOCOL_ID,
-	// 	public_addr,
-	// 	authentication: transport::ServerAuthentication::Unsecure,
-	// };
-	// let transport = transport::NetcodeServerTransport::new(current_time, server_config, socket)
-	// 	.expect("Failed to start server");
+	let current_time = SystemTime::now()
+		.duration_since(SystemTime::UNIX_EPOCH)
+		.unwrap();
+	let public_addr = SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 5069);
 
-	// commands.insert_resource(server);
-	// commands.insert_resource(transport);
+	let socket = UdpSocket::bind(public_addr).expect("Couldn't bind to UdpSocket");
 
-	// info!("Acting as a server");
+	let server_config = ServerConfig {
+		max_clients: 10,
+		protocol_id: 0,
+		public_addr,
+		authentication: ServerAuthentication::Unsecure,
+	};
+	let transport = NetcodeServerTransport::new(current_time, server_config, socket).unwrap();
 
-	// commands.spawn((DummyComponent, Replication, Name::new("TEST")));
-
-	// // commands.spawn(PlayerBundle::new(SERVER_ID, Vec2::ZERO, Color::GREEN));
+	commands.insert_resource(server);
+	commands.insert_resource(transport);
 }
 
 fn disconnect_server() {}
@@ -104,19 +104,7 @@ fn server_event_system(mut server_event: EventReader<ServerEvent>, mut commands:
 		match event {
 			ServerEvent::ClientConnected { client_id } => {
 				info!("player: {client_id} Connected");
-				// Generate pseudo random color from client id.
-				// let r = ((client_id % 23) as f32) / 23.0;
-				// let g = ((client_id % 27) as f32) / 27.0;
-				// let b = ((client_id % 39) as f32) / 39.0;
-				// commands.spawn(PlayerBundle::new(
-				// 	*client_id,
-				// 	Vec2::ZERO,
-				// 	Color::rgb(r, g, b),
-				// ));
-				// spawn_player.send(SpawnPlayer {
-				// 	pos: Transform::from_xyz(0., 0., 0.),
-				// 	id: *client_id,
-				// });
+				
 				commands.spawn(AuthorityPlayerBundle::new(
 					ControllablePlayer {
 						network_id: *client_id,

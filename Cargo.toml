@@ -6,6 +6,7 @@ edition = "2021"
 publish = false
 
 [workspace]
+members = ["xtask"]
 # members = ["xtask", "bevy_replicon", "bugged_replicon"]
 # exclude = [
 # 	"surrealdb",
